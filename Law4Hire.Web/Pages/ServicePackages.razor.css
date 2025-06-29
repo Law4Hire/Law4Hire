@@ -1,0 +1,95 @@
+﻿.package-card {
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border: 2px solid transparent;
+    border-radius: 15px;
+    position: relative;
+    overflow: hidden;
+}
+
+    .package-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        border-color: #0d6efd;
+    }
+
+    .package-card.featured {
+        border-color: #198754;
+        box-shadow: 0 5px 15px rgba(25,135,84,0.2);
+    }
+
+        .package-card.featured:hover {
+            border-color: #198754;
+            box-shadow: 0 15px 30px rgba(25,135,84,0.3);
+        }
+
+.card-ribbon {
+    position: absolute;
+    top: 15px;
+    right: -35px;
+    width: 120px;
+    height: 25px;
+    background: linear-gradient(45deg, #ffc107, #ffb700);
+    z-index: 10;
+    transform: rotate(45deg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.ribbon-text {
+    font-size: 0.75rem;
+    font-weight: bold;
+    color: #000;
+    text-transform: uppercase;
+}
+
+.price-amount {
+    color: #198754;
+    font-weight: bold;
+}
+
+.package-features li {
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+}
+
+.package-features .fas {
+    width: 16px;
+    margin-right: 8px;
+}
+
+.card-header {
+    border-radius: 15px 15px 0 0 !important;
+}
+
+.btn {
+    border-radius: 10px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+    .btn:hover {
+        transform: translateY(-2px);
+    }
+
+.package-icon {
+    margin: 1rem 0;
+}
+
+@media (max-width: 768px) {
+    .package-card {
+        margin-bottom: 2rem;
+    }
+
+    .card-ribbon {
+        top: 10px;
+        right: -30px;
+        width: 100px;
+        height: 20px;
+    }
+
+    .ribbon-text {
+        font-size: 0.65rem;
+    }
+}

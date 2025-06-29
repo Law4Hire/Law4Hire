@@ -1,0 +1,277 @@
+@page "/packages"
+@using Law4Hire.Core.DTOs
+@using Law4Hire.Core.Enums
+@using Microsoft.AspNetCore.Components.Web
+@inject HttpClient Http
+@inject ILogger<ServicePackages> Logger
+
+<PageTitle>Service Packages - Law4Hire</PageTitle>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-12 text-center mb-5">
+            <h1 class="display-4 fw-bold text-primary">Choose Your Service Package</h1>
+            <p class="lead text-muted">Select the level of legal assistance that best fits your needs</p>
+        </div>
+    </div>
+    
+    @if (isLoading)
+    {
+        <div class="row justify-content-center">
+            <div class="col-md-6 text-center">
+                <div class="spinner-border text-primary" style="width: 3rem; height: 3rem;" role="status">
+                    <span class="visually-hidden">Loading packages...</span>
+                </div>
+                <p class="mt-3 text-muted">Loading service packages...</p>
+            </div>
+        </div>
+    }
+    else if (error != null)
+    {
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="alert alert-danger" role="alert">
+                    <h4 class="alert-heading">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Error Loading Packages
+                    </h4>
+                    <p>@error</p>
+                    <hr>
+                    <button class="btn btn-outline-danger" @onclick="LoadPackages">
+                        <i class="fas fa-redo"></i> Try Again
+                    </button>
+                </div>
+            </div>
+        </div>
+    }
+    else if (packages != null && packages.Any())
+    {
+        <div class="row g-4">
+            @foreach (var package in packages.OrderBy(p => p.Type))
+            {
+                <div class="col-lg-6 col-xl-3">
+                    <div class="card h-100 package-card @(package.Type == PackageType.FullRepresentationGuaranteed ? "featured" : "")"
+                         @onclick="() => SelectPackage(package)">
+                        
+                        @if (package.Type == PackageType.FullRepresentationGuaranteed)
+                        {
+                            <div class="card-ribbon">
+                                <span class="ribbon-text">Most Popular</span>
+                            </div>
+                        }
+                        
+                        <div class="card-header text-center @(package.Type == PackageType.FullRepresentationGuaranteed ? "bg-success text-white" : "bg-light")">
+                            <h5 class="card-title mb-2">@package.Name</h5>
+                            @if (package.HasMoneyBackGuarantee)
+                            {
+                                <span class="badge bg-warning text-dark">
+                                    <i class="fas fa-shield-alt"></i> Money-Back Guarantee
+                                </span>
+                            }
+                        </div>
+                        
+                        <div class="card-body d-flex flex-column">
+                            <div class="package-icon text-center mb-3">
+                                @switch (package.Type)
+                                {
+                                    case PackageType.SelfRepresentationWithParalegal:
+                                        <i class="fas fa-user-edit text-info" style="font-size: 3rem;"></i>
+                                        break;
+                                    case PackageType.HybridWithAttorneyOverview:
+                                        <i class="fas fa-user-friends text-warning" style="font-size: 3rem;"></i>
+                                        break;
+                                    case PackageType.FullRepresentationStandard:
+                                        <i class="fas fa-briefcase text-primary" style="font-size: 3rem;"></i>
+                                        break;
+                                    case PackageType.FullRepresentationGuaranteed:
+                                        <i class="fas fa-crown text-success" style="font-size: 3rem;"></i>
+                                        break;
+                                }
+                            </div>
+                            
+                            <p class="card-text text-muted">@package.Description</p>
+                            
+                            <div class="package-features mb-3">
+                                @switch (package.Type)
+                                {
+                                    case PackageType.SelfRepresentationWithParalegal:
+                                        <ul class="list-unstyled">
+                                            <li><i class="fas fa-check text-success"></i> Document preparation guidance</li>
+                                            <li><i class="fas fa-check text-success"></i> Paralegal review</li>
+                                            <li><i class="fas fa-check text-success"></i> Basic support</li>
+                                        </ul>
+                                        break;
+                                    case PackageType.HybridWithAttorneyOverview:
+                                        <ul class="list-unstyled">
+                                            <li><i class="fas fa-check text-success"></i> Attorney oversight</li>
+                                            <li><i class="fas fa-check text-success"></i> Document review</li>
+                                            <li><i class="fas fa-check text-success"></i> Legal guidance</li>
+                                            <li><i class="fas fa-times text-muted"></i> No G-28 filing</li>
+                                        </ul>
+                                        break;
+                                    case PackageType.FullRepresentationStandard:
+                                        <ul class="list-unstyled">
+                                            <li><i class="fas fa-check text-success"></i> Full attorney representation</li>
+                                            <li><i class="fas fa-check text-success"></i> G-28 filing included</li>
+                                            <li><i class="fas fa-check text-success"></i> Case management</li>
+                                            <li><i class="fas fa-check text-success"></i> Court appearances</li>
+                                        </ul>
+                                        break;
+                                    case PackageType.FullRepresentationGuaranteed:
+                                        <ul class="list-unstyled">
+                                            <li><i class="fas fa-check text-success"></i> Full attorney representation</li>
+                                            <li><i class="fas fa-check text-success"></i> G-28 filing included</li>
+                                            <li><i class="fas fa-check text-success"></i> Money-back guarantee</li>
+                                            <li><i class="fas fa-check text-success"></i> Priority support</li>
+                                        </ul>
+                                        break;
+                                }
+                            </div>
+                            
+                            <div class="mt-auto">
+                                <div class="price-section text-center mb-3">
+                                    <h3 class="price-amount mb-1">$@package.BasePrice.ToString("N0")</h3>
+                                    <small class="text-muted">Starting price</small>
+                                </div>
+                                
+                                <button class="btn @(package.Type == PackageType.FullRepresentationGuaranteed ? "btn-success" : "btn-primary") w-100 btn-lg"
+                                        disabled="@isSelectingPackage">
+                                    @if (isSelectingPackage && selectedPackageId == package.Id)
+                                    {
+                                        <span class="spinner-border spinner-border-sm me-2"></span>
+                                        <span>Processing...</span>
+                                    }
+                                    else
+                                    {
+                                        <i class="fas fa-arrow-right me-2"></i>
+                                        <span>Select Package</span>
+                                    }
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+        
+        <div class="row mt-5">
+            <div class="col-12">
+                <div class="card bg-light">
+                    <div class="card-body">
+                        <h4 class="card-title text-center mb-4">
+                            <i class="fas fa-info-circle text-primary"></i>
+                            What's Included
+                        </h4>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6><i class="fas fa-document-alt text-primary"></i> Document Services</h6>
+                                <ul class="list-unstyled">
+                                    <li>• Form identification and preparation</li>
+                                    <li>• Document review and verification</li>
+                                    <li>• Submission assistance</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h6><i class="fas fa-headset text-primary"></i> Support Services</h6>
+                                <ul class="list-unstyled">
+                                    <li>• Multi-language support</li>
+                                    <li>• Case status updates</li>
+                                    <li>• Expert legal guidance</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="row justify-content-center">
+            <div class="col-md-6 text-center">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i>
+                    No service packages are currently available. Please check back later.
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private IEnumerable<ServicePackageDto>? packages;
+    private bool isLoading = true;
+    private bool isSelectingPackage = false;
+    private int? selectedPackageId;
+    private string? error;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadPackages();
+    }
+
+    private async Task LoadPackages()
+    {
+        isLoading = true;
+        error = null;
+        
+        try
+        {
+            packages = await Http.GetFromJsonAsync<IEnumerable<ServicePackageDto>>("api/servicepackages");
+            Logger.LogInformation("Successfully loaded {Count} service packages", packages?.Count() ?? 0);
+        }
+        catch (HttpRequestException httpEx)
+        {
+            error = "Unable to connect to the server. Please check your internet connection and try again.";
+            Logger.LogError(httpEx, "HTTP error loading service packages");
+        }
+        catch (Exception ex)
+        {
+            error = "An unexpected error occurred while loading packages. Please try again later.";
+            Logger.LogError(ex, "Error loading service packages");
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task SelectPackage(ServicePackageDto package)
+    {
+        if (isSelectingPackage) return;
+        
+        isSelectingPackage = true;
+        selectedPackageId = package.Id;
+        
+        try
+        {
+            Logger.LogInformation("User selected package: {PackageName} (ID: {PackageId})", package.Name, package.Id);
+            
+            // TODO: Navigate to checkout/payment or intake process
+            // TODO: Save selected package to user session/state
+            
+            await Task.Delay(1000); // Simulate processing
+            
+            // For now, just log the selection
+            // In a real implementation, you would:
+            // 1. Save the selection to user's session
+            // 2. Navigate to payment/checkout
+            // 3. Or navigate to intake if not completed
+            
+            Logger.LogInformation("Package selection completed for: {PackageName}", package.Name);
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error selecting package {PackageId}", package.Id);
+            // TODO: Show error message to user
+        }
+        finally
+        {
+            isSelectingPackage = false;
+            selectedPackageId = null;
+            StateHasChanged();
+        }
+    }
+}
+

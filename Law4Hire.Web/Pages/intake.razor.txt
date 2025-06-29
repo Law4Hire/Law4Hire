@@ -1,0 +1,471 @@
+@page "/intake"
+@using Law4Hire.Core.DTOs
+@using Law4Hire.Core.Enums
+@using Microsoft.AspNetCore.SignalR.Client
+@using Microsoft.JSInterop
+@inject HttpClient Http
+@inject IJSRuntime JSRuntime
+@inject ILogger<Intake> Logger
+@implements IAsyncDisposable
+
+<PageTitle>Legal Intake - Law4Hire</PageTitle>
+
+<div class="container-fluid mt-4">
+    <div class="row justify-content-center">
+        <div class="col-xl-8">
+            <div class="card shadow-lg">
+                <div class="card-header bg-primary text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h3 class="card-title mb-0">
+                            <i class="fas fa-balance-scale me-2"></i>
+                            Legal Document Intake
+                        </h3>
+                        @if (intakeStarted)
+                        {
+                            <span class="badge bg-success">Session Active</span>
+                        }
+                    </div>
+                </div>
+                <div class="card-body">
+                    @if (!intakeStarted)
+                    {
+                        <div class="text-center py-4">
+                            <div class="mb-4">
+                                <i class="fas fa-handshake text-primary" style="font-size: 4rem;"></i>
+                            </div>
+                            <h4 class="mb-3">Welcome to Law4Hire</h4>
+                            <p class="lead mb-4 text-muted">
+                                We'll guide you through a personalized intake process to determine
+                                what legal documents you need and gather the necessary information.
+                            </p>
+                            
+                            <div class="row justify-content-center">
+                                <div class="col-md-6">
+                                    <div class="mb-4">
+                                        <label for="language" class="form-label fw-bold">
+                                            <i class="fas fa-globe me-2"></i>Preferred Language:
+                                        </label>
+                                        <select @bind="selectedLanguage" class="form-select form-select-lg" id="language">
+                                            <option value="en-US">🇺🇸 English</option>
+                                            <option value="es-ES">🇪🇸 Español</option>
+                                            <option value="fr-FR">🇫🇷 Français</option>
+                                            <option value="de-DE">🇩🇪 Deutsch</option>
+                                            <option value="zh-CN">🇨🇳 中文</option>
+                                            <option value="pt-BR">🇧🇷 Português</option>
+                                            <option value="it-IT">🇮🇹 Italiano</option>
+                                            <option value="ru-RU">🇷🇺 Русский</option>
+                                        </select>
+                                    </div>
+                                    
+                                    <button class="btn btn-primary btn-lg w-100 py-3"
+                                            @onclick="StartIntake"
+                                            disabled="@isLoading">
+                                        @if (isLoading)
+                                        {
+                                            <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                                            <span>Starting...</span>
+                                        }
+                                        else
+                                        {
+                                            <i class="fas fa-play me-2"></i>
+                                            <span>Start Intake Process</span>
+                                        }
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="row">
+                            <div class="col-12">
+                                <div id="chat-container"
+                                     class="border rounded p-3 mb-3 bg-light"
+                                     style="height: 500px; overflow-y: auto;">
+                                    @foreach (var message in chatMessages)
+                                    {
+                                        <div class="mb-3 @(message.IsBot ? "d-flex" : "d-flex justify-content-end")">
+                                            <div class="@(message.IsBot ? "me-auto" : "ms-auto")" style="max-width: 75%;">
+                                                <div class="@(message.IsBot ? "alert alert-secondary" : "alert alert-primary") mb-1">
+                                                    <div class="d-flex align-items-center mb-2">
+                                                        @if (message.IsBot)
+                                                        {
+                                                            <i class="fas fa-robot me-2"></i>
+                                                            <strong>Legal Assistant</strong>
+                                                        }
+                                                        else
+                                                        {
+                                                            <i class="fas fa-user me-2"></i>
+                                                            <strong>You</strong>
+                                                        }
+                                                        <small class="text-muted ms-auto">
+                                                            @message.Timestamp.ToString("HH:mm")
+                                                        </small>
+                                                    </div>
+                                                    <div>@message.Text</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                    
+                                    @if (isTyping)
+                                    {
+                                        <div class="mb-3 d-flex">
+                                            <div class="me-auto" style="max-width: 75%;">
+                                                <div class="alert alert-secondary mb-1">
+                                                    <div class="d-flex align-items-center">
+                                                        <i class="fas fa-robot me-2"></i>
+                                                        <strong>Legal Assistant</strong>
+                                                        <div class="typing-indicator ms-3">
+                                                            <span></span>
+                                                            <span></span>
+                                                            <span></span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    }
+                                </div>
+                                
+                                <div class="input-group">
+                                    <span class="input-group-text">
+                                        <i class="fas fa-comment"></i>
+                                    </span>
+                                    <input @bind="currentResponse"
+                                           @onkeypress="@(async (e) => { if (e.Key == "Enter") await SendResponse(); })"
+                                           class="form-control"
+                                           placeholder="Type your response here..."
+                                           disabled="@(!isConnected || isLoading)" />
+                                    <button class="btn btn-primary"
+                                            @onclick="SendResponse"
+                                            disabled="@(!isConnected || isLoading || string.IsNullOrWhiteSpace(currentResponse))">
+                                        @if (isLoading)
+                                        {
+                                            <span class="spinner-border spinner-border-sm"></span>
+                                        }
+                                        else
+                                        {
+                                            <i class="fas fa-paper-plane"></i>
+                                        }
+                                    </button>
+                                </div>
+                                
+                                <div class="mt-2">
+                                    <small class="@(isConnected ? "text-success" : "text-danger")">
+                                        <i class="fas fa-@(isConnected ? "wifi" : "exclamation-triangle")"></i>
+                                        @(isConnected ? "Connected" : "Connection lost - Reconnecting...")
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private bool intakeStarted = false;
+    private bool isLoading = false;
+    private bool isTyping = false;
+    private bool isConnected = false;
+    private string selectedLanguage = "en-US";
+    private string currentResponse = "";
+    private List<ChatMessage> chatMessages = new();
+    private Guid? currentSessionId;
+    private HubConnection? hubConnection;
+
+    private class ChatMessage
+    {
+        public string Text { get; set; } = "";
+        public bool IsBot { get; set; }
+        public DateTime Timestamp { get; set; }
+        public string? QuestionType { get; set; }
+        public int? QuestionId { get; set; }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            await InitializeSignalRConnection();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Failed to initialize SignalR connection");
+        }
+    }
+
+    private async Task InitializeSignalRConnection()
+    {
+        hubConnection = new HubConnectionBuilder()
+            .WithUrl("https://localhost:5001/hubs/intake") // TODO: Use configuration
+            .WithAutomaticReconnect()
+            .Build();
+
+        hubConnection.On<string, string, string, DateTime>("ReceiveMessage", (userId, userName, message, timestamp) =>
+        {
+            InvokeAsync(() =>
+            {
+                chatMessages.Add(new ChatMessage
+                {
+                    Text = message,
+                    IsBot = false,
+                    Timestamp = timestamp
+                });
+                StateHasChanged();
+                ScrollToBottom();
+            });
+        });
+
+        hubConnection.On<string, string, int?, DateTime>("ReceiveBotQuestion", (question, questionType, questionId, timestamp) =>
+        {
+            InvokeAsync(() =>
+            {
+                isTyping = false;
+                chatMessages.Add(new ChatMessage
+                {
+                    Text = question,
+                    IsBot = true,
+                    Timestamp = timestamp,
+                    QuestionType = questionType,
+                    QuestionId = questionId
+                });
+                StateHasChanged();
+                ScrollToBottom();
+            });
+        });
+
+        hubConnection.On<string, DateTime>("UserJoined", (userId, timestamp) =>
+        {
+            InvokeAsync(() =>
+            {
+                Logger.LogInformation("User {UserId} joined the session", userId);
+                StateHasChanged();
+            });
+        });
+
+        hubConnection.On<int, string, DateTime>("ResponseSubmitted", (questionId, response, timestamp) =>
+        {
+            InvokeAsync(() =>
+            {
+                isTyping = true;
+                StateHasChanged();
+                // Simulate bot processing time
+                Task.Delay(2000).ContinueWith(_ => GetNextQuestion());
+            });
+        });
+
+        hubConnection.Reconnecting += (error) =>
+        {
+            InvokeAsync(() =>
+            {
+                isConnected = false;
+                StateHasChanged();
+            });
+            return Task.CompletedTask;
+        };
+
+        hubConnection.Reconnected += (connectionId) =>
+        {
+            InvokeAsync(() =>
+            {
+                isConnected = true;
+                StateHasChanged();
+            });
+            return Task.CompletedTask;
+        };
+
+        hubConnection.Closed += (error) =>
+        {
+            InvokeAsync(() =>
+            {
+                isConnected = false;
+                StateHasChanged();
+            });
+            return Task.CompletedTask;
+        };
+
+        await hubConnection.StartAsync();
+        isConnected = hubConnection.State == HubConnectionState.Connected;
+    }
+
+    private async Task StartIntake()
+    {
+        isLoading = true;
+        try
+        {
+            // TODO: Create user if not exists
+            var userId = Guid.NewGuid(); // Placeholder
+
+            // Create intake session
+            var createSessionDto = new CreateIntakeSessionDto(userId, selectedLanguage);
+            var response = await Http.PostAsJsonAsync("api/intake/sessions", createSessionDto);
+            
+            if (response.IsSuccessStatusCode)
+            {
+                var session = await response.Content.ReadFromJsonAsync<IntakeSessionDto>();
+                currentSessionId = session?.Id;
+
+                intakeStarted = true;
+
+                // Join SignalR group
+                if (hubConnection?.State == HubConnectionState.Connected && currentSessionId.HasValue)
+                {
+                    await hubConnection.SendAsync("JoinIntakeSession", currentSessionId.Value.ToString());
+                }
+
+                // Add welcome message
+                chatMessages.Add(new ChatMessage
+                {
+                    Text = GetLocalizedWelcomeMessage(),
+                    IsBot = true,
+                    Timestamp = DateTime.Now
+                });
+
+                // Start with first question
+                await Task.Delay(1000);
+                await GetNextQuestion();
+            }
+            else
+            {
+                Logger.LogError("Failed to create intake session: {StatusCode}", response.StatusCode);
+                // TODO: Show error message
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error starting intake session");
+            // TODO: Show error message
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
+            await ScrollToBottom();
+        }
+    }
+
+    private async Task SendResponse()
+    {
+        if (string.IsNullOrWhiteSpace(currentResponse) || !isConnected) return;
+
+        var response = currentResponse.Trim();
+        currentResponse = "";
+
+        try
+        {
+            chatMessages.Add(new ChatMessage
+            {
+                Text = response,
+                IsBot = false,
+                Timestamp = DateTime.Now
+            });
+
+            if (hubConnection?.State == HubConnectionState.Connected && currentSessionId.HasValue)
+            {
+                await hubConnection.SendAsync("SendMessage", currentSessionId.Value.ToString(), response);
+                
+                // Submit response if we have a current question
+                var lastBotMessage = chatMessages.LastOrDefault(m => m.IsBot && m.QuestionId.HasValue);
+                if (lastBotMessage?.QuestionId.HasValue == true)
+                {
+                    await hubConnection.SendAsync("SubmitResponse", 
+                        currentSessionId.Value.ToString(), 
+                        lastBotMessage.QuestionId.Value, 
+                        response);
+                }
+            }
+
+            StateHasChanged();
+            await ScrollToBottom();
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error sending response");
+        }
+    }
+
+    private async Task GetNextQuestion()
+    {
+        try
+        {
+            if (!currentSessionId.HasValue) return;
+
+            // TODO: Call API to get next question based on responses
+            await Task.Delay(1500); // Simulate processing
+
+            var sampleQuestions = new[]
+            {
+                "What is your full legal name?",
+                "What is your date of birth?",
+                "In which country were you born?",
+                "What is your current immigration status in the United States?",
+                "Do you have any immediate family members who are U.S. citizens or permanent residents?"
+            };
+
+            var questionIndex = chatMessages.Count(m => m.IsBot && !string.IsNullOrEmpty(m.QuestionType)) % sampleQuestions.Length;
+            var question = sampleQuestions[questionIndex];
+
+            if (hubConnection?.State == HubConnectionState.Connected)
+            {
+                await hubConnection.SendAsync("SendBotResponse", 
+                    currentSessionId.Value.ToString(), 
+                    question, 
+                    "text", 
+                    questionIndex + 1);
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error getting next question");
+        }
+    }
+
+    private string GetLocalizedWelcomeMessage()
+    {
+        return selectedLanguage switch
+        {
+            "es-ES" => "¡Hola! Soy su asistente legal. Le ayudaré a determinar qué documentos legales necesita. Comencemos con información básica.",
+            "fr-FR" => "Bonjour! Je suis votre assistant juridique. Je vais vous aider à déterminer quels documents juridiques vous avez besoin. Commençons par des informations de base.",
+            "de-DE" => "Hallo! Ich bin Ihr Rechtsassistent. Ich helfe Ihnen dabei, herauszufinden, welche Rechtsdokumente Sie benötigen. Beginnen wir mit grundlegenden Informationen.",
+            "zh-CN" => "您好！我是您的法律助手。我将帮助您确定您需要哪些法律文件。让我们从基本信息开始。",
+            "pt-BR" => "Olá! Sou seu assistente jurídico. Vou ajudá-lo a determinar quais documentos legais você precisa. Vamos começar com informações básicas.",
+            "it-IT" => "Ciao! Sono il tuo assistente legale. Ti aiuterò a determinare di quali documenti legali hai bisogno. Iniziamo con informazioni di base.",
+            "ru-RU" => "Привет! Я ваш юридический помощник. Я помогу вам определить, какие юридические документы вам нужны. Начнем с основной информации.",
+            _ => "Hello! I'm your legal assistant. I'll help you determine what legal documents you need and gather the necessary information. Let's start with some basic information."
+        };
+    }
+
+    private async Task ScrollToBottom()
+    {
+        try
+        {
+            await JSRuntime.InvokeVoidAsync("scrollToBottom", "chat-container");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error scrolling to bottom");
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (hubConnection is not null)
+        {
+            await hubConnection.DisposeAsync();
+        }
+    }
+}
+
+
+<script>
+    window.scrollToBottom = (elementId) => {
+        const element = document.getElementById(elementId);
+        if (element) {
+            element.scrollTop = element.scrollHeight;
+        }
+    };
+</script>

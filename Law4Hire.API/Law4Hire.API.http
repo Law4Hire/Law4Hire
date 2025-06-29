@@ -1,0 +1,6 @@
+@Law4Hire.API_HostAddress = http://localhost:5237
+
+GET {{Law4Hire.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

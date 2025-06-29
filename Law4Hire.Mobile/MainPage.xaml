@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Law4Hire.Mobile.MainPage"
+             Title="Law4Hire"
+             BackgroundColor="{DynamicResource PageBackgroundColor}">
+
+    <ScrollView>
+        <Grid Padding="20" RowSpacing="25">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+
+            <Border Grid.Row="0"
+                    BackgroundColor="{DynamicResource Primary}"
+                    StrokeShape="RoundRectangle 15"
+                    Padding="20">
+                <Border.Shadow>
+                    <Shadow Brush="#000" Opacity="0.4" Radius="15" Offset="5,5" />
+                </Border.Shadow>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <Image Grid.Column="0"
+                           Source="law4hire_icon.png"
+                           HeightRequest="60"
+                           WidthRequest="60"
+                           VerticalOptions="Center" />
+
+                    <StackLayout Grid.Column="1"
+                                 Spacing="5"
+                                 VerticalOptions="Center"
+                                 Margin="15,0,0,0">
+                        <Label x:Name="AppTitleLabel"
+                               Text="Law4Hire"
+                               FontSize="28"
+                               FontAttributes="Bold"
+                               TextColor="White" />
+                        <Label x:Name="AppSubtitleLabel"
+                               Text="Your Legal Document Partner"
+                               FontSize="14"
+                               TextColor="White"
+                               Opacity="0.9" />
+                    </StackLayout>
+                </Grid>
+            </Border>
+
+            <Border Grid.Row="1"
+                    BackgroundColor="{DynamicResource CardBackgroundColor}"
+                    StrokeShape="RoundRectangle 10"
+                    Padding="20">
+                <Border.Shadow>
+                    <Shadow Brush="#000" Opacity="0.2" Radius="10" Offset="3,3" />
+                </Border.Shadow>
+                <StackLayout Spacing="10">
+                    <Label x:Name="WelcomeLabel"
+                           Text="Welcome to Law4Hire"
+                           FontSize="22"
+                           FontAttributes="Bold"
+                           HorizontalOptions="Center"
+                           TextColor="{DynamicResource PrimaryTextColor}" />
+                    <Label x:Name="DescriptionLabel"
+                           Text="Navigate your legal document needs with expert guidance &amp; professional support"
+                           FontSize="16"
+                           HorizontalOptions="Center"
+                           HorizontalTextAlignment="Center"
+                           TextColor="{DynamicResource SecondaryTextColor}" />
+                </StackLayout>
+            </Border>
+
+            <Border Grid.Row="2"
+                    BackgroundColor="{DynamicResource CardBackgroundColor}"
+                    StrokeShape="RoundRectangle 10"
+                    Padding="15">
+                <Border.Shadow>
+                    <Shadow Brush="#000" Opacity="0.2" Radius="10" Offset="3,3" />
+                </Border.Shadow>
+                <StackLayout Spacing="10">
+                    <Label Text="🌍 Select Language / Seleccionar Idioma"
+                           FontSize="16"
+                           FontAttributes="Bold"
+                           HorizontalOptions="Center"
+                           TextColor="{DynamicResource PrimaryTextColor}" />
+                    <Picker x:Name="LanguagePicker"
+                            Title="Choose your language"
+                            FontSize="16"
+                            TextColor="{DynamicResource PrimaryTextColor}"
+                            TitleColor="{DynamicResource SecondaryTextColor}"
+                            SelectedIndexChanged="OnLanguageChanged">
+                        <Picker.ItemsSource>
+                            <x:Array Type="{x:Type x:String}">
+                                <x:String>🇺🇸 English</x:String>
+                                <x:String>🇪🇸 Español</x:String>
+                                <x:String>🇫🇷 Français</x:String>
+                                <x:String>🇩🇪 Deutsch</x:String>
+                                <x:String>🇨🇳 中文</x:String>
+                                <x:String>🇧🇷 Português</x:String>
+                                <x:String>🇮🇹 Italiano</x:String>
+                                <x:String>🇷🇺 Русский</x:String>
+                            </x:Array>
+                        </Picker.ItemsSource>
+                    </Picker>
+                </StackLayout>
+            </Border>
+
+            <StackLayout Grid.Row="3" Spacing="15">
+                <Button x:Name="StartIntakeBtn"
+                        Text="🚀 Start Legal Intake"
+                        FontSize="18"
+                        FontAttributes="Bold"
+                        BackgroundColor="{DynamicResource Primary}"
+                        TextColor="White"
+                        CornerRadius="25"
+                        HeightRequest="60"
+                        Clicked="OnStartIntakeClicked" />
+
+                <Button x:Name="ViewPackagesBtn"
+                        Text="📋 View Service Packages"
+                        FontSize="18"
+                        FontAttributes="Bold"
+                        BackgroundColor="{DynamicResource Secondary}"
+                        TextColor="White"
+                        CornerRadius="25"
+                        HeightRequest="60"
+                        Clicked="OnViewPackagesClicked" />
+
+                <Button x:Name="MyAccountBtn"
+                        Text="👤 My Account"
+                        FontSize="18"
+                        FontAttributes="Bold"
+                        BackgroundColor="{DynamicResource Tertiary}"
+                        TextColor="White"
+                        CornerRadius="25"
+                        HeightRequest="60"
+                        Clicked="OnMyAccountClicked" />
+            </StackLayout>
+
+            <Border Grid.Row="4"
+                    BackgroundColor="{DynamicResource CardBackgroundColor}"
+                    StrokeShape="RoundRectangle 10"
+                    Padding="20">
+                <Border.Shadow>
+                    <Shadow Brush="#000" Opacity="0.2" Radius="10" Offset="3,3" />
+                </Border.Shadow>
+                <StackLayout Spacing="15">
+                    <Label Text="✨ Why Choose Law4Hire?"
+                           FontSize="18"
+                           FontAttributes="Bold"
+                           HorizontalOptions="Center"
+                           TextColor="{DynamicResource PrimaryTextColor}" />
+
+                    <Grid RowSpacing="10">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+
+                        <StackLayout Grid.Row="0" Orientation="Horizontal" Spacing="10">
+                            <Label Text="🛡️" FontSize="20" VerticalOptions="Center" />
+                            <Label Text="Secure &amp; Confidential"
+                                   FontSize="14"
+                                   VerticalOptions="Center"
+                                   TextColor="{DynamicResource SecondaryTextColor}" />
+                        </StackLayout>
+
+                        <StackLayout Grid.Row="1" Orientation="Horizontal" Spacing="10">
+                            <Label Text="⚡" FontSize="20" VerticalOptions="Center" />
+                            <Label Text="Fast &amp; Efficient Process"
+                                   FontSize="14"
+                                   VerticalOptions="Center"
+                                   TextColor="{DynamicResource SecondaryTextColor}" />
+                        </StackLayout>
+
+                        <StackLayout Grid.Row="2" Orientation="Horizontal" Spacing="10">
+                            <Label Text="👨‍⚖️" FontSize="20" VerticalOptions="Center" />
+                            <Label Text="Expert Legal Guidance"
+                                   FontSize="14"
+                                   VerticalOptions="Center"
+                                   TextColor="{DynamicResource SecondaryTextColor}" />
+                        </StackLayout>
+                    </Grid>
+                </StackLayout>
+            </Border>
+
+            <StackLayout Grid.Row="5"
+                         Spacing="5"
+                         Margin="0,20,0,0">
+                <Label Text="© 2024 Law4Hire LLC"
+                       FontSize="12"
+                       HorizontalOptions="Center"
+                       TextColor="{DynamicResource SecondaryTextColor}" />
+                <Label Text="Professional Legal Document Services"
+                       FontSize="12"
+                       HorizontalOptions="Center"
+                       TextColor="{DynamicResource SecondaryTextColor}" />
+            </StackLayout>
+
+        </Grid>
+    </ScrollView>
+
+</ContentPage>

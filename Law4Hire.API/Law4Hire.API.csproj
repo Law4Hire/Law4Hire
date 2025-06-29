@@ -1,0 +1,25 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+		<!-- Project reference to Law4Hire.Core -->
+		<ProjectReference Include="..\Law4Hire.Application\Law4Hire.Application.csproj" />
+		<ProjectReference Include="..\Law4Hire.Core\Law4Hire.Core.csproj" />
+		<ProjectReference Include="..\Law4Hire.Infrastructure\Law4Hire.Infrastructure.csproj" />
+		<ProjectReference Include="..\Law4Hire.Web\Law4Hire.Web.csproj" />
+	</ItemGroup>
+	
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.6" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.6" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.6" />
+    <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" Version="9.0.6" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.1" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,46 @@
+﻿@page "/dashboard"
+
+<PageTitle>Dashboard</PageTitle>
+
+<h1 class="mb-4">Client Dashboard</h1>
+
+<div class="dashboard-grid">
+    <div class="dashboard-card">
+        <div class="card-header">
+            <span class="icon">👤</span>
+            <h3>Personal Information</h3>
+        </div>
+        <div class="card-body">
+            <p><strong>Name:</strong> John Doe</p>
+            <p><strong>Email:</strong> john.doe@example.com</p>
+            <p><strong>Phone:</strong> (555) 123-4567</p>
+            <button class="btn btn-secondary btn-sm mt-2">Edit Information</button>
+        </div>
+    </div>
+
+    <div class="dashboard-card">
+        <div class="card-header">
+            <span class="icon">📝</span>
+            <h3>My Documents</h3>
+        </div>
+        <div class="card-body">
+            <ul>
+                <li>Form I-130: <span class="badge bg-success">Completed</span></li>
+                <li>Form G-1145: <span class="badge bg-secondary">In Progress</span></li>
+                <li>Biographical Information: <span class="badge bg-danger">Not Started</span></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="dashboard-card mt-4">
+    <div class="card-header">
+        <span class="icon">📅</span>
+        <h3>Messages & Appointments</h3>
+    </div>
+    <div class="card-body">
+        <p><strong>Next Appointment:</strong> July 15, 2025 at 2:00 PM</p>
+        <p><strong>With:</strong> John Smith, Esq.</p>
+        <button class="btn btn-accent disabled" aria-disabled="true">Join Meeting (Not yet active)</button>
+    </div>
+</div>
