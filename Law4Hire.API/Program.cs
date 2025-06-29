@@ -46,7 +46,7 @@ builder.Services.AddScoped<IFormIdentificationService, FormIdentificationService
 builder.Services.AddControllers();
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
-builder.Services.AddHttpClient()
+builder.Services.AddHttpClient();
 //builder.Services.AddHttpClient("Law4Hire.API", client =>
 //{
 //    client.BaseAddress = new Uri("https://localhost:7123");

@@ -4,7 +4,7 @@
 
         <!-- Logo on the left -->
         <a class="navbar-brand" href="/">
-            <img src="images/logo.png" alt="Law4Hire" style="height: 40px;" />
+            <img src="images/logo.gif" alt="Law4Hire" style="height: 40px;" class="d-inline-block align-text-top" />
         </a>
 
         <!-- Left-aligned nav items -->
@@ -42,13 +42,3 @@
 
     </div>
 </nav>
-
-@code {
-    private bool collapseNavMenu = true;
-    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
-
-    private void ToggleNavMenu()
-    {
-        collapseNavMenu = !collapseNavMenu;
-    }
-}
