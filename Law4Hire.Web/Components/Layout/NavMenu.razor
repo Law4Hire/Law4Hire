@@ -1,56 +1,47 @@
 ﻿@rendermode InteractiveServer
+<nav class="navbar navbar-expand-md navbar-light bg-white border-bottom">
+    <div class="container-fluid d-flex align-items-center">
 
-<header class="top-nav-header">
-    <nav class="navbar navbar-expand-lg" style="background-color: #e6f2ff;">
-        <div class="container-fluid">
-            <a class="navbar-brand d-flex align-items-center" href="/">
-                <span class="logo-icon me-2" aria-hidden="true">🏛️</span>
-                Law4Hire
-            </a>
+        <!-- Logo on the left -->
+        <a class="navbar-brand" href="/">
+            <img src="images/logo.png" alt="Law4Hire" style="height: 40px;" />
+        </a>
 
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-                    aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
+        <!-- Left-aligned nav items -->
+        <ul class="navbar-nav me-auto d-flex align-items-center">
+            <li class="nav-item">
+                <NavLink class="nav-link" href="">Home</NavLink>
+            </li>
+            <li class="nav-item">
+                <NavLink class="nav-link" href="pricing">Pricing</NavLink>
+            </li>
+            <li class="nav-item">
+                <NavLink class="nav-link" href="immigrationLibrary">Legal Library</NavLink>
+            </li>
+            <li class="nav-item">
+                <NavLink class="nav-link" href="dashboard">Dashboard</NavLink>
+            </li>
+        </ul>
 
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-center">
-                    <li class="nav-item">
-                        <NavLink class="nav-link" href="/" Match="NavLinkMatch.All">Home</NavLink>
-                    </li>
-                    <li class="nav-item">
-                        <NavLink class="nav-link" href="pricing">Pricing</NavLink>
-                    </li>
-                    <li class="nav-item">
-                        <NavLink class="nav-link" href="immigrationLibrary">Legal Library</NavLink>
-                    </li>
-                    <li class="nav-item">
-                        <NavLink class="nav-link" href="dashboard">Dashboard</NavLink>
-                    </li>
+        <!-- Right-aligned nav items -->
+        <ul class="navbar-nav ms-auto d-flex align-items-center">
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="langDropdown"
+                   data-bs-toggle="dropdown" aria-expanded="false">
+                    Languages
+                </a>
+                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="langDropdown">
+                    <li><a class="dropdown-item" href="?lang=en">English</a></li>
+                    <li><a class="dropdown-item" href="?lang=es">Español</a></li>
                 </ul>
+            </li>
+            <li class="nav-item">
+                <NavLink class="nav-link" href="login">Login</NavLink>
+            </li>
+        </ul>
 
-                <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-center">
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="languageDropdown" role="button"
-                           data-bs-toggle="dropdown" aria-expanded="false">
-                            <span class="oi oi-globe" aria-hidden="true"></span> Language
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="languageDropdown">
-                            <li><a class="dropdown-item" href="#">🇺🇸 English</a></li>
-                            <li><a class="dropdown-item" href="#">🇪🇸 Español</a></li>
-                            <li><a class="dropdown-item" href="#">🇫🇷 Français</a></li>
-                        </ul>
-                    </li>
-                    <li class="nav-item">
-                        <NavLink class="nav-link" href="login">
-                            <span class="oi oi-account-login" aria-hidden="true"></span> Login
-                        </NavLink>
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </nav>
-</header>
+    </div>
+</nav>
 
 @code {
     private bool collapseNavMenu = true;
