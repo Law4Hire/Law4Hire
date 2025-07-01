@@ -10,14 +10,19 @@ using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.Globalization;
+using Microsoft.AspNetCore.Localization;
 using System.Text;
 using System.Threading.RateLimiting;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// --- 1. Add services to the container ---
-
-// Add Entity Framework DbContext
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+builder.Services.AddHttpLogging(options =>
+{
+    options.LoggingFields = Microsoft.AspNetCore.HttpLogging.HttpLoggingFields.All;
+});
 builder.Services.AddDbContext<Law4HireDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
@@ -108,38 +113,80 @@ builder.Services.AddRateLimiter(options =>
     });
 });
 
+var supportedCultures = new[]
+{
+    new CultureInfo("en-US"),
+    new CultureInfo("es-ES"),
+    new CultureInfo("fr-FR"),
+    new CultureInfo("zh-CN"),
+    new CultureInfo("hi-IN"),
+    new CultureInfo("ar-SA"),
+    new CultureInfo("bn-BD"),
+    new CultureInfo("pt-PT"),
+    new CultureInfo("ru-RU"),
+    new CultureInfo("ja-JP"),
+    new CultureInfo("de-DE"),
+    new CultureInfo("ur-PK"),
+    new CultureInfo("id-ID"),
+    new CultureInfo("tr-TR"),
+    new CultureInfo("it-IT"),
+    new CultureInfo("vi-VN"),
+    new CultureInfo("ko-KR"),
+    new CultureInfo("ta-IN"),
+    new CultureInfo("te-IN"),
+    new CultureInfo("mr-IN"),
+    new CultureInfo("pl-PL") 
+};
+
+builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
+
+builder.Services.Configure<RequestLocalizationOptions>(options =>
+{
+    options.DefaultRequestCulture = new RequestCulture("en-US");
+    options.SupportedCultures = supportedCultures;
+    options.SupportedUICultures = supportedCultures;
+});
+builder.Services.AddHttpLogging(logging =>
+{
+    logging.LoggingFields = Microsoft.AspNetCore.HttpLogging.HttpLoggingFields.All;
+});
 var app = builder.Build();
 
 // --- 2. Configure the HTTP request pipeline ---
 
 if (app.Environment.IsDevelopment())
 {
-    app.UseExceptionHandler("/Error", createScopeForErrors: true);
-    app.UseHsts();
+app.UseExceptionHandler("/Error", createScopeForErrors: true);
+app.UseHsts();
 
-    // The UseSwagger middleware serves the generated OpenAPI/JSON file.
-    app.UseSwagger();
-    // The UseSwaggerUI middleware serves the Swagger UI, which uses the JSON file to render the interactive API documentation.
-    app.UseSwaggerUI(c =>
-    {
-        c.SwaggerEndpoint("/swagger/v1/swagger.json", "Law4Hire API v1");
-        // Serve the UI at the app's root
-        c.RoutePrefix = string.Empty;
-    });
-
-    // Seed the database in development
-    using var scope = app.Services.CreateScope();
-    var services = scope.ServiceProvider;
-    var context = services.GetRequiredService<Law4HireDbContext>();
-    // Correct way to get a logger for a static class
-    var loggerFactory = services.GetRequiredService<ILoggerFactory>();
-    var logger = loggerFactory.CreateLogger("DataSeeder");
-    await context.Database.EnsureCreatedAsync();
-    await DataSeeder.SeedAsync(context, logger);
+// The UseSwagger middleware serves the generated OpenAPI/JSON file.
+app.UseSwagger();
+// The UseSwaggerUI middleware serves the Swagger UI, which uses the JSON file to render the interactive API documentation.
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Law4Hire API v1");
+    // Serve the UI at the app's root
+    c.RoutePrefix = string.Empty;
+});
+    app.UseDeveloperExceptionPage();
+// Seed the database in development
+using var scope = app.Services.CreateScope();
+var services = scope.ServiceProvider;
+var context = services.GetRequiredService<Law4HireDbContext>();
+// Correct way to get a logger for a static class
+var loggerFactory = services.GetRequiredService<ILoggerFactory>();
+var logger = loggerFactory.CreateLogger("DataSeeder");
+await context.Database.EnsureCreatedAsync();
+await DataSeeder.SeedAsync(context, logger);
 }
 
 app.UseHttpsRedirection();
 app.UseRouting();
+app.UseRequestLocalization();
+app.UseHttpLogging(); // Put this after `app.UseRouting()` and before `app.UseAuthorization()`
+
+// Enable logging options (if needed)
+
 
 // Use global rate limiting
 app.UseRateLimiter();
@@ -156,5 +203,5 @@ app.UseStaticFiles();
 app.UseAntiforgery();
 
 app.MapRazorComponents<App>()
-    .AddInteractiveServerRenderMode();
+.AddInteractiveServerRenderMode();
 app.Run();

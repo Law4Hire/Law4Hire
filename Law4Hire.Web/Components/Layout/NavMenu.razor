@@ -1,44 +1,134 @@
-﻿@rendermode InteractiveServer
-<nav class="navbar navbar-expand-md navbar-light bg-white border-bottom">
-    <div class="container-fluid d-flex align-items-center">
+﻿@inject IJSRuntime JS
+@inject NavigationManager NavigationManager
+@inject IStringLocalizer<NavMenu> Localizer
+@inject Law4Hire.Web.State.CultureState CultureState
+@using Microsoft.Extensions.Localization
+@using System.Globalization
+@implements IDisposable
 
-        <!-- Logo on the left -->
+<header class="top-nav-header">
+    <nav class="container-fluid navbar navbar-expand-lg">
         <a class="navbar-brand" href="/">
-            <img src="images/logo.gif" alt="Law4Hire" style="height: 40px;" class="d-inline-block align-text-top" />
+            <span class="logo-icon" aria-hidden="true">🏛️</span>
+            Law4Hire
         </a>
+        <button class="navbar-toggler" type="button" @onclick="ToggleNavMenu">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse @NavMenuCssClass" id="navbarNav">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <NavLink class="nav-link" href="" Match="NavLinkMatch.All">@Localizer["Home"]</NavLink>
+                </li>
+                <li class="nav-item">
+                    <NavLink class="nav-link" href="pricing">@Localizer["Pricing"]</NavLink>
+                </li>
+                <li class="nav-item">
+                    <NavLink class="nav-link" href="immigrationLibrary">@Localizer["Library"]</NavLink>
+                </li>
+                <li class="nav-item">
+                    <NavLink class="nav-link" href="dashboard">@Localizer["Dashboard"]</NavLink>
+                </li>
+            </ul>
+            <!-- Right-aligned items -->
+            <ul class="navbar-nav ms-auto align-items-center">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <span class="oi oi-globe" aria-hidden="true"></span> @SelectedLanguage.Name
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="languageDropdown">
+                        @foreach (var lang in SupportedLanguages)
+                        {
+                            <li>
+                                <button type="button" class="dropdown-item" @onclick="() => SetCulture(lang.CultureCode)">
+                                    @lang.Name
+                                </button>
+                            </li>
+                        }
+                    </ul>
+                </li>
+                <li class="nav-item">
+                    <NavLink class="nav-link" href="login">
+                        <span class="oi oi-account-login" aria-hidden="true"></span> @Localizer["Login"]
+                    </NavLink>
+                </li>
+            </ul>
+        </div>
+    </nav>
+</header>
 
-        <!-- Left-aligned nav items -->
-        <ul class="navbar-nav me-auto d-flex align-items-center">
-            <li class="nav-item">
-                <NavLink class="nav-link" href="">Home</NavLink>
-            </li>
-            <li class="nav-item">
-                <NavLink class="nav-link" href="pricing">Pricing</NavLink>
-            </li>
-            <li class="nav-item">
-                <NavLink class="nav-link" href="immigrationLibrary">Legal Library</NavLink>
-            </li>
-            <li class="nav-item">
-                <NavLink class="nav-link" href="dashboard">Dashboard</NavLink>
-            </li>
-        </ul>
+@code {
+    private bool collapseNavMenu = true;
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+    private LanguageInfo SelectedLanguage { get; set; } = new("🇺🇸 English", "en-US");
 
-        <!-- Right-aligned nav items -->
-        <ul class="navbar-nav ms-auto d-flex align-items-center">
-            <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="langDropdown"
-                   data-bs-toggle="dropdown" aria-expanded="false">
-                    Languages
-                </a>
-                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="langDropdown">
-                    <li><a class="dropdown-item" href="?lang=en">English</a></li>
-                    <li><a class="dropdown-item" href="?lang=es">Español</a></li>
-                </ul>
-            </li>
-            <li class="nav-item">
-                <NavLink class="nav-link" href="login">Login</NavLink>
-            </li>
-        </ul>
+    protected override void OnInitialized()
+    {
+        CultureState.OnChange += StateHasChanged;
+        UpdateSelectedLanguage();
+    }
 
-    </div>
-</nav>
+    protected override void OnAfterRender(bool firstRender)
+    {
+        if (firstRender)
+        {
+            UpdateSelectedLanguage();
+            StateHasChanged();
+        }
+    }
+
+    private void UpdateSelectedLanguage()
+    {
+        var currentCulture = CultureInfo.CurrentUICulture.Name;
+        var match = SupportedLanguages.FirstOrDefault(l => l.CultureCode == currentCulture);
+        if (match is not null)
+            SelectedLanguage = match;
+    }
+
+    private async Task SetCulture(string cultureCode)
+    {
+        // Keep the current path but update culture
+        var currentPath = new Uri(NavigationManager.Uri).PathAndQuery;
+        var target = $"/Culture/SetCulture?culture={cultureCode}&redirectUri={Uri.EscapeDataString(currentPath)}";
+
+        // Navigate to the culture controller
+        NavigationManager.NavigateTo(target, forceLoad: true);
+    }
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+
+    private List<LanguageInfo> SupportedLanguages { get; } = new()
+    {
+        new("🇺🇸 English", "en-US"),
+        new("🇪🇸 Español", "es-ES"),
+        new("🇨🇳 中文 (简体)", "zh-CN"),
+        new("🇮🇳 हिन्दी", "hi-IN"),
+        new("🇸🇦 العربية", "ar-SA"),
+        new("🇧🇩 বাংলা", "bn-BD"),
+        new("🇵🇹 Português", "pt-PT"),
+        new("🇷🇺 Русский", "ru-RU"),
+        new("🇯🇵 日本語", "ja-JP"),
+        new("🇩🇪 Deutsch", "de-DE"),
+        new("🇫🇷 Français", "fr-FR"),
+        new("🇵🇰 اردو", "ur-PK"),
+        new("🇮🇩 Bahasa Indonesia", "id-ID"),
+        new("🇹🇷 Türkçe", "tr-TR"),
+        new("🇮🇹 Italiano", "it-IT"),
+        new("🇻🇳 Tiếng Việt", "vi-VN"),
+        new("🇰🇷 한국어", "ko-KR"),
+        new("🇮🇳 தமிழ்", "ta-IN"),
+        new("🇮🇳 తెలుగు", "te-IN"),
+        new("🇮🇳 मराठी", "mr-IN"),
+        new("🇵🇱 Polski", "pl-PL")
+    };
+
+    public record LanguageInfo(string Name, string CultureCode);
+
+    public void Dispose()
+    {
+        CultureState.OnChange -= StateHasChanged;
+    }
+}

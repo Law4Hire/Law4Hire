@@ -1,41 +1,54 @@
-using Law4Hire.Web.Components;
+﻿using Law4Hire.Web.Components;
+using Law4Hire.Web.State;
+using Microsoft.AspNetCore.Localization;
+using System.Globalization; // Add this using statement
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container for the Blazor Web App.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<CultureState>();
+builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 
-// ===================================================================================
-// ** FIX: Register HttpClient Service **
-// This is the crucial part that was missing. An HttpClient must be registered in the 
-// service container so that Blazor pages can use `@inject` to make API calls.
-// This is the standard and correct way to do this in .NET 9.
-// ===================================================================================
+// ✅ Add this
+builder.Services.AddControllers();
+
 builder.Services.AddScoped(sp => new HttpClient
 {
-    // This URL must point to your running backend API project.
-    // You can find the correct port in your Law4Hire.API project's 
-    // Properties/launchSettings.json file.
-    // A common default is "https://localhost:7123" or similar.
     BaseAddress = new Uri("https://localhost:7123")
 });
 
-
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Error", createScopeForErrors: true);
-    // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
     app.UseHsts();
 }
 
-app.UseHttpsRedirection();
+var supportedCultures = new[]
+{
+    "en-US", "es-ES", "zh-CN", "hi-IN", "ar-SA", "bn-BD", "pt-PT", "ru-RU", "ja-JP", "de-DE", "fr-FR",
+    "ur-PK", "id-ID", "tr-TR", "it-IT", "vi-VN", "ko-KR", "ta-IN", "te-IN", "mr-IN", "pl-PL"
+}.Select(c => new CultureInfo(c)).ToList();
 
+var localizationOptions = new RequestLocalizationOptions()
+    .SetDefaultCulture("en-US")
+    .AddSupportedCultures(supportedCultures.Select(c => c.Name).ToArray())
+    .AddSupportedUICultures(supportedCultures.Select(c => c.Name).ToArray());
+
+localizationOptions.RequestCultureProviders = new List<IRequestCultureProvider>
+{
+    new CookieRequestCultureProvider() { CookieName = CookieRequestCultureProvider.DefaultCookieName }
+};
+app.UseRequestLocalization(localizationOptions);
+app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseAntiforgery();
+
+// ✅ Add this
+app.MapControllers();
 
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();

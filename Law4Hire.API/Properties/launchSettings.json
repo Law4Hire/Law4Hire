@@ -1,20 +1,11 @@
 ﻿{
   "$schema": "https://json.schemastore.org/launchsettings.json",
   "profiles": {
-    "http": {
+    "Law4Hire.API": {
       "commandName": "Project",
       "dotnetRunMessages": true,
-      "launchBrowser": false,
-      "applicationUrl": "http://localhost:5237",
-      "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
-      }
-    },
-    "https": {
-      "commandName": "Project",
-      "dotnetRunMessages": true,
-      "launchBrowser": false,
-      "applicationUrl": "https://localhost:7280;http://localhost:5237",
+      "launchBrowser": true,
+      "applicationUrl": "https://localhost:7280;http://localhost:5237", // Add HTTPS
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
