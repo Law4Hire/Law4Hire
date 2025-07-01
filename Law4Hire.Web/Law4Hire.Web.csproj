@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <EmbeddedResource Remove="Components\Pages\Home.es-ES.resx" />
     <EmbeddedResource Remove="Resources\Components\Pages\Home.es-ES.resx" />
   </ItemGroup>
 
@@ -26,7 +27,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="Components\Pages\Home.es-ES.resx" />
     <None Include="Resources\Components\Pages\Home.es-ES.resx" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Components\Pages\Home.en-US.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
   </ItemGroup>
 
 </Project>
