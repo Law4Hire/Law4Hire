@@ -16,4 +16,7 @@
   <data xml:space="preserve" name="Dashboard">
     <value>لوحة التحكم</value>
   </data>
+  <data xml:space="preserve" name="Login">
+  <value>تسجيل الدخول</value>
+</data>
 </root>

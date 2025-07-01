@@ -16,4 +16,7 @@
   <data xml:space="preserve" name="Dashboard">
     <value>Tablero</value>
   </data>
+  <data xml:space="preserve" name="Login">
+    <value>Iniciar Sesión</value>
+  </data>
 </root>

@@ -16,4 +16,7 @@
   <data xml:space="preserve" name="Dashboard">
     <value>ড্যাশবোর্ড</value>
   </data>
+  <data xml:space="preserve" name="Login">
+  <value>লগইন</value>
+</data>
 </root>
