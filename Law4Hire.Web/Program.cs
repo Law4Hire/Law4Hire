@@ -38,10 +38,9 @@ var localizationOptions = new RequestLocalizationOptions()
     .AddSupportedCultures(supportedCultures.Select(c => c.Name).ToArray())
     .AddSupportedUICultures(supportedCultures.Select(c => c.Name).ToArray());
 
-localizationOptions.RequestCultureProviders = new List<IRequestCultureProvider>
-{
-    new CookieRequestCultureProvider() { CookieName = CookieRequestCultureProvider.DefaultCookieName }
-};
+localizationOptions.RequestCultureProviders.Clear();
+localizationOptions.RequestCultureProviders.Add(new CookieRequestCultureProvider());
+
 app.UseRequestLocalization(localizationOptions);
 app.UseHttpsRedirection();
 app.UseStaticFiles();

@@ -21,7 +21,6 @@ namespace Law4Hire.Web.Controllers
                 {
                     Expires = DateTimeOffset.UtcNow.AddYears(1), // Persist 1 year
                     IsEssential = true,
-                    Secure = true, // Ensure this matches your HTTPS setup
                     SameSite = SameSiteMode.Lax,
                     Path = "/",
                     HttpOnly = false

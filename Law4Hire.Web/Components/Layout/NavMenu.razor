@@ -34,15 +34,20 @@
             <ul class="navbar-nav ms-auto align-items-center">
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <span class="oi oi-globe" aria-hidden="true"></span> @SelectedLanguage.Name
+                        <span class="oi oi-globe" aria-hidden="true"></span> @GetCurrentLanguageName()
                     </a>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="languageDropdown">
                         @foreach (var lang in SupportedLanguages)
                         {
                             <li>
-                                <button type="button" class="dropdown-item" @onclick="() => SetCulture(lang.CultureCode)">
+                                <a class="dropdown-item @(IsCurrentCulture(lang.CultureCode) ? "active fw-bold" : "")"
+                                   href="@GetCultureChangeUrl(lang.CultureCode)">
                                     @lang.Name
-                                </button>
+                                    @if (IsCurrentCulture(lang.CultureCode))
+                                    {
+                                        <span class="text-success ms-2">✓</span>
+                                    }
+                                </a>
                             </li>
                         }
                     </ul>
@@ -60,39 +65,52 @@
 @code {
     private bool collapseNavMenu = true;
     private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
-    private LanguageInfo SelectedLanguage { get; set; } = new("🇺🇸 English", "en-US");
 
     protected override void OnInitialized()
     {
         CultureState.OnChange += StateHasChanged;
-        UpdateSelectedLanguage();
     }
 
     protected override void OnAfterRender(bool firstRender)
     {
         if (firstRender)
         {
-            UpdateSelectedLanguage();
             StateHasChanged();
         }
     }
 
-    private void UpdateSelectedLanguage()
+    // Get the current language name based on the actual current culture
+    private string GetCurrentLanguageName()
     {
         var currentCulture = CultureInfo.CurrentUICulture.Name;
         var match = SupportedLanguages.FirstOrDefault(l => l.CultureCode == currentCulture);
-        if (match is not null)
-            SelectedLanguage = match;
+        return match?.Name ?? "🇺🇸 English";
     }
 
-    private async Task SetCulture(string cultureCode)
+    // Check if the given culture code is the current culture
+    private bool IsCurrentCulture(string cultureCode)
     {
-        // Keep the current path but update culture
-        var currentPath = new Uri(NavigationManager.Uri).PathAndQuery;
-        var target = $"/Culture/SetCulture?culture={cultureCode}&redirectUri={Uri.EscapeDataString(currentPath)}";
+        return CultureInfo.CurrentUICulture.Name.Equals(cultureCode, StringComparison.OrdinalIgnoreCase);
+    }
 
-        // Navigate to the culture controller
-        NavigationManager.NavigateTo(target, forceLoad: true);
+    // Generate the culture change URL with current page path
+    private string GetCultureChangeUrl(string cultureCode)
+    {
+        // Don't generate URL for current culture
+        if (IsCurrentCulture(cultureCode))
+        {
+            return "#";
+        }
+
+        // Get the current path and query string
+        var currentUri = NavigationManager.Uri;
+        var currentPath = new Uri(currentUri).PathAndQuery;
+
+        // URL encode the redirect path
+        var encodedRedirectUri = Uri.EscapeDataString(currentPath);
+
+        // Build the culture change URL
+        return $"/Culture/SetCulture?culture={cultureCode}&redirectUri={encodedRedirectUri}";
     }
 
     private void ToggleNavMenu()
