@@ -7,6 +7,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <EmbeddedResource Remove="Resources\Components\Pages\Home.es-ES.resx" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Blazor.LocalStorage" Version="9.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="9.0.6" />
     <PackageReference Include="Microsoft.AspNetCore.SignalR.Common" Version="9.0.6" />
@@ -19,6 +23,10 @@
   <ItemGroup>
     <Folder Include="Components\Pages\Services\" />
     <Folder Include="Resources\Components\Layout\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Resources\Components\Pages\Home.es-ES.resx" />
   </ItemGroup>
 
 </Project>

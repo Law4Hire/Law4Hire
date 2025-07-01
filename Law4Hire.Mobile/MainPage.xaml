@@ -68,7 +68,7 @@
                            HorizontalOptions="Center"
                            TextColor="{DynamicResource PrimaryTextColor}" />
                     <Label x:Name="DescriptionLabel"
-                           Text="Navigate your legal document needs with expert guidance &amp; professional support"
+                           Text="Navigate your legal document needs with expert guidance and professional support"
                            FontSize="16"
                            HorizontalOptions="Center"
                            HorizontalTextAlignment="Center"
@@ -84,7 +84,7 @@
                     <Shadow Brush="#000" Opacity="0.2" Radius="10" Offset="3,3" />
                 </Border.Shadow>
                 <StackLayout Spacing="10">
-                    <Label Text="🌍 Select Language / Seleccionar Idioma"
+                    <Label Text="Select Language"
                            FontSize="16"
                            FontAttributes="Bold"
                            HorizontalOptions="Center"
@@ -99,12 +99,25 @@
                             <x:Array Type="{x:Type x:String}">
                                 <x:String>🇺🇸 English</x:String>
                                 <x:String>🇪🇸 Español</x:String>
-                                <x:String>🇫🇷 Français</x:String>
-                                <x:String>🇩🇪 Deutsch</x:String>
-                                <x:String>🇨🇳 中文</x:String>
-                                <x:String>🇧🇷 Português</x:String>
-                                <x:String>🇮🇹 Italiano</x:String>
+                                <x:String>🇨🇳 中文 (简体)</x:String>
+                                <x:String>🇮🇳 हिन्दी</x:String>
+                                <x:String>🇸🇦 العربية</x:String>
+                                <x:String>🇧🇩 বাংলা</x:String>
+                                <x:String>🇵🇹 Português</x:String>
                                 <x:String>🇷🇺 Русский</x:String>
+                                <x:String>🇯🇵 日本語</x:String>
+                                <x:String>🇩🇪 Deutsch</x:String>
+                                <x:String>🇫🇷 Français</x:String>
+                                <x:String>🇵🇰 اردو</x:String>
+                                <x:String>🇮🇩 Bahasa Indonesia</x:String>
+                                <x:String>🇹🇷 Türkçe</x:String>
+                                <x:String>🇮🇹 Italiano</x:String>
+                                <x:String>🇻🇳 Tiếng Việt</x:String>
+                                <x:String>🇰🇷 한국어</x:String>
+                                <x:String>🇮🇳 தமிழ்</x:String>
+                                <x:String>🇮🇳 తెలుగు</x:String>
+                                <x:String>🇮🇳 मराठी</x:String>
+                                <x:String>🇵🇱 Polski</x:String>
                             </x:Array>
                         </Picker.ItemsSource>
                     </Picker>
@@ -141,6 +154,15 @@
                         CornerRadius="25"
                         HeightRequest="60"
                         Clicked="OnMyAccountClicked" />
+
+                <Button x:Name="DebugBtn"
+                        Text="🐛 Debug Culture"
+                        FontSize="14"
+                        BackgroundColor="Orange"
+                        TextColor="White"
+                        CornerRadius="15"
+                        HeightRequest="40"
+                        Clicked="OnDebugCultureClicked" />
             </StackLayout>
 
             <Border Grid.Row="4"
@@ -166,7 +188,7 @@
 
                         <StackLayout Grid.Row="0" Orientation="Horizontal" Spacing="10">
                             <Label Text="🛡️" FontSize="20" VerticalOptions="Center" />
-                            <Label Text="Secure &amp; Confidential"
+                            <Label Text="Secure and Confidential"
                                    FontSize="14"
                                    VerticalOptions="Center"
                                    TextColor="{DynamicResource SecondaryTextColor}" />
@@ -174,7 +196,7 @@
 
                         <StackLayout Grid.Row="1" Orientation="Horizontal" Spacing="10">
                             <Label Text="⚡" FontSize="20" VerticalOptions="Center" />
-                            <Label Text="Fast &amp; Efficient Process"
+                            <Label Text="Fast and Efficient Process"
                                    FontSize="14"
                                    VerticalOptions="Center"
                                    TextColor="{DynamicResource SecondaryTextColor}" />

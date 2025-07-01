@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+	<resheader name="resmimetype">text/microsoft-resx</resheader>
+	<resheader name="version">2.0</resheader>
+	<resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+	<resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+	<data xml:space="preserve" name="Welcome">
+    <value>Bienvenido a Law4Hire</value>
+  </data>
+	<data xml:space="preserve" name="StartIntake">
+    <value>Iniciar Proceso Legal</value>
+  </data>
+	<data xml:space="preserve" name="ViewPackages">
+    <value>Ver Paquetes de Servicios</value>
+  </data>
+	<data xml:space="preserve" name="MyAccount">
+    <value>Mi Cuenta</value>
+  </data>
+	<data xml:space="preserve" name="Description">
+    <value>Navega tus necesidades de documentos legales con orientación experta y soporte profesional</value>
+  </data>
+</root>

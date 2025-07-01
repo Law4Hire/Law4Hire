@@ -1,0 +1,150 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+	<resheader name="resmimetype">text/microsoft-resx</resheader>
+	<resheader name="version">2.0</resheader>
+	<resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+	<resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+
+	<!-- Page -->
+	<data name="PageTitle" xml:space="preserve">
+    <value>Welcome</value>
+  </data>
+	<data name="WelcomeTitle" xml:space="preserve">
+    <value>Start Your U.S. Immigration Journey</value>
+  </data>
+	<data name="WelcomeSubtitle" xml:space="preserve">
+    <value>Choose your path to achieving your American dream with expert legal guidance</value>
+  </data>
+
+	<!-- Immigration Options -->
+	<data name="VisitUSA" xml:space="preserve">
+    <value>Visit or Tour the USA</value>
+  </data>
+	<data name="ApplyAsylum" xml:space="preserve">
+    <value>Apply for Asylum</value>
+  </data>
+	<data name="JoinFamily" xml:space="preserve">
+    <value>Join your Family</value>
+  </data>
+	<data name="StudyUSA" xml:space="preserve">
+    <value>Study in the USA</value>
+  </data>
+	<data name="InvestUSA" xml:space="preserve">
+    <value>Invest in the USA</value>
+  </data>
+	<data name="WorkUSA" xml:space="preserve">
+    <value>Work in the USA</value>
+  </data>
+	<data name="LoginAccount" xml:space="preserve">
+    <value>Log in to your account</value>
+  </data>
+
+	<!-- Interview Navigation -->
+	<data name="BackToOptions" xml:space="preserve">
+    <value>Back to Options</value>
+  </data>
+	<data name="StartYourJourney" xml:space="preserve">
+    <value>Start Your Journey</value>
+  </data>
+	<data name="Next" xml:space="preserve">
+    <value>Next</value>
+  </data>
+	<data name="Previous" xml:space="preserve">
+    <value>Previous</value>
+  </data>
+	<data name="Complete" xml:space="preserve">
+    <value>Complete</value>
+  </data>
+
+	<!-- Form Questions -->
+	<data name="FirstNameQuestion" xml:space="preserve">
+    <value>What is your first or given name?</value>
+  </data>
+	<data name="LastNameQuestion" xml:space="preserve">
+    <value>What is your last name or surname?</value>
+  </data>
+	<data name="MiddleNameQuestion" xml:space="preserve">
+    <value>Do you have a middle name? (Optional)</value>
+  </data>
+	<data name="AddressQuestion" xml:space="preserve">
+    <value>What is your current address?</value>
+  </data>
+	<data name="PhoneQuestion" xml:space="preserve">
+    <value>What is your phone number?</value>
+  </data>
+	<data name="EmailQuestion" xml:space="preserve">
+    <value>What is your email address?</value>
+  </data>
+	<data name="PasswordQuestion" xml:space="preserve">
+    <value>Create a secure password</value>
+  </data>
+	<data name="ExistingPasswordQuestion" xml:space="preserve">
+    <value>Enter your password</value>
+  </data>
+
+	<!-- Form Placeholders -->
+	<data name="FirstNamePlaceholder" xml:space="preserve">
+    <value>Enter your first or given name</value>
+  </data>
+	<data name="LastNamePlaceholder" xml:space="preserve">
+    <value>Enter your last name or surname</value>
+  </data>
+	<data name="MiddleNamePlaceholder" xml:space="preserve">
+    <value>Enter your middle name (optional)</value>
+  </data>
+	<data name="AddressPlaceholder" xml:space="preserve">
+    <value>Enter your full address</value>
+  </data>
+	<data name="PhonePlaceholder" xml:space="preserve">
+    <value>Enter your phone number</value>
+  </data>
+	<data name="EmailPlaceholder" xml:space="preserve">
+    <value>Enter your email address</value>
+  </data>
+	<data name="PasswordPlaceholder" xml:space="preserve">
+    <value>Create a secure password</value>
+  </data>
+
+	<!-- Goal Descriptions -->
+	<data name="VisitDescription" xml:space="preserve">
+    <value>Tourism, business visits, or temporary stays in the United States</value>
+  </data>
+	<data name="AsylumDescription" xml:space="preserve">
+    <value>Seeking protection and safety in the United States</value>
+  </data>
+	<data name="FamilyDescription" xml:space="preserve">
+    <value>Reuniting with family members who are U.S. citizens or residents</value>
+  </data>
+	<data name="StudyDescription" xml:space="preserve">
+    <value>Educational opportunities at American schools and universities</value>
+  </data>
+	<data name="InvestmentDescription" xml:space="preserve">
+    <value>Business investment and entrepreneur opportunities</value>
+  </data>
+	<data name="WorkDescription" xml:space="preserve">
+    <value>Employment-based immigration and work authorization</value>
+  </data>
+
+	<!-- Messages -->
+	<data name="PasswordRequirements" xml:space="preserve">
+    <value>Must contain at least one number, one uppercase, one lowercase, one special character, and at least 8 characters</value>
+  </data>
+	<data name="EmailExistsMessage" xml:space="preserve">
+    <value>This email already exists. Please enter your password to log in.</value>
+  </data>
+	<data name="RegistrationComplete" xml:space="preserve">
+    <value>Registration Complete!</value>
+  </data>
+	<data name="WelcomeMessage" xml:space="preserve">
+    <value>Welcome, {0}! Your account has been created successfully.</value>
+  </data>
+	<data name="GoToDashboard" xml:space="preserve">
+    <value>Go to Dashboard</value>
+  </data>
+	<data name="LoginError" xml:space="preserve">
+    <value>Invalid email or password. Please try again.</value>
+  </data>
+	<data name="RegistrationError" xml:space="preserve">
+    <value>Registration failed. Please try again.</value>
+  </data>
+</root>

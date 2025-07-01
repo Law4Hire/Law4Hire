@@ -2,115 +2,230 @@
 @using System.ComponentModel.DataAnnotations
 @using System.Net.Http.Json
 @using Law4Hire.Core.DTOs
+@using Microsoft.Extensions.Localization
 @rendermode InteractiveServer
 @inject HttpClient Http
 @inject NavigationManager NavigationManager
+@inject IStringLocalizer<Home> Localizer
 
-<PageTitle>Welcome - Law4Hire</PageTitle>
+<PageTitle>@Localizer["PageTitle"] - Law4Hire</PageTitle>
 
 <div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-lg-8">
-            <div class="chat-widget">
-                <div class="chat-history" id="chat-history">
-                    @foreach (var message in messages)
-                    {
-                        <div class="chat-message @(message.IsBot ? "bot-message" : "user-message")">
-                            @message.Text
-                        </div>
-                    }
-                </div>
-
-                <div class="chat-input-area">
-                    @if (!isCompleted)
-                    {
-                        <EditForm Model="@userInput" OnValidSubmit="HandleNextStep">
-                            <DataAnnotationsValidator />
-                            <div class="mb-3">
-                                <input type="@currentStep.Type" @bind-value="userInput.CurrentValue" class="form-control" placeholder="@currentStep.Placeholder" pattern="@currentStep.Pattern" title="@currentStep.Title" />
-                                <ValidationMessage For="@(() => userInput.CurrentValue)" />
-                            </div>
-                            <button type="submit" class="btn btn-primary">Next &rarr;</button>
-                        </EditForm>
-                    }
-                    else
-                    {
-                        <div class="text-center">
-                            <h4>Thank you, @registrationModel.FirstName! Your account has been created.</h4>
-                            <p>You can now log in to access your dashboard.</p>
-                            <button class="btn btn-success" @onclick='() => NavigationManager.NavigateTo("/login")'>Go to Login</button>
-                        </div>
-                    }
+    @if (!showInterview)
+    {
+        <div class="row justify-content-center mb-5">
+            <div class="col-lg-8 text-center">
+                <h1 class="display-4 mb-4">@Localizer["WelcomeTitle"]</h1>
+                <p class="lead text-muted mb-5">@Localizer["WelcomeSubtitle"]</p>
+            </div>
+        </div>
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="immigration-options-grid">
+                    <div class="immigration-option" @onclick="() => StartInterview(ImmigrationGoal.Visit)">
+                        <div class="option-icon"><img src="/images/visit-usa-icon.png" alt="@Localizer["VisitUSA"]" /></div>
+                        <h5>@Localizer["VisitUSA"]</h5>
+                    </div>
+                    <div class="immigration-option" @onclick="() => StartInterview(ImmigrationGoal.Asylum)">
+                        <div class="option-icon"><img src="/images/asylum-icon.png" alt="@Localizer["ApplyAsylum"]" /></div>
+                        <h5>@Localizer["ApplyAsylum"]</h5>
+                    </div>
+                    <div class="immigration-option" @onclick="() => StartInterview(ImmigrationGoal.Family)">
+                        <div class="option-icon"><img src="/images/family-icon.png" alt="@Localizer["JoinFamily"]" /></div>
+                        <h5>@Localizer["JoinFamily"]</h5>
+                    </div>
+                    <div class="immigration-option" @onclick="() => StartInterview(ImmigrationGoal.Study)">
+                        <div class="option-icon"><img src="/images/study-icon.png" alt="@Localizer["StudyUSA"]" /></div>
+                        <h5>@Localizer["StudyUSA"]</h5>
+                    </div>
+                    <div class="immigration-option" @onclick="() => StartInterview(ImmigrationGoal.Investment)">
+                        <div class="option-icon"><img src="/images/invest-icon.png" alt="@Localizer["InvestUSA"]" /></div>
+                        <h5>@Localizer["InvestUSA"]</h5>
+                    </div>
+                    <div class="immigration-option" @onclick="() => StartInterview(ImmigrationGoal.Work)">
+                        <div class="option-icon"><img src="/images/work-icon.png" alt="@Localizer["WorkUSA"]" /></div>
+                        <h5>@Localizer["WorkUSA"]</h5>
+                    </div>
+                    <div class="immigration-option login-option" @onclick="GoToLogin">
+                        <div class="option-icon"><span class="login-icon">👤</span></div>
+                        <h5>@Localizer["LoginAccount"]</h5>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+    }
+    else
+    {
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="interview-widget">
+                    <div class="interview-header">
+                        <button class="btn btn-outline-secondary btn-sm mb-3" @onclick="BackToOptions">← @Localizer["BackToOptions"]</button>
+                        <h2 class="mb-4">@Localizer["StartYourJourney"]</h2>
+                        <p class="text-muted mb-4">@GetGoalDescription(selectedGoal)</p>
+                    </div>
+                    <div class="interview-content">
+                        @if (!isCompleted)
+                        {
+                            <EditForm Model="@userInput" OnValidSubmit="HandleNextStep">
+                                <DataAnnotationsValidator />
+                                <div class="mb-4">
+                                    <label class="form-label fw-bold">@currentStep.Question</label>
+                                    @if (currentStep.Type == "password")
+                                    {
+                                        <input type="password" @bind-value="userInput.CurrentValue" class="form-control" placeholder="@currentStep.Placeholder" pattern="@currentStep.Pattern" title="@currentStep.Title" required />
+                                    }
+                                    else
+                                    {
+                                        <input type="@currentStep.Type" @bind-value="userInput.CurrentValue" class="form-control" placeholder="@currentStep.Placeholder" pattern="@currentStep.Pattern" title="@currentStep.Title" required />
+                                    }
+                                    <ValidationMessage For="@(() => userInput.CurrentValue)" />
+                                    @if (emailExists && currentStepIndex == 5)
+                                    {
+                                        <div class="alert alert-info mt-2">@Localizer["EmailExistsMessage"]</div>
+                                    }
+                                </div>
+                                <div class="d-flex gap-2">
+                                    <button type="submit" class="btn btn-primary">
+                                        @if (currentStepIndex < steps.Count - 1)
+                                        {
+                                            @Localizer["Next"] <span>→</span>
+                                        }
+                                        else
+                                        {
+                                            @Localizer["Complete"]
+                                        }
+                                    </button>
+                                    @if (currentStepIndex > 0)
+                                    {
+                                        <button type="button" class="btn btn-outline-secondary" @onclick="PreviousStep">← @Localizer["Previous"]</button>
+                                    }
+                                </div>
+                            </EditForm>
+                        }
+                        else
+                        {
+                            <div class="text-center">
+                                <div class="success-icon mb-3">✅</div>
+                                <h4>@Localizer["RegistrationComplete"]</h4>
+                                <p class="text-muted">@Localizer["WelcomeMessage", registrationModel.FirstName]</p>
+                                <button class="btn btn-success" @onclick="GoToDashboard">@Localizer["GoToDashboard"]</button>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
 </div>
 
 @code {
-    private List<ChatMessage> messages = new();
+    public enum ImmigrationGoal { Visit, Asylum, Family, Study, Investment, Work }
+    private bool showInterview = false;
+    private bool isCompleted = false;
+    private bool emailExists = false;
+    private ImmigrationGoal selectedGoal;
     private List<InterviewStep> steps = new();
     private int currentStepIndex = 0;
     private InterviewStep currentStep => steps[currentStepIndex];
     private UserInputModel userInput = new();
     private UserRegistrationDto registrationModel = new();
-    private bool isCompleted = false;
 
-    protected override void OnInitialized()
+    protected override void OnInitialized() { InitializeSteps(); }
+
+    private void InitializeSteps()
     {
-        steps.Add(new InterviewStep { Question = "Hello! Let's get started. What is your full legal name?", Placeholder = "First and Last Name", PropertyName = "FullName", Type = "text" });
-        steps.Add(new InterviewStep { Question = "What is your primary email address?", Placeholder = "Email Address", PropertyName = "Email", Type = "email" });
-        steps.Add(new InterviewStep { Question = "And your phone number?", Placeholder = "Phone Number", PropertyName = "PhoneNumber", Type = "tel" });
-        steps.Add(new InterviewStep { Question = "Great. Now, please create a secure password for your account.", Placeholder = "Password", PropertyName = "Password", Type = "password", Pattern = @"(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*\W).{8,}", Title = "Must contain at least one number, one uppercase, one lowercase, one special character, and at least 8 characters" });
+        steps = new List<InterviewStep>
+        {
+            new() { Question = Localizer["FirstNameQuestion"], Placeholder = Localizer["FirstNamePlaceholder"], PropertyName = "FirstName", Type = "text" },
+            new() { Question = Localizer["LastNameQuestion"], Placeholder = Localizer["LastNamePlaceholder"], PropertyName = "LastName", Type = "text" },
+            new() { Question = Localizer["MiddleNameQuestion"], Placeholder = Localizer["MiddleNamePlaceholder"], PropertyName = "MiddleName", Type = "text", Required = false },
+            new() { Question = Localizer["AddressQuestion"], Placeholder = Localizer["AddressPlaceholder"], PropertyName = "Address", Type = "text" },
+            new() { Question = Localizer["PhoneQuestion"], Placeholder = Localizer["PhonePlaceholder"], PropertyName = "PhoneNumber", Type = "tel" },
+            new() { Question = Localizer["EmailQuestion"], Placeholder = Localizer["EmailPlaceholder"], PropertyName = "Email", Type = "email" },
+            new() { Question = Localizer["PasswordQuestion"], Placeholder = Localizer["PasswordPlaceholder"], PropertyName = "Password", Type = "password", Pattern = @"(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*\W).{8,}", Title = Localizer["PasswordRequirements"] }
+        };
+    }
 
-        messages.Add(new ChatMessage { Text = steps[0].Question, IsBot = true });
+    private void StartInterview(ImmigrationGoal goal)
+    {
+        selectedGoal = goal;
+        showInterview = true;
+        currentStepIndex = 0;
+        userInput = new UserInputModel();
+        registrationModel = new UserRegistrationDto();
+        isCompleted = false;
+        emailExists = false;
+        registrationModel.ImmigrationGoal = goal.ToString();
+    }
+
+    private void BackToOptions() { showInterview = false; selectedGoal = ImmigrationGoal.Visit; currentStepIndex = 0; }
+    private void GoToLogin() { NavigationManager.NavigateTo("/login"); }
+    private void GoToDashboard() { NavigationManager.NavigateTo("/dashboard"); }
+
+    private string GetGoalDescription(ImmigrationGoal goal)
+    {
+        return goal switch
+        {
+            ImmigrationGoal.Visit => Localizer["VisitDescription"],
+            ImmigrationGoal.Asylum => Localizer["AsylumDescription"],
+            ImmigrationGoal.Family => Localizer["FamilyDescription"],
+            ImmigrationGoal.Study => Localizer["StudyDescription"],
+            ImmigrationGoal.Investment => Localizer["InvestmentDescription"],
+            ImmigrationGoal.Work => Localizer["WorkDescription"],
+            _ => ""
+        };
     }
 
     private async Task HandleNextStep()
     {
-        if (string.IsNullOrWhiteSpace(userInput.CurrentValue)) return;
-
-        messages.Add(new ChatMessage { Text = userInput.CurrentValue, IsBot = false });
-
+        if (string.IsNullOrWhiteSpace(userInput.CurrentValue) && currentStep.Required != false) return;
         var propName = currentStep.PropertyName;
-        if (propName == "FullName")
+        switch (propName)
         {
-            var names = userInput.CurrentValue.Split(' ', 2);
-            registrationModel.FirstName = names[0];
-            registrationModel.LastName = names.Length > 1 ? names[1] : "";
+            case "FirstName": registrationModel.FirstName = userInput.CurrentValue ?? ""; break;
+            case "LastName": registrationModel.LastName = userInput.CurrentValue ?? ""; break;
+            case "MiddleName": registrationModel.MiddleName = userInput.CurrentValue; break;
+            case "Address": registrationModel.Address = userInput.CurrentValue ?? ""; break;
+            case "PhoneNumber": registrationModel.PhoneNumber = userInput.CurrentValue ?? ""; break;
+            case "Email":
+                registrationModel.Email = userInput.CurrentValue ?? "";
+                emailExists = await CheckEmailExists(registrationModel.Email);
+                if (emailExists && steps.Count > currentStepIndex + 1)
+                    steps[currentStepIndex + 1] = new InterviewStep { Question = Localizer["ExistingPasswordQuestion"], Placeholder = Localizer["PasswordPlaceholder"], PropertyName = "Password", Type = "password" };
+                break;
+            case "Password": registrationModel.Password = userInput.CurrentValue ?? ""; break;
         }
-        else if (propName == "Email") registrationModel.Email = userInput.CurrentValue;
-        else if (propName == "PhoneNumber") registrationModel.PhoneNumber = userInput.CurrentValue;
-        else if (propName == "Password") registrationModel.Password = userInput.CurrentValue;
-
         userInput.CurrentValue = null;
-
         currentStepIndex++;
-        if (currentStepIndex < steps.Count)
-        {
-            messages.Add(new ChatMessage { Text = steps[currentStepIndex].Question, IsBot = true });
-        }
-        else
-        {
-            await RegisterUser();
-        }
+        if (currentStepIndex >= steps.Count) await CompleteRegistration();
         StateHasChanged();
     }
 
-    private async Task RegisterUser()
+    private void PreviousStep() { if (currentStepIndex > 0) { currentStepIndex--; userInput.CurrentValue = null; } }
+
+    private async Task<bool> CheckEmailExists(string email)
     {
-        var response = await Http.PostAsJsonAsync("api/auth/register", registrationModel);
-        if (response.IsSuccessStatusCode)
-        {
-            isCompleted = true;
-        }
-        else
-        {
-            messages.Add(new ChatMessage { Text = "There was an error creating your account. Please try again.", IsBot = true });
-        }
+        try { var response = await Http.GetAsync($"api/auth/check-email?email={Uri.EscapeDataString(email)}"); return response.IsSuccessStatusCode; }
+        catch { return false; }
     }
 
-    public class ChatMessage { public string Text { get; set; } = ""; public bool IsBot { get; set; } }
-    public class InterviewStep { public string Question { get; set; } = ""; public string Placeholder { get; set; } = ""; public string PropertyName { get; set; } = ""; public string Type { get; set; } = "text"; public string? Pattern { get; set; } public string? Title { get; set; } }
+    private async Task CompleteRegistration()
+    {
+        try
+        {
+            HttpResponseMessage response;
+            if (emailExists)
+            {
+                var loginDto = new UserLoginDto { Email = registrationModel.Email, Password = registrationModel.Password };
+                response = await Http.PostAsJsonAsync("api/auth/login", loginDto);
+            }
+            else { response = await Http.PostAsJsonAsync("api/auth/register", registrationModel); }
+            if (response.IsSuccessStatusCode) isCompleted = true;
+        }
+        catch (Exception ex) { Console.WriteLine($"Registration/Login error: {ex.Message}"); }
+    }
+
+    public class InterviewStep { public string Question { get; set; } = ""; public string Placeholder { get; set; } = ""; public string PropertyName { get; set; } = ""; public string Type { get; set; } = "text"; public string? Pattern { get; set; } public string? Title { get; set; } public bool Required { get; set; } = true; }
     public class UserInputModel { [Required] public string? CurrentValue { get; set; } }
 }

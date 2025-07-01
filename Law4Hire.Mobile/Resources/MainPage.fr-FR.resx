@@ -1,0 +1,27 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+	<data xml:space="preserve" name="Welcome">
+    <value>Bienvenue à Law4Hire</value>
+  </data>
+	<data xml:space="preserve" name="StartIntake">
+    <value>Commencer le Processus Légal</value>
+  </data>
+	<data xml:space="preserve" name="ViewPackages">
+    <value>Voir les Forfaits de Services</value>
+  </data>
+	<data xml:space="preserve" name="MyAccount">
+    <value>Mon Compte</value>
+  </data>
+	<data xml:space="preserve" name="Description">
+    <value>Naviguez vos besoins en documents juridiques avec des conseils d'experts et un soutien professionnel</value>
+  </data>
+	<data xml:space="preserve" name="AppTitle">
+    <value>Law4Hire</value>
+  </data>
+	<data xml:space="preserve" name="AppSubtitle">
+    <value>Votre Partenaire de Documents Juridiques</value>
+  </data>
+	<data xml:space="preserve" name="LanguageUpdated">
+    <value>Langue Mise à Jour</value>
+  </data>
+</root>
