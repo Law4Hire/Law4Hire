@@ -1,5 +1,6 @@
-using Law4Hire.API.Hubs;
+﻿using Law4Hire.API.Hubs;
 using Law4Hire.Application.Services;
+using Law4Hire.Core.Entities;
 using Law4Hire.Core.Interfaces;
 using Law4Hire.Infrastructure.Data;
 using Law4Hire.Infrastructure.Data.Contexts;
@@ -7,9 +8,12 @@ using Law4Hire.Infrastructure.Data.Initialization;
 using Law4Hire.Infrastructure.Data.Repositories;
 using Law4Hire.Web.Components;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System;
@@ -59,6 +63,10 @@ builder.Services.AddControllers();
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 builder.Services.AddHttpClient();
+builder.Services.AddIdentity<User, IdentityRole<Guid>>()
+    .AddEntityFrameworkStores<Law4HireDbContext>()
+    .AddDefaultTokenProviders();
+
 //builder.Services.AddHttpClient("Law4Hire.API", client =>
 //{
 //    client.BaseAddress = new Uri("https://localhost:7123");

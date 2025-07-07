@@ -1,8 +1,9 @@
 ﻿using System;
+using Microsoft.AspNetCore.Identity;
 
 namespace Law4Hire.Core.Entities;
 
-public class User
+public class User : IdentityUser<Guid> // Inherits from IdentityUser with Guid as the key type
 {
     public Guid Id { get; set; }
     public string Email { get; set; } = default!;

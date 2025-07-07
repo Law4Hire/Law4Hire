@@ -1,12 +1,19 @@
 ﻿using Law4Hire.Core.Entities;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
 using System.Xml.Linq;
 
 namespace Law4Hire.Infrastructure.Data.Contexts;
 
-public class Law4HireDbContext(DbContextOptions<Law4HireDbContext> options) : DbContext(options)
+//public class Law4HireDbContext(DbContextOptions<Law4HireDbContext> options) : DbContext(options)
+//{
+public class Law4HireDbContext : IdentityDbContext<User, IdentityRole<Guid>, Guid>
 {
+    public Law4HireDbContext(DbContextOptions<Law4HireDbContext> options) : base(options)
+    {
+    }
     public DbSet<User> Users { get; set; }
     public DbSet<ServicePackage> ServicePackages { get; set; }
     public DbSet<IntakeSession> IntakeSessions { get; set; }

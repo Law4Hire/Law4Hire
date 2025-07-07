@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Law4Hire.API.Migrations
 {
     /// <inheritdoc />
-    public partial class AddClarification : Migration
+    public partial class AddClarificationNew : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -100,8 +100,7 @@ namespace Law4Hire.API.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     VisaTypeId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     DocumentTypeId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    IsRequired = table.Column<bool>(type: "bit", nullable: false),
-                    DocumentTypeId1 = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    IsRequired = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -112,11 +111,6 @@ namespace Law4Hire.API.Migrations
                         principalTable: "DocumentTypes",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_VisaDocumentRequirements_DocumentTypes_DocumentTypeId1",
-                        column: x => x.DocumentTypeId1,
-                        principalTable: "DocumentTypes",
-                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_VisaDocumentRequirements_VisaTypes_VisaTypeId",
                         column: x => x.VisaTypeId,
@@ -138,8 +132,7 @@ namespace Law4Hire.API.Migrations
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     VisaTypeId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    LastModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    DocumentTypeId1 = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                    LastModifiedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -150,11 +143,6 @@ namespace Law4Hire.API.Migrations
                         principalTable: "DocumentTypes",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_UserDocumentStatuses_DocumentTypes_DocumentTypeId1",
-                        column: x => x.DocumentTypeId1,
-                        principalTable: "DocumentTypes",
-                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_UserDocumentStatuses_UserVisas_UserVisaId",
                         column: x => x.UserVisaId,
@@ -173,11 +161,6 @@ namespace Law4Hire.API.Migrations
                 name: "IX_UserDocumentStatuses_DocumentTypeId",
                 table: "UserDocumentStatuses",
                 column: "DocumentTypeId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_UserDocumentStatuses_DocumentTypeId1",
-                table: "UserDocumentStatuses",
-                column: "DocumentTypeId1");
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserDocumentStatuses_UserVisaId",
@@ -203,11 +186,6 @@ namespace Law4Hire.API.Migrations
                 name: "IX_VisaDocumentRequirements_DocumentTypeId",
                 table: "VisaDocumentRequirements",
                 column: "DocumentTypeId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_VisaDocumentRequirements_DocumentTypeId1",
-                table: "VisaDocumentRequirements",
-                column: "DocumentTypeId1");
 
             migrationBuilder.CreateIndex(
                 name: "IX_VisaDocumentRequirements_VisaTypeId",

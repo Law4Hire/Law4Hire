@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Law4Hire.API.Migrations
 {
     [DbContext(typeof(Law4HireDbContext))]
-    [Migration("20250707193945_AddClarification")]
-    partial class AddClarification
+    [Migration("20250707195943_AddClarificationNew")]
+    partial class AddClarificationNew
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -410,9 +410,6 @@ namespace Law4Hire.API.Migrations
                     b.Property<Guid>("DocumentTypeId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("DocumentTypeId1")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<string>("FilePath")
                         .HasColumnType("nvarchar(max)");
 
@@ -437,8 +434,6 @@ namespace Law4Hire.API.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("DocumentTypeId");
-
-                    b.HasIndex("DocumentTypeId1");
 
                     b.HasIndex("UserVisaId");
 
@@ -483,9 +478,6 @@ namespace Law4Hire.API.Migrations
                     b.Property<Guid>("DocumentTypeId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("DocumentTypeId1")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<bool>("IsRequired")
                         .HasColumnType("bit");
 
@@ -495,8 +487,6 @@ namespace Law4Hire.API.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("DocumentTypeId");
-
-                    b.HasIndex("DocumentTypeId1");
 
                     b.HasIndex("VisaTypeId");
 
@@ -615,14 +605,10 @@ namespace Law4Hire.API.Migrations
             modelBuilder.Entity("Law4Hire.Core.Entities.UserDocumentStatus", b =>
                 {
                     b.HasOne("Law4Hire.Core.Entities.DocumentType", "DocumentType")
-                        .WithMany()
+                        .WithMany("UserDocumentStatuses")
                         .HasForeignKey("DocumentTypeId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.HasOne("Law4Hire.Core.Entities.DocumentType", null)
-                        .WithMany("UserDocumentStatuses")
-                        .HasForeignKey("DocumentTypeId1");
 
                     b.HasOne("Law4Hire.Core.Entities.UserVisa", "UserVisa")
                         .WithMany("DocumentStatuses")
@@ -665,14 +651,10 @@ namespace Law4Hire.API.Migrations
             modelBuilder.Entity("Law4Hire.Core.Entities.VisaDocumentRequirement", b =>
                 {
                     b.HasOne("Law4Hire.Core.Entities.DocumentType", "DocumentType")
-                        .WithMany()
+                        .WithMany("VisaDocumentRequirements")
                         .HasForeignKey("DocumentTypeId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
-
-                    b.HasOne("Law4Hire.Core.Entities.DocumentType", null)
-                        .WithMany("VisaDocumentRequirements")
-                        .HasForeignKey("DocumentTypeId1");
 
                     b.HasOne("Law4Hire.Core.Entities.VisaType", "VisaType")
                         .WithMany("DocumentRequirements")
