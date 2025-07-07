@@ -38,13 +38,13 @@ public class Law4HireDbContext(DbContextOptions<Law4HireDbContext> options) : Db
 
         modelBuilder.Entity<UserDocumentStatus>()
         .HasOne(uds => uds.DocumentType)
-        .WithMany()
+        .WithMany(dt => dt.UserDocumentStatuses)
         .HasForeignKey(uds => uds.DocumentTypeId)
         .OnDelete(DeleteBehavior.Restrict); // or Cascade, based on your logic
 
         modelBuilder.Entity<VisaDocumentRequirement>()
             .HasOne(vdr => vdr.DocumentType)
-            .WithMany()
+            .WithMany(dt => dt.VisaDocumentRequirements)
             .OnDelete(DeleteBehavior.Restrict)
             .HasForeignKey(vdr => vdr.DocumentTypeId);
 
