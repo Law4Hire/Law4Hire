@@ -2,6 +2,7 @@
 @inject NavigationManager NavigationManager
 @inject IStringLocalizer<NavMenu> Localizer
 @inject Law4Hire.Web.State.CultureState CultureState
+@inject Law4Hire.Web.State.AuthState AuthState
 @using Microsoft.Extensions.Localization
 @using System.Globalization
 @implements IDisposable
@@ -38,9 +39,12 @@
                 <li class="nav-item">
                     <NavLink class="nav-link" href="immigrationLibrary">@Localizer["Library"]</NavLink>
                 </li>
-                <li class="nav-item">
-                    <NavLink class="nav-link" href="dashboard">@Localizer["Dashboard"]</NavLink>
-                </li>
+                @if (AuthState.IsLoggedIn)
+                {
+                    <li class="nav-item">
+                        <NavLink class="nav-link" href="dashboard">@Localizer["Dashboard"]</NavLink>
+                    </li>
+                }
             </ul>
             <!-- Right-aligned items -->
             <ul class="navbar-nav ms-auto align-items-center">
@@ -64,11 +68,20 @@
                         }
                     </ul>
                 </li>
-                <li class="nav-item">
-                    <NavLink class="nav-link" href="login">
-                        <span class="oi oi-account-login" aria-hidden="true"></span> @Localizer["Login"]
-                    </NavLink>
-                </li>
+                @if (!AuthState.IsLoggedIn)
+                {
+                    <li class="nav-item">
+                        <NavLink class="nav-link" href="login">
+                            <span class="oi oi-account-login" aria-hidden="true"></span> @Localizer["Login"]
+                        </NavLink>
+                    </li>
+                }
+                else if (AuthState.CurrentUser is not null)
+                {
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" @onclick="Logout">Hello @AuthState.CurrentUser.FirstName</a>
+                    </li>
+                }
             </ul>
         </div>
     </nav>
@@ -81,6 +94,7 @@
     protected override void OnInitialized()
     {
         CultureState.OnChange += StateHasChanged;
+        AuthState.OnChange += StateHasChanged;
     }
 
     protected override void OnAfterRender(bool firstRender)
@@ -130,6 +144,12 @@
         collapseNavMenu = !collapseNavMenu;
     }
 
+    private void Logout()
+    {
+        AuthState.Logout();
+        NavigationManager.NavigateTo("/");
+    }
+
     private List<LanguageInfo> SupportedLanguages { get; } = new()
     {
         new("🇺🇸 English", "en-US"),
@@ -160,5 +180,6 @@
     public void Dispose()
     {
         CultureState.OnChange -= StateHasChanged;
+        AuthState.OnChange -= StateHasChanged;
     }
 }

@@ -9,6 +9,7 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<CultureState>();
+builder.Services.AddScoped<AuthState>();
 builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 
 // ✅ Add this
