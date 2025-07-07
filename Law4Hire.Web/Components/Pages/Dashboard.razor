@@ -130,21 +130,22 @@ else
         if (AuthState.CurrentUser != null)
         {
             var u = AuthState.CurrentUser;
-            editModel = new UpdateUserDto(
-                u.Email,
-                u.FirstName,
-                u.MiddleName,
-                u.LastName,
-                u.PhoneNumber,
-                u.PreferredLanguage,
-                u.Address1,
-                u.Address2,
-                u.City,
-                u.State,
-                u.Country,
-                u.PostalCode,
-                u.DateOfBirth
-            );
+            editModel = new UpdateUserDto
+            {
+                Email = u.Email,
+                FirstName = u.FirstName,
+                MiddleName = u.MiddleName,
+                LastName = u.LastName,
+                PhoneNumber = u.PhoneNumber,
+                PreferredLanguage = u.PreferredLanguage,
+                Address1 = u.Address1,
+                Address2 = u.Address2,
+                City = u.City,
+                State = u.State,
+                Country = u.Country,
+                PostalCode = u.PostalCode,
+                DateOfBirth = u.DateOfBirth
+            };
             documents = await Http.GetFromJsonAsync<List<DocumentInfo>>($"api/DocumentStatus/user/{u.Id}");
         }
     }
