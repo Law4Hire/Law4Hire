@@ -1,7 +1,8 @@
 ﻿using Law4Hire.Core.Entities;
 using Law4Hire.Core.Enums;
 using Law4Hire.Infrastructure.Data.Contexts;
-using Law4Hire.Application.Services;
+using System.Security.Cryptography;
+using System.Text;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -12,7 +13,6 @@ public static class DbInitializer
     public static async Task SeedAsync(IServiceProvider serviceProvider)
     {
         var context = serviceProvider.GetRequiredService<Law4HireDbContext>();
-        var authService = serviceProvider.GetRequiredService<IAuthService>();
 
         await context.Database.MigrateAsync();
 
@@ -20,7 +20,7 @@ public static class DbInitializer
         var aiEmail = "ai@law4hire.com";
         if (!await context.Users.AnyAsync(u => u.Email == aiEmail))
         {
-            authService.CreatePasswordHash("SuperSecure!123", out var hash, out var salt);
+            CreatePasswordHash("SuperSecure!123", out var hash, out var salt);
             var aiUser = new User
             {
                 UserName = aiEmail,
@@ -42,7 +42,7 @@ public static class DbInitializer
         var deniseEmail = "denise.cann@cannlaw.com";
         if (!await context.Users.AnyAsync(u => u.Email == deniseEmail))
         {
-            authService.CreatePasswordHash("Law4HireSecure!", out var hash, out var salt);
+            CreatePasswordHash("Law4HireSecure!", out var hash, out var salt);
             var deniseUser = new User
             {
                 UserName = deniseEmail,
@@ -67,5 +67,12 @@ public static class DbInitializer
         }
 
         // You can extend this section to seed visa types, document types, etc.
+    }
+
+    private static void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
+    {
+        using var hmac = new HMACSHA512();
+        passwordSalt = hmac.Key;
+        passwordHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
     }
 }
