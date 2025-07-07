@@ -1,21 +1,30 @@
-﻿namespace Law4Hire.Core.Entities;
+﻿using System;
+
+namespace Law4Hire.Core.Entities;
 
 public class User
 {
     public Guid Id { get; set; }
-    public string Email { get; set; } = string.Empty;
+    public string Email { get; set; } = default!;
+    public string UserName { get; set; } = string.Empty;
     public string? FirstName { get; set; }
+    public string? MiddleName { get; set; }
     public string? LastName { get; set; }
     public string? PhoneNumber { get; set; }
-
-    // Properties for secure password storage
-    public byte[] PasswordHash { get; set; } = [];
-    public byte[] PasswordSalt { get; set; } = [];
-
-    public string PreferredLanguage { get; set; } = "en-US";
-    public bool IsActive { get; set; } = true;
+    public string PreferredLanguage { get; set; } = "en";
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public bool IsActive { get; set; } = true;
 
+    // ✅ Newly added address and identity fields
+    public string? Address1 { get; set; }
+    public string? Address2 { get; set; }
+    public string? City { get; set; }
+    public string? State { get; set; }
+    public string? Country { get; set; }
+    public string? PostalCode { get; set; }
+    public DateTime? DateOfBirth { get; set; }
+    public byte[] PasswordHash { get; set; } = Array.Empty<byte>();
+    public byte[] PasswordSalt { get; set; } = Array.Empty<byte>();
     public ICollection<IntakeSession> IntakeSessions { get; set; } = new List<IntakeSession>();
     public ICollection<ServiceRequest> ServiceRequests { get; set; } = new List<ServiceRequest>();
 }

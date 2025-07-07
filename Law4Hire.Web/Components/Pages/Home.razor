@@ -389,10 +389,13 @@
                 registrationModel.LastName = userInput.CurrentValue ?? ""; 
                 break;
             case "MiddleName": 
-                registrationModel.MiddleName = userInput.CurrentValue; 
+                registrationModel.MiddleName = userInput.CurrentValue ?? ""; 
                 break;
-            case "Address": 
-                registrationModel.Address = userInput.CurrentValue ?? ""; 
+            case "Address1": 
+                registrationModel.Address1 = userInput.CurrentValue ?? ""; 
+                break;
+            case "Address2":
+                registrationModel.Address2 = userInput.CurrentValue ?? "";
                 break;
             case "PhoneNumber": 
                 registrationModel.PhoneNumber = userInput.CurrentValue ?? ""; 
@@ -436,11 +439,8 @@
 
     private async Task CompleteVisitInterview()
     {
-        // Handle the completion of visit interview
-        // You might want to store the answers and process them
         isCompleted = true;
-        // Or redirect to a specific visit results page
-        // NavigationManager.NavigateTo("/visit-results");
+        
     }
 
     private void PreviousStep() 

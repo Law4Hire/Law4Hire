@@ -1,6 +1,7 @@
 ﻿using Law4Hire.Core.Entities;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
+using System.Xml.Linq;
 
 namespace Law4Hire.Infrastructure.Data.Contexts;
 
@@ -12,11 +13,71 @@ public class Law4HireDbContext(DbContextOptions<Law4HireDbContext> options) : Db
     public DbSet<IntakeQuestion> IntakeQuestions { get; set; }
     public DbSet<ServiceRequest> ServiceRequests { get; set; }
     public DbSet<LocalizedContent> LocalizedContents { get; set; }
+    public DbSet<LegalProfessional> LegalProfessionals { get; set; }
+    public DbSet<UserDocumentStatus> UserDocumentStatuses { get; set; }
+    public DbSet<VisaDocumentRequirement> VisaDocumentRequirements { get; set; }
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(Law4HireDbContext).Assembly);
+
         base.OnModelCreating(modelBuilder);
         // This will automatically apply all configurations from the assembly
         modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+        modelBuilder.Entity<ServicePackage>()
+            .Property(p => p.BasePrice)
+            .HasPrecision(18, 2);  // Or whatever suits your pricing logic
+
+        modelBuilder.Entity<ServiceRequest>()
+            .Property(p => p.AgreedPrice)
+            .HasPrecision(18, 2);
+
+        modelBuilder.Entity<VisaType>().ToTable("VisaTypes");
+        modelBuilder.Entity<DocumentType>().ToTable("DocumentTypes");
+
+        modelBuilder.Entity<UserDocumentStatus>()
+        .HasOne(uds => uds.DocumentType)
+        .WithMany()
+        .HasForeignKey(uds => uds.DocumentTypeId)
+        .OnDelete(DeleteBehavior.Restrict); // or Cascade, based on your logic
+
+        modelBuilder.Entity<VisaDocumentRequirement>()
+            .HasOne(vdr => vdr.DocumentType)
+            .WithMany()
+            .OnDelete(DeleteBehavior.Restrict)
+            .HasForeignKey(vdr => vdr.DocumentTypeId);
+
+        // VisaDocumentRequirement -> VisaType
+        modelBuilder.Entity<VisaDocumentRequirement>()
+            .HasOne(vdr => vdr.VisaType)
+            .WithMany(vt => vt.DocumentRequirements)
+            .HasForeignKey(vdr => vdr.VisaTypeId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        // UserDocumentStatus -> VisaType
+        modelBuilder.Entity<UserDocumentStatus>()
+            .HasOne(uds => uds.VisaType)
+            .WithMany(vt => vt.UserDocumentStatuses)
+            .HasForeignKey(uds => uds.VisaTypeId)
+            .OnDelete(DeleteBehavior.Restrict);
+    
+    modelBuilder.Entity<UserVisa>().ToTable("UserVisas")
+            .HasOne(uv => uv.VisaType)
+            .WithMany(vt => vt.UserVisas)
+            .HasForeignKey(uv => uv.VisaTypeId);
+
+        modelBuilder.Entity<UserVisa>()
+            .HasOne(uv => uv.User)
+            .WithMany()
+            .HasForeignKey(uv => uv.UserId);
+
+        modelBuilder.Entity<LegalProfessional>()
+            .HasKey(x => x.Id);
+
+        modelBuilder.Entity<LegalProfessional>()
+            .HasOne(x => x.User)
+            .WithOne()
+            .HasForeignKey<LegalProfessional>(x => x.Id);
     }
 }

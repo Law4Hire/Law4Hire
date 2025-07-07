@@ -3,6 +3,8 @@ using Law4Hire.Core.DTOs;
 using Law4Hire.Core.Entities;
 using Law4Hire.Core.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Cryptography.KeyDerivation;
+using System.Security.Cryptography;
 
 namespace Law4Hire.API.Controllers;
 
@@ -24,8 +26,21 @@ public class AuthController(IUserRepository userRepository, IAuthService authSer
         {
             Email = request.Email,
             FirstName = request.FirstName,
+            MiddleName = request.MiddleName,
             LastName = request.LastName,
             PhoneNumber = request.PhoneNumber,
+            Address1 = request.Address1,
+            Address2 = request.Address2,
+            City = request.City,
+            State = request.State,
+            Country = request.Country,
+            PostalCode = request.PostalCode,
+            DateOfBirth = request.DateOfBirth,
+
+            PreferredLanguage = "en", 
+            CreatedAt = DateTime.UtcNow,
+            IsActive = true,
+
             PasswordHash = passwordHash,
             PasswordSalt = passwordSalt
         };

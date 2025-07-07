@@ -3,25 +3,24 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.RateLimiting;
 using Law4Hire.Core.Interfaces;
 using Law4Hire.Core.DTOs;
-using Law4Hire.Core.Entities;
-using System.ComponentModel.DataAnnotations;
 
 namespace Law4Hire.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize]
+[Authorize] // Applied globally to the controller, but can be overridden per-action
 [EnableRateLimiting("fixed")]
-public class UsersController(IUserRepository userRepository) : ControllerBase
+public class UsersController : ControllerBase
 {
-    private readonly IUserRepository _userRepository = userRepository;
+    private readonly IUserRepository _userRepository;
 
-    /// <summary>
-    /// Get user by ID
-    /// </summary>
-    /// <param name="id">User ID</param>
-    /// <returns>User details</returns>
+    public UsersController(IUserRepository userRepository)
+    {
+        _userRepository = userRepository;
+    }
+
     [HttpGet("{id:guid}")]
+    [AllowAnonymous] // <-- TEMPORARY: Allows testing without JWT
     [ProducesResponseType<UserDto>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<UserDto>> GetUser(Guid id)
@@ -34,55 +33,73 @@ public class UsersController(IUserRepository userRepository) : ControllerBase
             user.Id,
             user.Email,
             user.FirstName,
+            user.MiddleName,
             user.LastName,
             user.PhoneNumber,
             user.PreferredLanguage,
             user.CreatedAt,
-            user.IsActive
+            user.IsActive,
+            user.Address1,
+            user.Address2,
+            user.City,
+            user.State,
+            user.Country,
+            user.PostalCode,
+            user.DateOfBirth
         );
 
         return Ok(userDto);
     }
 
-    /// <summary>
-    /// Create a new user
-    /// </summary>
-    /// <param name="createUserDto">User creation data</param>
-    /// <returns>Created user</returns>
-    [HttpPost]
-    [ProducesResponseType<UserDto>(StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [AllowAnonymous]
-    public async Task<ActionResult<UserDto>> CreateUser([FromBody] CreateUserDto createUserDto)
-    {
-        var existingUser = await _userRepository.GetByEmailAsync(createUserDto.Email);
-        if (existingUser != null)
-        {
-            return BadRequest("A user with this email already exists.");
-        }
+    //[HttpPost]
+    //[ProducesResponseType<UserDto>(StatusCodes.Status201Created)]
+    //[ProducesResponseType(StatusCodes.Status400BadRequest)]
+    //[AllowAnonymous]
+    //public async Task<ActionResult<UserDto>> CreateUser([FromBody] CreateUserDto createUserDto)
+    //{
+    //    var existingUser = await _userRepository.GetByEmailAsync(createUserDto.Email);
+    //    if (existingUser != null)
+    //    {
+    //        return BadRequest("A user with this email already exists.");
+    //    }
 
-        var user = new User
-        {
-            Email = createUserDto.Email,
-            FirstName = createUserDto.FirstName,
-            LastName = createUserDto.LastName,
-            PhoneNumber = createUserDto.PhoneNumber,
-            PreferredLanguage = createUserDto.PreferredLanguage
-        };
+    //    var user = new User
+    //    {
+    //        Email = createUserDto.Email,
+    //        FirstName = createUserDto.FirstName,
+    //        LastName = createUserDto.LastName,
+    //        PhoneNumber = createUserDto.PhoneNumber,
+    //        PreferredLanguage = createUserDto.PreferredLanguage,
+    //        Address1 = createUserDto.Address1,
+    //        Address2 = createUserDto.Address2,
+    //        City = createUserDto.City,
+    //        State = createUserDto.State,
+    //        Country = createUserDto.Country,
+    //        PostalCode = createUserDto.PostalCode,
+    //        DateOfBirth = createUserDto.DateOfBirth
+    //    };
 
-        var createdUser = await _userRepository.CreateAsync(user);
+    //    var createdUser = await _userRepository.CreateAsync(user);
 
-        var userDto = new UserDto(
-            createdUser.Id,
-            createdUser.Email,
-            createdUser.FirstName,
-            createdUser.LastName,
-            createdUser.PhoneNumber,
-            createdUser.PreferredLanguage,
-            createdUser.CreatedAt,
-            createdUser.IsActive
-        );
+    //    var userDto = new UserDto(
+    //        createdUser.Id,
+    //        createdUser.Email,
+    //        createdUser.FirstName,
+    //        createdUser.MiddleName,
+    //        createdUser.LastName,
+    //        createdUser.PhoneNumber,
+    //        createdUser.PreferredLanguage,
+    //        createdUser.CreatedAt,
+    //        createdUser.IsActive,
+    //        createdUser.Address1,
+    //        createdUser.Address2,
+    //        createdUser.City,
+    //        createdUser.State,
+    //        createdUser.Country,
+    //        createdUser.PostalCode,
+    //        createdUser.DateOfBirth
+    //    );
 
-        return CreatedAtAction(nameof(GetUser), new { id = createdUser.Id }, userDto);
-    }
+    //    return CreatedAtAction(nameof(GetUser), new { id = createdUser.Id }, userDto);
+    //}
 }
