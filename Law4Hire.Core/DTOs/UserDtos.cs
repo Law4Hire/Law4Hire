@@ -35,3 +35,19 @@ public record CreateUserDto(
     string? PostalCode,
     DateTime? DateOfBirth
 );
+
+public record UpdateUserDto(
+    string Email,
+    string? FirstName,
+    string? MiddleName,
+    string? LastName,
+    string? PhoneNumber,
+    string PreferredLanguage,
+    string? Address1,
+    string? Address2,
+    string? City,
+    string? State,
+    string? Country,
+    string? PostalCode,
+    DateTime? DateOfBirth
+);
