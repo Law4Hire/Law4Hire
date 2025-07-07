@@ -17,7 +17,7 @@ builder.Services.AddControllers();
 
 builder.Services.AddScoped(sp => new HttpClient
 {
-    BaseAddress = new Uri("https://localhost:7123")
+    BaseAddress = new Uri("https://localhost:7280")
 });
 
 var app = builder.Build();
