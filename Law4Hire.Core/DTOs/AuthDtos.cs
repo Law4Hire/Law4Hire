@@ -10,11 +10,15 @@ public class UserRegistrationDto
     public string Email { get; set; } = string.Empty;
     public string PhoneNumber { get; set; } = string.Empty;
     public string Password { get; set; } = string.Empty;
-
-    // Add these new properties:
-    public string? MiddleName { get; set; }
-    public string? Address { get; set; }
-    public string? ImmigrationGoal { get; set; }
+    public string MiddleName { get; set; } = string.Empty;
+    public string Address1 { get; set; } = string.Empty;
+    public string Address2 { get; set; } = string.Empty;
+    public string City { get; set; } = string.Empty;
+    public string State { get; set; } = string.Empty;
+    public string Country { get; set; } = string.Empty;
+    public string PostalCode { get; set; } = string.Empty;
+    public DateTime DateOfBirth { get; set; }
+    public string? ImmigrationGoal { get; set; } = string.Empty;
 }
 
 public class UserLoginDto

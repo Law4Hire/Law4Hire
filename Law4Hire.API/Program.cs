@@ -3,15 +3,17 @@ using Law4Hire.Application.Services;
 using Law4Hire.Core.Interfaces;
 using Law4Hire.Infrastructure.Data;
 using Law4Hire.Infrastructure.Data.Contexts;
+using Law4Hire.Infrastructure.Data.Initialization;
 using Law4Hire.Infrastructure.Data.Repositories;
 using Law4Hire.Web.Components;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System;
 using System.Globalization;
-using Microsoft.AspNetCore.Localization;
 using System.Text;
 using System.Threading.RateLimiting;
 
@@ -23,17 +25,22 @@ builder.Services.AddHttpLogging(options =>
 {
     options.LoggingFields = Microsoft.AspNetCore.HttpLogging.HttpLoggingFields.All;
 });
+
 builder.Services.AddDbContext<Law4HireDbContext>(options =>
 {
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"),
-        sqlOptions => sqlOptions.EnableRetryOnFailure(
-            maxRetryCount: 3,
-            maxRetryDelay: TimeSpan.FromSeconds(5),
-            errorNumbersToAdd: null));
+    options.UseSqlServer(
+        builder.Configuration.GetConnectionString("DefaultConnection"),
+        sqlOptions =>
+        {
+            sqlOptions.EnableRetryOnFailure(
+                maxRetryCount: 3,
+                maxRetryDelay: TimeSpan.FromSeconds(5),
+                errorNumbersToAdd: null);
 
+            sqlOptions.MigrationsAssembly("Law4Hire.API");
+        });
     if (builder.Environment.IsDevelopment())
     {
-        options.EnableSensitiveDataLogging();
         options.EnableDetailedErrors();
     }
 });
@@ -70,7 +77,12 @@ builder.Services.AddHttpClient();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
 {
-    options.SwaggerDoc("v1", new OpenApiInfo { Title = "Law4Hire API", Version = "v1" });
+    options.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "Law4Hire Immigration Legal API",
+        Version = "v1",
+        Description = "API for managing client registrations, visa intake interviews, service packages, and case processing."
+    });
 
     // Define the Bearer token security scheme
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
@@ -137,7 +149,11 @@ var supportedCultures = new[]
     new CultureInfo("mr-IN"),
     new CultureInfo("pl-PL") 
 };
-
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AIOnly", policy => policy.RequireRole("AI"));
+    options.AddPolicy("LegalProfessional", policy => policy.RequireRole("LegalProfessional"));
+});
 builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
 
 builder.Services.Configure<RequestLocalizationOptions>(options =>
@@ -152,8 +168,11 @@ builder.Services.AddHttpLogging(logging =>
 });
 var app = builder.Build();
 
-// --- 2. Configure the HTTP request pipeline ---
-
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    await DbInitializer.SeedAsync(services);
+}
 if (app.Environment.IsDevelopment())
 {
 app.UseExceptionHandler("/Error", createScopeForErrors: true);

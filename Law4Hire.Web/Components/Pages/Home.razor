@@ -99,7 +99,38 @@
                                 <div class="mb-4">
                                     <label class="form-label fw-bold">@currentStep.Question</label>
                                     
-                                    @if (currentStep.Type == "password")
+                                    @if (currentStep.Type == "select")
+                                    {
+                                        <select @bind="userInput.CurrentValue" class="form-control" required="@currentStep.Required">
+                                            <option value="">@Localizer["PleaseSelect"]</option>
+                                            @if (currentStep.Options != null)
+                                            {
+                                                @foreach (var option in currentStep.Options)
+                                                {
+                                                    <option value="@option">@option</option>
+                                                }
+                                            }
+                                        </select>
+                                    }
+                                    else if (currentStep.Type == "radio")
+                                    {
+                                        @if (currentStep.Options != null)
+                                        {
+                                            @foreach (var option in currentStep.Options)
+                                            {
+                                                <div class="form-check">
+                                                    <input class="form-check-input" 
+                                                           type="radio" 
+                                                           name="@currentStep.PropertyName" 
+                                                           value="@option" 
+                                                           @onchange="@((e) => userInput.CurrentValue = e.Value?.ToString())"
+                                                           checked="@(userInput.CurrentValue == option)" />
+                                                    <label class="form-check-label">@option</label>
+                                                </div>
+                                            }
+                                        }
+                                    }
+                                    else if (currentStep.Type == "password")
                                     {
                                         <input type="password" 
                                                @bind-value="userInput.CurrentValue" 
@@ -107,7 +138,7 @@
                                                placeholder="@currentStep.Placeholder" 
                                                pattern="@currentStep.Pattern" 
                                                title="@currentStep.Title" 
-                                               required />
+                                               required="@currentStep.Required" />
                                     }
                                     else
                                     {
@@ -117,7 +148,7 @@
                                                placeholder="@currentStep.Placeholder" 
                                                pattern="@currentStep.Pattern" 
                                                title="@currentStep.Title" 
-                                               required />
+                                               required="@currentStep.Required" />
                                     }
                                     
                                     <ValidationMessage For="@(() => userInput.CurrentValue)" />
@@ -189,6 +220,7 @@
     private InterviewStep currentStep => steps[currentStepIndex];
     private UserInputModel userInput = new();
     private UserRegistrationDto registrationModel = new();
+    private Dictionary<string, string> visitAnswers = new();
 
     protected override void OnInitialized() 
     { 
@@ -204,54 +236,91 @@
 
     private void InitializeSteps()
     {
-        steps = new List<InterviewStep>
+        if (selectedGoal == ImmigrationGoal.Visit)
         {
-            new() { 
-                Question = Localizer["FirstNameQuestion"], 
-                Placeholder = Localizer["FirstNamePlaceholder"], 
-                PropertyName = "FirstName", 
-                Type = "text" 
-            },
-            new() { 
-                Question = Localizer["LastNameQuestion"], 
-                Placeholder = Localizer["LastNamePlaceholder"], 
-                PropertyName = "LastName", 
-                Type = "text" 
-            },
-            new() { 
-                Question = Localizer["MiddleNameQuestion"], 
-                Placeholder = Localizer["MiddleNamePlaceholder"], 
-                PropertyName = "MiddleName", 
-                Type = "text", 
-                Required = false 
-            },
-            new() { 
-                Question = Localizer["AddressQuestion"], 
-                Placeholder = Localizer["AddressPlaceholder"], 
-                PropertyName = "Address", 
-                Type = "text" 
-            },
-            new() { 
-                Question = Localizer["PhoneQuestion"], 
-                Placeholder = Localizer["PhonePlaceholder"], 
-                PropertyName = "PhoneNumber", 
-                Type = "tel" 
-            },
-            new() { 
-                Question = Localizer["EmailQuestion"], 
-                Placeholder = Localizer["EmailPlaceholder"], 
-                PropertyName = "Email", 
-                Type = "email" 
-            },
-            new() { 
-                Question = Localizer["PasswordQuestion"], 
-                Placeholder = Localizer["PasswordPlaceholder"], 
-                PropertyName = "Password", 
-                Type = "password", 
-                Pattern = @"(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*\W).{8,}", 
-                Title = Localizer["PasswordRequirements"] 
-            }
-        };
+            steps = new List<InterviewStep>
+            {
+                new InterviewStep { 
+                    Question = Localizer["VisitPurposeQuestion"], 
+                    PropertyName = "Purpose", 
+                    Type = "select", 
+                    Options = new List<string> { 
+                        Localizer["PurposeTourism"], 
+                        Localizer["PurposeVisitFamily"], 
+                        Localizer["PurposeMedical"], 
+                        Localizer["PurposeBusiness"], 
+                        Localizer["PurposeTransit"], 
+                        Localizer["PurposeCrewMember"], 
+                        Localizer["PurposeOther"] 
+                    } 
+                },
+                new InterviewStep { 
+                    Question = Localizer["VWPCountryQuestion"], 
+                    PropertyName = "VWP", 
+                    Type = "radio", 
+                    Options = new List<string> { Localizer["Yes"], Localizer["No"] }, 
+                    Required = true 
+                },
+                new InterviewStep { 
+                    Question = Localizer["USPaymentQuestion"], 
+                    PropertyName = "PaidByUS", 
+                    Type = "radio", 
+                    Options = new List<string> { Localizer["Yes"], Localizer["No"] }, 
+                    Required = true 
+                }
+            };
+        }
+        else
+        {
+            steps = new List<InterviewStep>
+            {
+                new InterviewStep { 
+                    Question = Localizer["FirstNameQuestion"], 
+                    Placeholder = Localizer["FirstNamePlaceholder"], 
+                    PropertyName = "FirstName", 
+                    Type = "text" 
+                },
+                new InterviewStep { 
+                    Question = Localizer["LastNameQuestion"], 
+                    Placeholder = Localizer["LastNamePlaceholder"], 
+                    PropertyName = "LastName", 
+                    Type = "text" 
+                },
+                new InterviewStep { 
+                    Question = Localizer["MiddleNameQuestion"], 
+                    Placeholder = Localizer["MiddleNamePlaceholder"], 
+                    PropertyName = "MiddleName", 
+                    Type = "text", 
+                    Required = false 
+                },
+                new InterviewStep { 
+                    Question = Localizer["AddressQuestion"], 
+                    Placeholder = Localizer["AddressPlaceholder"], 
+                    PropertyName = "Address", 
+                    Type = "text" 
+                },
+                new InterviewStep { 
+                    Question = Localizer["PhoneQuestion"], 
+                    Placeholder = Localizer["PhonePlaceholder"], 
+                    PropertyName = "PhoneNumber", 
+                    Type = "tel" 
+                },
+                new InterviewStep { 
+                    Question = Localizer["EmailQuestion"], 
+                    Placeholder = Localizer["EmailPlaceholder"], 
+                    PropertyName = "Email", 
+                    Type = "email" 
+                },
+                new InterviewStep { 
+                    Question = Localizer["PasswordQuestion"], 
+                    Placeholder = Localizer["PasswordPlaceholder"], 
+                    PropertyName = "Password", 
+                    Type = "password", 
+                    Pattern = @"(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*\W).{8,}", 
+                    Title = Localizer["PasswordRequirements"] 
+                }
+            };
+        }
     }
 
     private void StartInterview(ImmigrationGoal goal)
@@ -261,9 +330,11 @@
         currentStepIndex = 0;
         userInput = new UserInputModel();
         registrationModel = new UserRegistrationDto();
+        visitAnswers = new Dictionary<string, string>();
         isCompleted = false;
         emailExists = false;
         registrationModel.ImmigrationGoal = goal.ToString();
+        InitializeSteps(); // Reinitialize steps for the selected goal
     }
 
     private void BackToOptions() 
@@ -305,6 +376,12 @@
         var propName = currentStep.PropertyName;
         switch (propName)
         {
+            case "Purpose":
+            case "VWP":
+            case "PaidByUS":
+                // Store visit-specific answers
+                visitAnswers[propName] = userInput.CurrentValue ?? "";
+                break;
             case "FirstName": 
                 registrationModel.FirstName = userInput.CurrentValue ?? ""; 
                 break;
@@ -312,10 +389,13 @@
                 registrationModel.LastName = userInput.CurrentValue ?? ""; 
                 break;
             case "MiddleName": 
-                registrationModel.MiddleName = userInput.CurrentValue; 
+                registrationModel.MiddleName = userInput.CurrentValue ?? ""; 
                 break;
-            case "Address": 
-                registrationModel.Address = userInput.CurrentValue ?? ""; 
+            case "Address1": 
+                registrationModel.Address1 = userInput.CurrentValue ?? ""; 
+                break;
+            case "Address2":
+                registrationModel.Address2 = userInput.CurrentValue ?? "";
                 break;
             case "PhoneNumber": 
                 registrationModel.PhoneNumber = userInput.CurrentValue ?? ""; 
@@ -343,9 +423,24 @@
         currentStepIndex++;
         
         if (currentStepIndex >= steps.Count) 
-            await CompleteRegistration();
+        {
+            if (selectedGoal == ImmigrationGoal.Visit)
+            {
+                await CompleteVisitInterview();
+            }
+            else
+            {
+                await CompleteRegistration();
+            }
+        }
             
         StateHasChanged();
+    }
+
+    private async Task CompleteVisitInterview()
+    {
+        isCompleted = true;
+        
     }
 
     private void PreviousStep() 
@@ -406,7 +501,8 @@
         public string Type { get; set; } = "text"; 
         public string? Pattern { get; set; } 
         public string? Title { get; set; } 
-        public bool Required { get; set; } = true; 
+        public bool Required { get; set; } = true;
+        public List<string>? Options { get; set; }
     }
 
     public class UserInputModel 
