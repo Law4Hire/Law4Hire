@@ -14,7 +14,6 @@ public class Law4HireDbContext : IdentityDbContext<User, IdentityRole<Guid>, Gui
     public Law4HireDbContext(DbContextOptions<Law4HireDbContext> options) : base(options)
     {
     }
-    public DbSet<User> Users { get; set; }
     public DbSet<ServicePackage> ServicePackages { get; set; }
     public DbSet<IntakeSession> IntakeSessions { get; set; }
     public DbSet<IntakeQuestion> IntakeQuestions { get; set; }
