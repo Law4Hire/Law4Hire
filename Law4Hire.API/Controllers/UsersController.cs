@@ -51,6 +51,54 @@ public class UsersController : ControllerBase
         return Ok(userDto);
     }
 
+    [HttpPut("{id:guid}")]
+    [AllowAnonymous] // TEMPORARY: allow editing without auth
+    [ProducesResponseType<UserDto>(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<UserDto>> UpdateUser(Guid id, [FromBody] UpdateUserDto updateDto)
+    {
+        var user = await _userRepository.GetByIdAsync(id);
+        if (user == null)
+            return NotFound();
+
+        user.Email = updateDto.Email;
+        user.FirstName = updateDto.FirstName;
+        user.MiddleName = updateDto.MiddleName;
+        user.LastName = updateDto.LastName;
+        user.PhoneNumber = updateDto.PhoneNumber;
+        user.PreferredLanguage = updateDto.PreferredLanguage;
+        user.Address1 = updateDto.Address1;
+        user.Address2 = updateDto.Address2;
+        user.City = updateDto.City;
+        user.State = updateDto.State;
+        user.Country = updateDto.Country;
+        user.PostalCode = updateDto.PostalCode;
+        user.DateOfBirth = updateDto.DateOfBirth;
+
+        await _userRepository.UpdateAsync(user);
+
+        var userDto = new UserDto(
+            user.Id,
+            user.Email,
+            user.FirstName,
+            user.MiddleName,
+            user.LastName,
+            user.PhoneNumber,
+            user.PreferredLanguage,
+            user.CreatedAt,
+            user.IsActive,
+            user.Address1,
+            user.Address2,
+            user.City,
+            user.State,
+            user.Country,
+            user.PostalCode,
+            user.DateOfBirth
+        );
+
+        return Ok(userDto);
+    }
+
     //[HttpPost]
     //[ProducesResponseType<UserDto>(StatusCodes.Status201Created)]
     //[ProducesResponseType(StatusCodes.Status400BadRequest)]

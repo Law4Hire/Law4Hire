@@ -1,46 +1,171 @@
-﻿@page "/dashboard"
+@page "/dashboard"
+@using System.Net.Http.Json
+@inject HttpClient Http
+@inject Law4Hire.Web.State.AuthState AuthState
 
 <PageTitle>Dashboard</PageTitle>
 
-<h1 class="mb-4">Client Dashboard</h1>
+@if (AuthState.CurrentUser is null)
+{
+    <p>Please log in to view your dashboard.</p>
+}
+else
+{
+    <h1 class="mb-4">Client Dashboard</h1>
+    <div class="dashboard-grid">
+        <div class="dashboard-card card">
+            <div class="card-header d-flex align-items-center">
+                <span class="me-2">👤</span>
+                <h3 class="mb-0">Personal Information</h3>
+            </div>
+            <div class="card-body">
+                @if (!editMode)
+                {
+                    <p><strong>Name:</strong> @FullName</p>
+                    <p><strong>Email:</strong> @editModel!.Email</p>
+                    <p><strong>Phone:</strong> @editModel!.PhoneNumber</p>
+                    <button class="btn btn-secondary btn-sm mt-2" @onclick="EnableEdit">Edit Information</button>
+                }
+                else
+                {
+                    <EditForm Model="editModel" OnValidSubmit="SaveUser">
+                        <DataAnnotationsValidator />
+                        <div class="mb-2">
+                            <label class="form-label">First Name</label>
+                            <InputText class="form-control" @bind-Value="editModel!.FirstName" />
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Middle Name</label>
+                            <InputText class="form-control" @bind-Value="editModel!.MiddleName" />
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Last Name</label>
+                            <InputText class="form-control" @bind-Value="editModel!.LastName" />
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Email</label>
+                            <InputText class="form-control" @bind-Value="editModel!.Email" />
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Phone</label>
+                            <InputText class="form-control" @bind-Value="editModel!.PhoneNumber" />
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Address 1</label>
+                            <InputText class="form-control" @bind-Value="editModel!.Address1" />
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Address 2</label>
+                            <InputText class="form-control" @bind-Value="editModel!.Address2" />
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">City</label>
+                            <InputText class="form-control" @bind-Value="editModel!.City" />
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">State</label>
+                            <InputText class="form-control" @bind-Value="editModel!.State" />
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Country</label>
+                            <InputText class="form-control" @bind-Value="editModel!.Country" />
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">Postal Code</label>
+                            <InputText class="form-control" @bind-Value="editModel!.PostalCode" />
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Birthdate</label>
+                            <InputDate class="form-control" @bind-Value="editModel!.DateOfBirth" />
+                        </div>
+                        <button class="btn btn-primary btn-sm" type="submit">Save</button>
+                    </EditForm>
+                }
+            </div>
+        </div>
 
-<div class="dashboard-grid">
-    <div class="dashboard-card">
-        <div class="card-header">
-            <span class="icon">👤</span>
-            <h3>Personal Information</h3>
-        </div>
-        <div class="card-body">
-            <p><strong>Name:</strong> John Doe</p>
-            <p><strong>Email:</strong> john.doe@example.com</p>
-            <p><strong>Phone:</strong> (555) 123-4567</p>
-            <button class="btn btn-secondary btn-sm mt-2">Edit Information</button>
+        <div class="dashboard-card card">
+            <div class="card-header d-flex align-items-center">
+                <span class="me-2">📝</span>
+                <h3 class="mb-0">My Documents</h3>
+            </div>
+            <div class="card-body">
+                <ul class="list-unstyled">
+                    @if (documents is null)
+                    {
+                        <li>Loading...</li>
+                    }
+                    else
+                    {
+                        @foreach (var doc in documents)
+                        {
+                            var badge = doc.Status switch
+                            {
+                                "NotStarted" => "bg-danger",
+                                "InProgress" => "bg-secondary",
+                                _ => "bg-success"
+                            };
+                            <li>@doc.DocumentName: <span class="badge @badge">@doc.Status</span></li>
+                        }
+                    }
+                </ul>
+            </div>
         </div>
     </div>
 
-    <div class="dashboard-card">
-        <div class="card-header">
-            <span class="icon">📝</span>
-            <h3>My Documents</h3>
-        </div>
-        <div class="card-body">
-            <ul>
-                <li>Form I-130: <span class="badge bg-success">Completed</span></li>
-                <li>Form G-1145: <span class="badge bg-secondary">In Progress</span></li>
-                <li>Biographical Information: <span class="badge bg-danger">Not Started</span></li>
-            </ul>
-        </div>
+    <div class="dashboard-footer mt-4">
+        Appointments, Messages and Statuses coming soon
     </div>
-</div>
+}
 
-<div class="dashboard-card mt-4">
-    <div class="card-header">
-        <span class="icon">📅</span>
-        <h3>Messages & Appointments</h3>
-    </div>
-    <div class="card-body">
-        <p><strong>Next Appointment:</strong> July 15, 2025 at 2:00 PM</p>
-        <p><strong>With:</strong> John Smith, Esq.</p>
-        <button class="btn btn-accent disabled" aria-disabled="true">Join Meeting (Not yet active)</button>
-    </div>
-</div>
+@code {
+    private bool editMode;
+    private UpdateUserDto? editModel;
+    private List<DocumentInfo>? documents;
+
+    private string FullName => string.Join(" ", new[]{editModel?.FirstName, editModel?.MiddleName, editModel?.LastName}.Where(s => !string.IsNullOrWhiteSpace(s)));
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (AuthState.CurrentUser != null)
+        {
+            var u = AuthState.CurrentUser;
+            editModel = new UpdateUserDto(
+                u.Email,
+                u.FirstName,
+                u.MiddleName,
+                u.LastName,
+                u.PhoneNumber,
+                u.PreferredLanguage,
+                u.Address1,
+                u.Address2,
+                u.City,
+                u.State,
+                u.Country,
+                u.PostalCode,
+                u.DateOfBirth
+            );
+            documents = await Http.GetFromJsonAsync<List<DocumentInfo>>($"api/DocumentStatus/user/{u.Id}");
+        }
+    }
+
+    private void EnableEdit() => editMode = true;
+
+    private async Task SaveUser()
+    {
+        if (editModel is null || AuthState.CurrentUser is null) return;
+
+        var response = await Http.PutAsJsonAsync($"api/users/{AuthState.CurrentUser.Id}", editModel);
+        if (response.IsSuccessStatusCode)
+        {
+            var updated = await response.Content.ReadFromJsonAsync<UserDto>();
+            if (updated != null)
+            {
+                AuthState.SetUser(updated);
+                editMode = false;
+            }
+        }
+    }
+
+    private record DocumentInfo(Guid DocumentTypeId, string DocumentName, string Status, string VisaType);
+}
