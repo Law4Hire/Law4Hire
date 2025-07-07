@@ -426,7 +426,7 @@
         {
             if (selectedGoal == ImmigrationGoal.Visit)
             {
-                await CompleteVisitInterview();
+                CompleteVisitInterview();
             }
             else
             {
@@ -437,10 +437,10 @@
         StateHasChanged();
     }
 
-    private async Task CompleteVisitInterview()
+    private void CompleteVisitInterview()
     {
         isCompleted = true;
-        
+
     }
 
     private void PreviousStep() 
