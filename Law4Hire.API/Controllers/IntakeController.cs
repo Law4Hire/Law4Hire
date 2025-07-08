@@ -41,7 +41,8 @@ public class IntakeController(IIntakeSessionRepository intakeSessionRepository) 
             createdSession.Status,
             createdSession.StartedAt,
             createdSession.CompletedAt,
-            createdSession.Language
+            createdSession.Language,
+            createdSession.SessionData
         );
 
         return CreatedAtAction(nameof(GetIntakeSession), new { id = createdSession.Id }, sessionDto);
@@ -67,7 +68,8 @@ public class IntakeController(IIntakeSessionRepository intakeSessionRepository) 
             session.Status,
             session.StartedAt,
             session.CompletedAt,
-            session.Language
+            session.Language,
+            session.SessionData
         );
 
         return Ok(sessionDto);
@@ -90,7 +92,8 @@ public class IntakeController(IIntakeSessionRepository intakeSessionRepository) 
             s.Status,
             s.StartedAt,
             s.CompletedAt,
-            s.Language
+            s.Language,
+            s.SessionData
         ));
 
         return Ok(sessionDtos);
