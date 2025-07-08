@@ -48,7 +48,8 @@ public class IntakeService(
             createdSession.Status,
             createdSession.StartedAt,
             createdSession.CompletedAt,
-            createdSession.Language
+            createdSession.Language,
+            createdSession.SessionData
         );
     }
 
