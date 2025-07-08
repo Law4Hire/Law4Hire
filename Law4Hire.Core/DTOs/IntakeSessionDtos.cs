@@ -9,7 +9,8 @@ public record IntakeSessionDto(
     IntakeStatus Status,
     DateTime StartedAt,
     DateTime? CompletedAt,
-    string Language
+    string Language,
+    string? SessionData
 );
 
 public record CreateIntakeSessionDto(
