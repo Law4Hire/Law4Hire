@@ -11,7 +11,7 @@ namespace Law4Hire.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize]
+//[Authorize]
 public class DocumentStatusController(Law4HireDbContext context) : ControllerBase
 {
     private readonly Law4HireDbContext _context = context;
