@@ -95,4 +95,18 @@ public class IntakeController(IIntakeSessionRepository intakeSessionRepository) 
 
         return Ok(sessionDtos);
     }
+
+    [HttpPatch("sessions/{id:guid}/progress")]
+    public async Task<IActionResult> UpdateProgress(Guid id, [FromBody] UpdateSessionProgressDto progress)
+    {
+        var session = await _intakeSessionRepository.GetByIdAsync(id);
+        if (session == null)
+            return NotFound();
+
+        session.SessionData = System.Text.Json.JsonSerializer.Serialize(progress);
+        session.Status = IntakeStatus.InProgress;
+        await _intakeSessionRepository.UpdateAsync(session);
+
+        return Ok(new { Message = "Progress saved." });
+    }
 }

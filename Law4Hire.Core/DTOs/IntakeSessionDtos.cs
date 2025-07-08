@@ -1,4 +1,5 @@
-﻿using Law4Hire.Core.Enums;
+using Law4Hire.Core.Enums;
+using System.Collections.Generic;
 
 namespace Law4Hire.Core.DTOs;
 
@@ -25,4 +26,9 @@ public record IntakeQuestionDto(
     string? Conditions,
     bool IsRequired,
     string? ValidationRules
+);
+
+public record UpdateSessionProgressDto(
+    int CurrentStep,
+    Dictionary<string, string> Answers
 );
