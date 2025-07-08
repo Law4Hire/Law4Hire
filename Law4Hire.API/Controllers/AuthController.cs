@@ -68,4 +68,14 @@ public class AuthController(IUserRepository userRepository, IAuthService authSer
         // For now, we'll return the user ID to signify success.
         return Ok(new { UserId = user.Id, Message = "Login successful." });
     }
+
+    [HttpGet("check-email")]
+    public async Task<IActionResult> CheckEmail([FromQuery] string email)
+    {
+        var user = await userRepository.GetByEmailAsync(email);
+        if (user == null)
+            return NotFound();
+
+        return Ok(new { Message = "Email exists." });
+    }
 }

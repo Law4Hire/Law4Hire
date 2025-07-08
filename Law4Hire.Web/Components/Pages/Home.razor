@@ -1,6 +1,7 @@
 ﻿@page "/"
 @using System.ComponentModel.DataAnnotations
 @using System.Net.Http.Json
+@using System.Text.Json
 @using Law4Hire.Core.DTOs
 @using Microsoft.Extensions.Localization
 @rendermode InteractiveServer
@@ -8,6 +9,7 @@
 @inject NavigationManager NavigationManager
 @inject IStringLocalizer<Home> Localizer
 @inject Law4Hire.Web.State.CultureState CultureState
+@inject Law4Hire.Web.State.AuthState AuthState
 @implements IDisposable
 
 <PageTitle>@Localizer["PageTitle"] - Law4Hire</PageTitle>
@@ -221,6 +223,10 @@
     private UserInputModel userInput = new();
     private UserRegistrationDto registrationModel = new();
     private Dictionary<string, string> visitAnswers = new();
+    private Guid? intakeSessionId;
+    private Dictionary<string, string> savedAnswers = new();
+    private int goalStartIndex;
+    private string? errorMessage;
 
     protected override void OnInitialized() 
     { 
@@ -236,94 +242,109 @@
 
     private void InitializeSteps()
     {
-        if (selectedGoal == ImmigrationGoal.Visit)
+        var registrationSteps = new List<InterviewStep>
         {
-            steps = new List<InterviewStep>
-            {
-                new InterviewStep { 
-                    Question = Localizer["VisitPurposeQuestion"], 
-                    PropertyName = "Purpose", 
-                    Type = "select", 
-                    Options = new List<string> { 
-                        Localizer["PurposeTourism"], 
-                        Localizer["PurposeVisitFamily"], 
-                        Localizer["PurposeMedical"], 
-                        Localizer["PurposeBusiness"], 
-                        Localizer["PurposeTransit"], 
-                        Localizer["PurposeCrewMember"], 
-                        Localizer["PurposeOther"] 
-                    } 
-                },
-                new InterviewStep { 
-                    Question = Localizer["VWPCountryQuestion"], 
-                    PropertyName = "VWP", 
-                    Type = "radio", 
-                    Options = new List<string> { Localizer["Yes"], Localizer["No"] }, 
-                    Required = true 
-                },
-                new InterviewStep { 
-                    Question = Localizer["USPaymentQuestion"], 
-                    PropertyName = "PaidByUS", 
-                    Type = "radio", 
-                    Options = new List<string> { Localizer["Yes"], Localizer["No"] }, 
-                    Required = true 
-                }
-            };
-        }
-        else
+            new InterviewStep {
+                Question = Localizer["FirstNameQuestion"],
+                Placeholder = Localizer["FirstNamePlaceholder"],
+                PropertyName = "FirstName",
+                Type = "text"
+            },
+            new InterviewStep {
+                Question = Localizer["LastNameQuestion"],
+                Placeholder = Localizer["LastNamePlaceholder"],
+                PropertyName = "LastName",
+                Type = "text"
+            },
+            new InterviewStep {
+                Question = Localizer["MiddleNameQuestion"],
+                Placeholder = Localizer["MiddleNamePlaceholder"],
+                PropertyName = "MiddleName",
+                Type = "text",
+                Required = false
+            },
+            new InterviewStep {
+                Question = Localizer["AddressQuestion"],
+                Placeholder = Localizer["AddressPlaceholder"],
+                PropertyName = "Address1",
+                Type = "text"
+            },
+            new InterviewStep {
+                Question = Localizer["PhoneQuestion"],
+                Placeholder = Localizer["PhonePlaceholder"],
+                PropertyName = "PhoneNumber",
+                Type = "tel"
+            }
+        };
+
+        steps = new List<InterviewStep>
         {
-            steps = new List<InterviewStep>
-            {
-                new InterviewStep { 
-                    Question = Localizer["FirstNameQuestion"], 
-                    Placeholder = Localizer["FirstNamePlaceholder"], 
-                    PropertyName = "FirstName", 
-                    Type = "text" 
-                },
-                new InterviewStep { 
-                    Question = Localizer["LastNameQuestion"], 
-                    Placeholder = Localizer["LastNamePlaceholder"], 
-                    PropertyName = "LastName", 
-                    Type = "text" 
-                },
-                new InterviewStep { 
-                    Question = Localizer["MiddleNameQuestion"], 
-                    Placeholder = Localizer["MiddleNamePlaceholder"], 
-                    PropertyName = "MiddleName", 
-                    Type = "text", 
-                    Required = false 
-                },
-                new InterviewStep { 
-                    Question = Localizer["AddressQuestion"], 
-                    Placeholder = Localizer["AddressPlaceholder"], 
-                    PropertyName = "Address", 
-                    Type = "text" 
-                },
-                new InterviewStep { 
-                    Question = Localizer["PhoneQuestion"], 
-                    Placeholder = Localizer["PhonePlaceholder"], 
-                    PropertyName = "PhoneNumber", 
-                    Type = "tel" 
-                },
-                new InterviewStep { 
-                    Question = Localizer["EmailQuestion"], 
-                    Placeholder = Localizer["EmailPlaceholder"], 
-                    PropertyName = "Email", 
-                    Type = "email" 
-                },
-                new InterviewStep { 
-                    Question = Localizer["PasswordQuestion"], 
-                    Placeholder = Localizer["PasswordPlaceholder"], 
-                    PropertyName = "Password", 
-                    Type = "password", 
-                    Pattern = @"(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*\W).{8,}", 
-                    Title = Localizer["PasswordRequirements"] 
-                }
-            };
-        }
+            new InterviewStep {
+                Question = Localizer["EmailQuestion"],
+                Placeholder = Localizer["EmailPlaceholder"],
+                PropertyName = "Email",
+                Type = "email"
+            },
+            new InterviewStep {
+                Question = Localizer["PasswordQuestion"],
+                Placeholder = Localizer["PasswordPlaceholder"],
+                PropertyName = "Password",
+                Type = "password",
+                Pattern = @"(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*\W).{8,}",
+                Title = Localizer["PasswordRequirements"]
+            }
+        };
+
+        steps.AddRange(registrationSteps);
+        goalStartIndex = steps.Count;
+        steps.AddRange(GetGoalSteps());
     }
 
-    private void StartInterview(ImmigrationGoal goal)
+    private List<InterviewStep> GetGoalSteps()
+    {
+        if (selectedGoal == ImmigrationGoal.Visit)
+        {
+            return new List<InterviewStep>
+            {
+                new InterviewStep
+                {
+                    Question = Localizer["VisitPurposeQuestion"],
+                    PropertyName = "Purpose",
+                    Type = "select",
+                    Options = new List<string>
+                    {
+                        Localizer["PurposeTourism"],
+                        Localizer["PurposeVisitFamily"],
+                        Localizer["PurposeMedical"],
+                        Localizer["PurposeBusiness"],
+                        Localizer["PurposeTransit"],
+                        Localizer["PurposeCrewMember"],
+                        Localizer["PurposeOther"]
+                    }
+                },
+                new InterviewStep
+                {
+                    Question = Localizer["VWPCountryQuestion"],
+                    PropertyName = "VWP",
+                    Type = "radio",
+                    Options = new List<string> { Localizer["Yes"], Localizer["No"] },
+                    Required = true
+                },
+                new InterviewStep
+                {
+                    Question = Localizer["USPaymentQuestion"],
+                    PropertyName = "PaidByUS",
+                    Type = "radio",
+                    Options = new List<string> { Localizer["Yes"], Localizer["No"] },
+                    Required = true
+                }
+            };
+        }
+
+        return new List<InterviewStep>();
+    }
+
+    private async Task StartInterview(ImmigrationGoal goal)
     {
         selectedGoal = goal;
         showInterview = true;
@@ -331,10 +352,56 @@
         userInput = new UserInputModel();
         registrationModel = new UserRegistrationDto();
         visitAnswers = new Dictionary<string, string>();
+        savedAnswers = new Dictionary<string, string>();
         isCompleted = false;
         emailExists = false;
+        intakeSessionId = null;
         registrationModel.ImmigrationGoal = goal.ToString();
-        InitializeSteps(); // Reinitialize steps for the selected goal
+        InitializeSteps();
+
+        if (AuthState.IsLoggedIn)
+        {
+            await LoadExistingSession();
+        }
+    }
+
+    private async Task LoadExistingSession()
+    {
+        try
+        {
+            if (AuthState.CurrentUser == null)
+                return;
+
+            var sessions = await Http.GetFromJsonAsync<List<IntakeSessionDto>>($"api/intake/users/{AuthState.CurrentUser.Id}/sessions");
+            var active = sessions?.FirstOrDefault(s => s.CompletedAt == null);
+
+            if (active != null)
+            {
+                intakeSessionId = active.Id;
+                if (!string.IsNullOrWhiteSpace(active.SessionData))
+                {
+                    var progress = JsonSerializer.Deserialize<UpdateSessionProgressDto>(active.SessionData);
+                    if (progress != null)
+                    {
+                        savedAnswers = progress.Answers;
+                        currentStepIndex = progress.CurrentStep;
+                        if (currentStepIndex < steps.Count && savedAnswers.TryGetValue(currentStep.PropertyName, out var val))
+                            userInput.CurrentValue = val;
+                    }
+                }
+            }
+            else
+            {
+                var create = new CreateIntakeSessionDto(AuthState.CurrentUser.Id, CultureState.CurrentCulture.Name);
+                var response = await Http.PostAsJsonAsync("api/intake/sessions", create);
+                if (response.IsSuccessStatusCode)
+                {
+                    var created = await response.Content.ReadFromJsonAsync<IntakeSessionDto>();
+                    intakeSessionId = created?.Id;
+                }
+            }
+        }
+        catch {}
     }
 
     private void BackToOptions() 
@@ -370,59 +437,76 @@
 
     private async Task HandleNextStep()
     {
-        if (string.IsNullOrWhiteSpace(userInput.CurrentValue) && currentStep.Required != false) 
+        if (string.IsNullOrWhiteSpace(userInput.CurrentValue) && currentStep.Required != false)
             return;
 
         var propName = currentStep.PropertyName;
+        savedAnswers[propName] = userInput.CurrentValue ?? "";
+
         switch (propName)
         {
             case "Purpose":
             case "VWP":
             case "PaidByUS":
-                // Store visit-specific answers
                 visitAnswers[propName] = userInput.CurrentValue ?? "";
                 break;
-            case "FirstName": 
-                registrationModel.FirstName = userInput.CurrentValue ?? ""; 
+            case "FirstName":
+                registrationModel.FirstName = userInput.CurrentValue ?? "";
                 break;
-            case "LastName": 
-                registrationModel.LastName = userInput.CurrentValue ?? ""; 
+            case "LastName":
+                registrationModel.LastName = userInput.CurrentValue ?? "";
                 break;
-            case "MiddleName": 
-                registrationModel.MiddleName = userInput.CurrentValue ?? ""; 
+            case "MiddleName":
+                registrationModel.MiddleName = userInput.CurrentValue ?? "";
                 break;
-            case "Address1": 
-                registrationModel.Address1 = userInput.CurrentValue ?? ""; 
+            case "Address1":
+                registrationModel.Address1 = userInput.CurrentValue ?? "";
                 break;
             case "Address2":
                 registrationModel.Address2 = userInput.CurrentValue ?? "";
                 break;
-            case "PhoneNumber": 
-                registrationModel.PhoneNumber = userInput.CurrentValue ?? ""; 
+            case "PhoneNumber":
+                registrationModel.PhoneNumber = userInput.CurrentValue ?? "";
                 break;
             case "Email":
                 registrationModel.Email = userInput.CurrentValue ?? "";
                 emailExists = await CheckEmailExists(registrationModel.Email);
-                if (emailExists && steps.Count > currentStepIndex + 1)
-                {
-                    steps[currentStepIndex + 1] = new InterviewStep 
-                    { 
-                        Question = Localizer["ExistingPasswordQuestion"], 
-                        Placeholder = Localizer["PasswordPlaceholder"], 
-                        PropertyName = "Password", 
-                        Type = "password" 
-                    };
-                }
+                steps[1].Question = emailExists ? Localizer["ExistingPasswordQuestion"] : Localizer["PasswordQuestion"];
                 break;
-            case "Password": 
-                registrationModel.Password = userInput.CurrentValue ?? ""; 
+            case "Password":
+                registrationModel.Password = userInput.CurrentValue ?? "";
+                if (emailExists)
+                {
+                    var success = await CompleteRegistration();
+                    if (success)
+                    {
+                        await LoadExistingSession();
+                        currentStepIndex = goalStartIndex;
+                        if (savedAnswers.TryGetValue(currentStep.PropertyName, out var val))
+                            userInput.CurrentValue = val;
+                        StateHasChanged();
+                        return;
+                    }
+                }
                 break;
         }
 
         userInput.CurrentValue = null;
         currentStepIndex++;
-        
-        if (currentStepIndex >= steps.Count) 
+
+        if (!emailExists && currentStepIndex == goalStartIndex)
+        {
+            var success = await CompleteRegistration();
+            if (success)
+                await LoadExistingSession();
+        }
+
+        if (intakeSessionId.HasValue && currentStepIndex > goalStartIndex)
+        {
+            await SaveProgress();
+        }
+
+        if (currentStepIndex >= steps.Count)
         {
             if (selectedGoal == ImmigrationGoal.Visit)
             {
@@ -430,10 +514,10 @@
             }
             else
             {
-                await CompleteRegistration();
+                isCompleted = true;
             }
         }
-            
+
         StateHasChanged();
     }
 
@@ -443,13 +527,16 @@
 
     }
 
-    private void PreviousStep() 
-    { 
-        if (currentStepIndex > 0) 
-        { 
-            currentStepIndex--; 
-            userInput.CurrentValue = null; 
-        } 
+    private void PreviousStep()
+    {
+        if (currentStepIndex > 0)
+        {
+            currentStepIndex--;
+            if (savedAnswers.TryGetValue(currentStep.PropertyName, out var val))
+                userInput.CurrentValue = val;
+            else
+                userInput.CurrentValue = null;
+        }
     }
 
     private async Task<bool> CheckEmailExists(string email)
@@ -465,32 +552,54 @@
         }
     }
 
-    private async Task CompleteRegistration()
+    private async Task<bool> CompleteRegistration()
     {
         try
         {
             HttpResponseMessage response;
             if (emailExists)
             {
-                var loginDto = new UserLoginDto 
-                { 
-                    Email = registrationModel.Email, 
-                    Password = registrationModel.Password 
+                var loginDto = new UserLoginDto
+                {
+                    Email = registrationModel.Email,
+                    Password = registrationModel.Password
                 };
                 response = await Http.PostAsJsonAsync("api/auth/login", loginDto);
             }
-            else 
-            { 
-                response = await Http.PostAsJsonAsync("api/auth/register", registrationModel); 
+            else
+            {
+                response = await Http.PostAsJsonAsync("api/auth/register", registrationModel);
             }
-            
-            if (response.IsSuccessStatusCode) 
-                isCompleted = true;
+
+            if (response.IsSuccessStatusCode)
+            {
+                var loginResult = await response.Content.ReadFromJsonAsync<LoginResult>();
+                if (loginResult != null)
+                {
+                    var user = await Http.GetFromJsonAsync<UserDto>($"api/users/{loginResult.UserId}");
+                    if (user != null)
+                    {
+                        AuthState.SetUser(user);
+                    }
+                }
+                return true;
+            }
         }
-        catch (Exception ex) 
-        { 
-            Console.WriteLine($"Registration/Login error: {ex.Message}"); 
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Registration/Login error: {ex.Message}");
         }
+
+        return false;
+    }
+
+    private async Task SaveProgress()
+    {
+        if (!intakeSessionId.HasValue)
+            return;
+
+        var progress = new UpdateSessionProgressDto(currentStepIndex, savedAnswers);
+        await Http.PatchAsJsonAsync($"api/intake/sessions/{intakeSessionId}/progress", progress);
     }
 
     public class InterviewStep 
@@ -515,4 +624,6 @@
     {
         CultureState.OnChange -= OnCultureChanged;
     }
+
+    private record LoginResult(Guid UserId, string Message);
 }
