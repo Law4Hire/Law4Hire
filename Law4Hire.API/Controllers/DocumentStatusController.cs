@@ -37,7 +37,7 @@ public class DocumentStatusController(Law4HireDbContext context) : ControllerBas
     }
 
     // 2. Update a user's document status (restricted by role)
-    [HttpPatch("user/{userId:guid}/document/{documentId:int}")]
+    [HttpPatch("user/{userId:guid}/document/{documentId:guid}")]
     [Authorize(Roles = "AI,LegalProfessional")]
     public async Task<IActionResult> UpdateStatus(Guid userId, Guid documentId, [FromBody] StatusUpdateDto update)
     {
