@@ -12,9 +12,11 @@ namespace Law4Hire.API.Controllers;
 [Route("api/[controller]")]
 [Authorize]
 [EnableRateLimiting("fixed")]
-public class IntakeController(IIntakeSessionRepository intakeSessionRepository) : ControllerBase
+public class IntakeController(IIntakeSessionRepository intakeSessionRepository,
+    IIntakeQuestionRepository intakeQuestionRepository) : ControllerBase
 {
     private readonly IIntakeSessionRepository _intakeSessionRepository = intakeSessionRepository;
+    private readonly IIntakeQuestionRepository _intakeQuestionRepository = intakeQuestionRepository;
 
     /// <summary>
     /// Create a new intake session
@@ -111,5 +113,26 @@ public class IntakeController(IIntakeSessionRepository intakeSessionRepository) 
         await _intakeSessionRepository.UpdateAsync(session);
 
         return Ok(new { Message = "Progress saved." });
+    }
+
+    [HttpGet("questions")]
+    [AllowAnonymous]
+    public async Task<ActionResult<IEnumerable<IntakeQuestionDto>>> GetQuestions([FromQuery] string category)
+    {
+        var questions = await _intakeQuestionRepository.GetByCategoryAsync(category);
+
+        var dtos = questions.Select(q => new IntakeQuestionDto(
+            q.Id,
+            q.Category,
+            q.QuestionKey,
+            q.QuestionText,
+            q.Type,
+            q.Order,
+            q.Conditions,
+            q.IsRequired,
+            q.ValidationRules
+        ));
+
+        return Ok(dtos);
     }
 }

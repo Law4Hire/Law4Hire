@@ -7,6 +7,9 @@ public class IntakeQuestion
 {
     public int Id { get; set; }
 
+    [MaxLength(50)]
+    public string Category { get; set; } = "General";
+
     [Required]
     [MaxLength(100)]
     public string QuestionKey { get; set; } = string.Empty; // e.g., "full_name", "date_of_birth"
