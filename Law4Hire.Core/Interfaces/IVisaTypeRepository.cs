@@ -7,4 +7,5 @@ public interface IVisaTypeRepository
     Task<IEnumerable<VisaType>> GetAllAsync();
     Task<IEnumerable<VisaType>> GetByCategoryAsync(string category);
     Task<VisaType?> GetByIdAsync(Guid id);
+    Task UpsertRangeAsync(IEnumerable<VisaType> visaTypes);
 }
