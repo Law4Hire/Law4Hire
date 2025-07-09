@@ -17,10 +17,10 @@
 <div class="container mt-5">
     @if (!showInterview)
     {
-        <div class="row justify-content-center mb-5">
+        <div class="row justify-content-center mb-3">
             <div class="col-lg-8 text-center">
                 <h1 class="display-4 mb-4">@Localizer["WelcomeTitle"]</h1>
-                <p class="lead text-muted mb-5">@Localizer["WelcomeSubtitle"]</p>
+                <p class="lead text-muted mb-0">@Localizer["WelcomeSubtitle"]</p>
             </div>
         </div>
         
@@ -33,40 +33,47 @@
                         </div>
                         <h5>@Localizer["VisitUSA"]</h5>
                     </div>
-                    
-                    <div class="immigration-option" @onclick="() => StartInterview(ImmigrationGoal.Asylum)">
+
+                    <div class="immigration-option" @onclick="() => StartInterview(ImmigrationGoal.Immigrate)">
                         <div class="option-icon">
-                            <img src="/images/asylum-icon.png" alt="@Localizer["ApplyAsylum"]" />
+                            <img src="/images/GreenCard.png" alt="@Localizer["ImmigrateGreenCard"]" />
                         </div>
-                        <h5>@Localizer["ApplyAsylum"]</h5>
+                        <h5>@Localizer["ImmigrateGreenCard"]</h5>
                     </div>
-                    
-                    <div class="immigration-option" @onclick="() => StartInterview(ImmigrationGoal.Family)">
-                        <div class="option-icon">
-                            <img src="/images/family-icon.png" alt="@Localizer["JoinFamily"]" />
-                        </div>
-                        <h5>@Localizer["JoinFamily"]</h5>
-                    </div>
-                    
-                    <div class="immigration-option" @onclick="() => StartInterview(ImmigrationGoal.Study)">
-                        <div class="option-icon">
-                            <img src="/images/study-icon.png" alt="@Localizer["StudyUSA"]" />
-                        </div>
-                        <h5>@Localizer["StudyUSA"]</h5>
-                    </div>
-                    
+
                     <div class="immigration-option" @onclick="() => StartInterview(ImmigrationGoal.Investment)">
                         <div class="option-icon">
                             <img src="/images/invest-icon.png" alt="@Localizer["InvestUSA"]" />
                         </div>
                         <h5>@Localizer["InvestUSA"]</h5>
                     </div>
-                    
+
                     <div class="immigration-option" @onclick="() => StartInterview(ImmigrationGoal.Work)">
                         <div class="option-icon">
                             <img src="/images/work-icon.png" alt="@Localizer["WorkUSA"]" />
                         </div>
                         <h5>@Localizer["WorkUSA"]</h5>
+                    </div>
+
+                    <div class="immigration-option" @onclick="() => StartInterview(ImmigrationGoal.Asylum)">
+                        <div class="option-icon">
+                            <img src="/images/asylum-icon.png" alt="@Localizer["ApplyAsylum"]" />
+                        </div>
+                        <h5>@Localizer["ApplyAsylum"]</h5>
+                    </div>
+
+                    <div class="immigration-option" @onclick="() => StartInterview(ImmigrationGoal.Study)">
+                        <div class="option-icon">
+                            <img src="/images/study-icon.png" alt="@Localizer["StudyUSA"]" />
+                        </div>
+                        <h5>@Localizer["StudyUSA"]</h5>
+                    </div>
+
+                    <div class="immigration-option" @onclick="() => StartInterview(ImmigrationGoal.Family)">
+                        <div class="option-icon">
+                            <img src="/images/family-icon.png" alt="@Localizer["JoinFamily"]" />
+                        </div>
+                        <h5>@Localizer["JoinFamily"]</h5>
                     </div>
                     
                     <div class="immigration-option login-option" @onclick="GoToLogin">
@@ -203,14 +210,15 @@
 </div>
 
 @code {
-    public enum ImmigrationGoal 
-    { 
-        Visit, 
-        Asylum, 
-        Family, 
-        Study, 
-        Investment, 
-        Work 
+    public enum ImmigrationGoal
+    {
+        Visit,
+        Immigrate,
+        Investment,
+        Work,
+        Asylum,
+        Study,
+        Family
     }
 
     private bool showInterview = false;
@@ -426,11 +434,12 @@
         return goal switch
         {
             ImmigrationGoal.Visit => Localizer["VisitDescription"],
-            ImmigrationGoal.Asylum => Localizer["AsylumDescription"],
-            ImmigrationGoal.Family => Localizer["FamilyDescription"],
-            ImmigrationGoal.Study => Localizer["StudyDescription"],
+            ImmigrationGoal.Immigrate => Localizer["ImmigrateDescription"],
             ImmigrationGoal.Investment => Localizer["InvestmentDescription"],
             ImmigrationGoal.Work => Localizer["WorkDescription"],
+            ImmigrationGoal.Asylum => Localizer["AsylumDescription"],
+            ImmigrationGoal.Study => Localizer["StudyDescription"],
+            ImmigrationGoal.Family => Localizer["FamilyDescription"],
             _ => ""
         };
     }
