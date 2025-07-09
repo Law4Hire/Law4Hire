@@ -20,6 +20,7 @@ public record CreateIntakeSessionDto(
 
 public record IntakeQuestionDto(
     int Id,
+    string Category,
     string QuestionKey,
     string QuestionText,
     QuestionType Type,
@@ -31,5 +32,4 @@ public record IntakeQuestionDto(
 
 public record UpdateSessionProgressDto(
     int CurrentStep,
-    Dictionary<string, string> Answers
-);
+    Dictionary<string, string> Answers);

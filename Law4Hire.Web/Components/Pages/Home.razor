@@ -236,19 +236,19 @@
     private int goalStartIndex;
     private string? errorMessage;
 
-    protected override void OnInitialized() 
-    { 
-        InitializeSteps();
+    protected override async Task OnInitializedAsync()
+    {
+        await InitializeStepsAsync();
         CultureState.OnChange += OnCultureChanged;
     }
 
-    private void OnCultureChanged()
+    private async void OnCultureChanged()
     {
-        InitializeSteps(); // Reinitialize steps with new culture
+        await InitializeStepsAsync(); // Reinitialize steps with new culture
         InvokeAsync(StateHasChanged);
     }
 
-    private void InitializeSteps()
+    private async Task InitializeStepsAsync()
     {
         var registrationSteps = new List<InterviewStep>
         {
@@ -305,51 +305,27 @@
 
         steps.AddRange(registrationSteps);
         goalStartIndex = steps.Count;
-        steps.AddRange(GetGoalSteps());
+        steps.AddRange(await GetGoalStepsAsync());
     }
-
-    private List<InterviewStep> GetGoalSteps()
+    private async Task<List<InterviewStep>> GetGoalStepsAsync()
     {
-        if (selectedGoal == ImmigrationGoal.Visit)
+        try
         {
-            return new List<InterviewStep>
-            {
-                new InterviewStep
-                {
-                    Question = Localizer["VisitPurposeQuestion"],
-                    PropertyName = "Purpose",
-                    Type = "select",
-                    Options = new List<string>
-                    {
-                        Localizer["PurposeTourism"],
-                        Localizer["PurposeVisitFamily"],
-                        Localizer["PurposeMedical"],
-                        Localizer["PurposeBusiness"],
-                        Localizer["PurposeTransit"],
-                        Localizer["PurposeCrewMember"],
-                        Localizer["PurposeOther"]
-                    }
-                },
-                new InterviewStep
-                {
-                    Question = Localizer["VWPCountryQuestion"],
-                    PropertyName = "VWP",
-                    Type = "radio",
-                    Options = new List<string> { Localizer["Yes"], Localizer["No"] },
-                    Required = true
-                },
-                new InterviewStep
-                {
-                    Question = Localizer["USPaymentQuestion"],
-                    PropertyName = "PaidByUS",
-                    Type = "radio",
-                    Options = new List<string> { Localizer["Yes"], Localizer["No"] },
-                    Required = true
-                }
-            };
-        }
+            var questions = await Http.GetFromJsonAsync<List<IntakeQuestionDto>>($"api/intake/questions?category={selectedGoal}");
+            if (questions == null) return new List<InterviewStep>();
 
-        return new List<InterviewStep>();
+            return questions.Select(q => new InterviewStep
+            {
+                Question = q.QuestionText,
+                PropertyName = q.QuestionKey,
+                Type = q.Type.ToString().ToLower(),
+                Required = q.IsRequired
+            }).ToList();
+        }
+        catch
+        {
+            return new List<InterviewStep>();
+        }
     }
 
     private async Task StartInterview(ImmigrationGoal goal)
@@ -365,7 +341,7 @@
         emailExists = false;
         intakeSessionId = null;
         registrationModel.ImmigrationGoal = goal.ToString();
-        InitializeSteps();
+        await InitializeStepsAsync();
 
         if (AuthState.IsLoggedIn)
         {

@@ -77,6 +77,7 @@ public static class DataSeeder
                 {
                     new IntakeQuestion
                     {
+                        Category = "Visit",
                         QuestionKey = "full_name",
                         QuestionText = "What is your full legal name as it appears on your passport or government-issued ID?",
                         Type = QuestionType.Text,
@@ -86,6 +87,7 @@ public static class DataSeeder
                     },
                     new IntakeQuestion
                     {
+                        Category = "Visit",
                         QuestionKey = "date_of_birth",
                         QuestionText = "What is your date of birth?",
                         Type = QuestionType.Date,
@@ -95,6 +97,7 @@ public static class DataSeeder
                     },
                     new IntakeQuestion
                     {
+                        Category = "Visit",
                         QuestionKey = "country_of_birth",
                         QuestionText = "In which country were you born?",
                         Type = QuestionType.Text,
@@ -104,6 +107,7 @@ public static class DataSeeder
                     },
                     new IntakeQuestion
                     {
+                        Category = "Visit",
                         QuestionKey = "current_immigration_status",
                         QuestionText = "What is your current immigration status in the United States?",
                         Type = QuestionType.MultipleChoice,
@@ -114,6 +118,7 @@ public static class DataSeeder
                     },
                     new IntakeQuestion
                     {
+                        Category = "Visit",
                         QuestionKey = "marriage_status",
                         QuestionText = "What is your current marital status?",
                         Type = QuestionType.MultipleChoice,
@@ -123,6 +128,7 @@ public static class DataSeeder
                     },
                     new IntakeQuestion
                     {
+                        Category = "Visit",
                         QuestionKey = "spouse_citizenship",
                         QuestionText = "What is your spouse's citizenship status?",
                         Type = QuestionType.MultipleChoice,
@@ -133,6 +139,7 @@ public static class DataSeeder
                     },
                     new IntakeQuestion
                     {
+                        Category = "Visit",
                         QuestionKey = "employment_status",
                         QuestionText = "What is your current employment situation in the United States?",
                         Type = QuestionType.MultipleChoice,
@@ -142,6 +149,7 @@ public static class DataSeeder
                     },
                     new IntakeQuestion
                     {
+                        Category = "Visit",
                         QuestionKey = "legal_issues",
                         QuestionText = "Have you ever been arrested, charged with a crime, or had any legal issues in the US or any other country?",
                         Type = QuestionType.MultipleChoice,
@@ -151,6 +159,7 @@ public static class DataSeeder
                     },
                     new IntakeQuestion
                     {
+                        Category = "Visit",
                         QuestionKey = "immigration_goal",
                         QuestionText = "What is your primary immigration goal?",
                         Type = QuestionType.MultipleChoice,
