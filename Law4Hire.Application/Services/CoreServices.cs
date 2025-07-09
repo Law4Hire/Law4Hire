@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using System.Linq;
 using Microsoft.Extensions.Configuration;
 
 namespace Law4Hire.Application.Services;
@@ -21,9 +22,11 @@ public interface IIntakeService
 
 public class IntakeService(
     IIntakeSessionRepository sessionRepository,
+    IIntakeQuestionRepository questionRepository,
     ILogger<IntakeService> logger) : IIntakeService
 {
     private readonly IIntakeSessionRepository _sessionRepository = sessionRepository;
+    private readonly IIntakeQuestionRepository _questionRepository = questionRepository;
     private readonly ILogger<IntakeService> _logger = logger;
 
     public async Task<IntakeSessionDto> StartIntakeSessionAsync(Guid userId, string language = "en-US")
@@ -56,27 +59,63 @@ public class IntakeService(
     public async Task<IntakeQuestionDto?> GetNextQuestionAsync(Guid sessionId)
     {
         _logger.LogInformation("Getting next question for session {SessionId}", sessionId);
-        
-        // TODO: Implement sophisticated logic to determine next question based on:
-        // - Previous responses
-        // - Conditional logic
-        // - User's selected language
-        // - Form requirements analysis
-        
-        // Placeholder implementation
-        await Task.Delay(100); // Simulate processing time
-        
-        // Return a sample question for now
-        return new IntakeQuestionDto(
-            1,
-            "full_name",
-            "What is your full legal name?",
-            QuestionType.Text,
-            1,
-            null,
-            true,
-            "required,min:2,max:100"
-        );
+
+        var session = await _sessionRepository.GetByIdAsync(sessionId);
+        if (session == null)
+        {
+            _logger.LogWarning("Session {SessionId} not found", sessionId);
+            return null;
+        }
+
+        var progress = new UpdateSessionProgressDto(0, new Dictionary<string, string>());
+        if (!string.IsNullOrWhiteSpace(session.SessionData))
+        {
+            try
+            {
+                var parsed = JsonSerializer.Deserialize<UpdateSessionProgressDto>(session.SessionData);
+                if (parsed != null)
+                {
+                    progress = parsed;
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to parse session progress for {SessionId}", sessionId);
+            }
+        }
+
+        var responses = session.Responses.ToDictionary(r => r.Question.QuestionKey, r => r.ResponseText);
+        foreach (var kv in progress.Answers)
+            responses[kv.Key] = kv.Value;
+
+        var questions = (await _questionRepository.GetByCategoryAsync("Visit")).ToList();
+
+        foreach (var question in questions)
+        {
+            if (responses.ContainsKey(question.QuestionKey))
+                continue;
+
+            if (!string.IsNullOrWhiteSpace(question.Conditions) && !EvaluateConditions(question.Conditions, responses))
+                continue;
+
+            progress = new UpdateSessionProgressDto(progress.CurrentStep + 1, responses);
+            session.SessionData = JsonSerializer.Serialize(progress);
+            await _sessionRepository.UpdateAsync(session);
+
+            return new IntakeQuestionDto(
+                question.Id,
+                question.Category,
+                question.QuestionKey,
+                question.QuestionText,
+                question.Type,
+                question.Order,
+                question.Conditions,
+                question.IsRequired,
+                question.ValidationRules
+            );
+        }
+
+        return null;
     }
 
     public async Task<bool> SubmitResponseAsync(Guid sessionId, int questionId, string response)
@@ -134,6 +173,37 @@ public class IntakeService(
             new IntakeQuestionDto(2, "date_of_birth", "What is your date of birth?", QuestionType.Date, 2, null, true, "required,date,before:today"),
             new IntakeQuestionDto(3, "country_of_birth", "In which country were you born?", QuestionType.Text, 3, null, true, "required,min:2,max:50")
         };
+    }
+
+    private static bool EvaluateConditions(string conditionsJson, IDictionary<string, string> answers)
+    {
+        try
+        {
+            using var doc = JsonDocument.Parse(conditionsJson);
+            if (doc.RootElement.TryGetProperty("showIf", out var showIf))
+            {
+                foreach (var condition in showIf.EnumerateObject())
+                {
+                    var questionKey = condition.Name;
+                    if (!answers.TryGetValue(questionKey, out var value))
+                        return false;
+
+                    var allowed = condition.Value.EnumerateArray()
+                        .Select(v => v.GetString())
+                        .Where(v => v != null)
+                        .ToHashSet();
+
+                    if (!allowed.Contains(value))
+                        return false;
+                }
+            }
+        }
+        catch
+        {
+            // If parsing fails, default to showing the question
+        }
+
+        return true;
     }
 }
 
