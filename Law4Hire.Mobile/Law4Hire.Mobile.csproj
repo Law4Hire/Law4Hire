@@ -88,10 +88,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <Content Include="Resources\Images\logo.gif">
+	  <MauiIcon Include="Resources\Images\logo.gif">
 	    <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
 	    <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-	  </Content>
+	  </MauiIcon>
 	</ItemGroup>
 
 	<ItemGroup>
