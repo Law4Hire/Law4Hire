@@ -30,4 +30,27 @@ public class VisaTypeRepository(Law4HireDbContext context) : IVisaTypeRepository
             .AsNoTracking()
             .FirstOrDefaultAsync(v => v.Id == id);
     }
+
+    public async Task UpsertRangeAsync(IEnumerable<VisaType> visaTypes)
+    {
+        foreach (var visa in visaTypes)
+        {
+            var existing = await _context.Set<VisaType>()
+                .FirstOrDefaultAsync(v => v.Id == visa.Id);
+
+            if (existing == null)
+            {
+                _context.Set<VisaType>().Add(visa);
+            }
+            else
+            {
+                existing.Name = visa.Name;
+                existing.Description = visa.Description;
+                existing.Category = visa.Category;
+                _context.Set<VisaType>().Update(existing);
+            }
+        }
+
+        await _context.SaveChangesAsync();
+    }
 }

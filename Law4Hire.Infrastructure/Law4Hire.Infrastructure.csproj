@@ -11,15 +11,15 @@
 		<ProjectReference Include="..\Law4Hire.Core\Law4Hire.Core.csproj" />
 	</ItemGroup>
 
-	<ItemGroup>
-		<!-- NuGet package references specific to Law4Hire.Infrastructure -->
-		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.6" />
-		<PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.6">
-		  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-		  <PrivateAssets>all</PrivateAssets>
-		</PackageReference>
-		<PackageReference Include="Microsoft.Extensions.Identity.Core" Version="9.0.6" />
-		<PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="9.0.6" />
-	</ItemGroup>
-
+        <ItemGroup>
+                <!-- NuGet package references specific to Law4Hire.Infrastructure -->
+                <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.6" />
+                <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.6">
+                  <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+                  <PrivateAssets>all</PrivateAssets>
+                </PackageReference>
+                <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="9.0.6" />
+                <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="9.0.6" />
+                <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.0" />
+        </ItemGroup>
 </Project>

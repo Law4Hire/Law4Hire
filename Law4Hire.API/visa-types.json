@@ -1,0 +1,20 @@
+[
+  {
+    "Id": "00000000-0000-0000-0000-000000000001",
+    "Name": "Tourist Visa",
+    "Description": "Allows short-term visits for tourism and leisure.",
+    "Category": "Non-Immigrant"
+  },
+  {
+    "Id": "00000000-0000-0000-0000-000000000002",
+    "Name": "Student Visa",
+    "Description": "For individuals pursuing academic studies.",
+    "Category": "Non-Immigrant"
+  },
+  {
+    "Id": "00000000-0000-0000-0000-000000000003",
+    "Name": "Employment-Based Immigrant Visa",
+    "Description": "Permanent residency through employment sponsorship.",
+    "Category": "Immigrant"
+  }
+]

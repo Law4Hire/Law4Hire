@@ -6,6 +6,7 @@ using Law4Hire.Infrastructure.Data;
 using Law4Hire.Infrastructure.Data.Contexts;
 using Law4Hire.Infrastructure.Data.Initialization;
 using Law4Hire.Infrastructure.Data.Repositories;
+using Law4Hire.Infrastructure.Services;
 using Law4Hire.Web.Components;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
@@ -61,6 +62,8 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IIntakeService, IntakeService>();
 builder.Services.AddScoped<IEncryptionService, EncryptionService>();
 builder.Services.AddScoped<IFormIdentificationService, FormIdentificationService>();
+builder.Services.Configure<VisaTypeUpdateOptions>(builder.Configuration.GetSection("VisaTypeUpdate"));
+builder.Services.AddHostedService<VisaTypeUpdateHostedService>();
 builder.Services.AddControllers();
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();

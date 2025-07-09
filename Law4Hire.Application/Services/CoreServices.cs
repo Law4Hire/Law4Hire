@@ -169,9 +169,9 @@ public class IntakeService(
         // Return sample questions for now
         return new[]
         {
-            new IntakeQuestionDto(1, "full_name", "What is your full legal name?", QuestionType.Text, 1, null, true, "required,min:2,max:100"),
-            new IntakeQuestionDto(2, "date_of_birth", "What is your date of birth?", QuestionType.Date, 2, null, true, "required,date,before:today"),
-            new IntakeQuestionDto(3, "country_of_birth", "In which country were you born?", QuestionType.Text, 3, null, true, "required,min:2,max:50")
+            new IntakeQuestionDto(1, "Visit", "full_name", "What is your full legal name?", QuestionType.Text, 1, null, true, "required,min:2,max:100"),
+            new IntakeQuestionDto(2, "Visit", "date_of_birth", "What is your date of birth?", QuestionType.Date, 2, null, true, "required,date,before:today"),
+            new IntakeQuestionDto(3, "Visit", "country_of_birth", "In which country were you born?", QuestionType.Text, 3, null, true, "required,min:2,max:50")
         };
     }
 
