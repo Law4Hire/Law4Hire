@@ -17,10 +17,13 @@
   </data>
 
 	<!-- Immigration Options -->
-	<data name="VisitUSA" xml:space="preserve">
+        <data name="VisitUSA" xml:space="preserve">
     <value>Visit or Tour the USA</value>
   </data>
-	<data name="ApplyAsylum" xml:space="preserve">
+        <data name="ImmigrateGreenCard" xml:space="preserve">
+    <value>Immigrate / Green Card</value>
+  </data>
+        <data name="ApplyAsylum" xml:space="preserve">
     <value>Apply for Asylum</value>
   </data>
 	<data name="JoinFamily" xml:space="preserve">
@@ -106,10 +109,13 @@
   </data>
 
 	<!-- Goal Descriptions -->
-	<data name="VisitDescription" xml:space="preserve">
+        <data name="VisitDescription" xml:space="preserve">
     <value>Tourism, business visits, or temporary stays in the United States</value>
   </data>
-	<data name="AsylumDescription" xml:space="preserve">
+        <data name="ImmigrateDescription" xml:space="preserve">
+    <value>Permanent residency and green card options</value>
+  </data>
+        <data name="AsylumDescription" xml:space="preserve">
     <value>Seeking protection and safety in the United States</value>
   </data>
 	<data name="FamilyDescription" xml:space="preserve">
