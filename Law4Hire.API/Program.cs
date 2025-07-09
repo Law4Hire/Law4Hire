@@ -55,7 +55,8 @@ builder.Services.AddScoped<IServicePackageRepository, ServicePackageRepository>(
 builder.Services.AddScoped<IIntakeSessionRepository, IntakeSessionRepository>();
 builder.Services.AddScoped<IServiceRequestRepository, ServiceRequestRepository>();
 builder.Services.AddScoped<ILocalizedContentRepository, LocalizedContentRepository>();
-builder.Services.AddScoped<IAuthService, AuthService>(); 
+builder.Services.AddScoped<IVisaTypeRepository, VisaTypeRepository>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IIntakeService, IntakeService>();
 builder.Services.AddScoped<IEncryptionService, EncryptionService>();
 builder.Services.AddScoped<IFormIdentificationService, FormIdentificationService>();
