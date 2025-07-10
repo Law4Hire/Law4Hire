@@ -234,7 +234,6 @@
     private Guid? intakeSessionId;
     private Dictionary<string, string> savedAnswers = new();
     private int goalStartIndex;
-    private string? errorMessage;
 
     protected override async Task OnInitializedAsync()
     {
@@ -245,7 +244,7 @@
     private async void OnCultureChanged()
     {
         await InitializeStepsAsync(); // Reinitialize steps with new culture
-        InvokeAsync(StateHasChanged);
+        await InvokeAsync(StateHasChanged);
     }
 
     private async Task InitializeStepsAsync()
