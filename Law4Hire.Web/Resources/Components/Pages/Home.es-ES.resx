@@ -104,8 +104,11 @@
 	<data name="EmailPlaceholder" xml:space="preserve">
     <value>Ingrese su correo electrónico</value>
   </data>
-	<data name="PasswordPlaceholder" xml:space="preserve">
+  <data name="PasswordPlaceholder" xml:space="preserve">
     <value>Cree una contraseña segura</value>
+  </data>
+  <data name="ExistingPasswordPlaceholder" xml:space="preserve">
+    <value>Ingrese su contraseña</value>
   </data>
 
 	<!-- Goal Descriptions -->
