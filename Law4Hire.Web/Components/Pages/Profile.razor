@@ -1,0 +1,111 @@
+@page "/profile"
+@using System.Net.Http.Json
+@using Law4Hire.Core.DTOs
+@inject HttpClient Http
+@inject Law4Hire.Web.State.AuthState AuthState
+
+<PageTitle>Profile</PageTitle>
+
+@if (AuthState.CurrentUser is null)
+{
+    <p>Please log in to edit your profile.</p>
+}
+else if (editModel is not null)
+{
+    <EditForm Model="editModel" OnValidSubmit="SaveUser">
+        <DataAnnotationsValidator />
+        <div class="mb-2">
+            <label class="form-label">First Name</label>
+            <InputText class="form-control" @bind-Value="editModel.FirstName" />
+        </div>
+        <div class="mb-2">
+            <label class="form-label">Middle Name</label>
+            <InputText class="form-control" @bind-Value="editModel.MiddleName" />
+        </div>
+        <div class="mb-2">
+            <label class="form-label">Last Name</label>
+            <InputText class="form-control" @bind-Value="editModel.LastName" />
+        </div>
+        <div class="mb-2">
+            <label class="form-label">Email</label>
+            <InputText class="form-control" @bind-Value="editModel.Email" />
+        </div>
+        <div class="mb-2">
+            <label class="form-label">Phone</label>
+            <InputText class="form-control" @bind-Value="editModel.PhoneNumber" />
+        </div>
+        <div class="mb-2">
+            <label class="form-label">Address 1</label>
+            <InputText class="form-control" @bind-Value="editModel.Address1" />
+        </div>
+        <div class="mb-2">
+            <label class="form-label">Address 2</label>
+            <InputText class="form-control" @bind-Value="editModel.Address2" />
+        </div>
+        <div class="mb-2">
+            <label class="form-label">City</label>
+            <InputText class="form-control" @bind-Value="editModel.City" />
+        </div>
+        <div class="mb-2">
+            <label class="form-label">State</label>
+            <InputText class="form-control" @bind-Value="editModel.State" />
+        </div>
+        <div class="mb-2">
+            <label class="form-label">Country</label>
+            <InputText class="form-control" @bind-Value="editModel.Country" />
+        </div>
+        <div class="mb-2">
+            <label class="form-label">Postal Code</label>
+            <InputText class="form-control" @bind-Value="editModel.PostalCode" />
+        </div>
+        <div class="mb-3">
+            <label class="form-label">Birthdate</label>
+            <InputDate class="form-control" @bind-Value="editModel.DateOfBirth" />
+        </div>
+        <button class="btn btn-primary btn-sm" type="submit">Save</button>
+    </EditForm>
+}
+
+@code {
+    private UpdateUserDto? editModel;
+
+    protected override void OnInitialized()
+    {
+        if (AuthState.CurrentUser != null)
+        {
+            var u = AuthState.CurrentUser;
+            editModel = new UpdateUserDto
+            {
+                Email = u.Email,
+                FirstName = u.FirstName,
+                MiddleName = u.MiddleName,
+                LastName = u.LastName,
+                PhoneNumber = u.PhoneNumber,
+                PreferredLanguage = u.PreferredLanguage,
+                Address1 = u.Address1,
+                Address2 = u.Address2,
+                City = u.City,
+                State = u.State,
+                Country = u.Country,
+                PostalCode = u.PostalCode,
+                DateOfBirth = u.DateOfBirth
+            };
+        }
+    }
+
+    private async Task SaveUser()
+    {
+        if (editModel is null || AuthState.CurrentUser is null) return;
+
+        var response = await Http.PutAsJsonAsync($"api/users/{AuthState.CurrentUser.Id}", editModel);
+        if (response.IsSuccessStatusCode)
+        {
+            var updated = await response.Content.ReadFromJsonAsync<UserDto>();
+            if (updated != null)
+            {
+                AuthState.SetUser(updated);
+            }
+        }
+    }
+}
+

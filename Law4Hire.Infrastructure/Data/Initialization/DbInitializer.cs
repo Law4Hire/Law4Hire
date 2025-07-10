@@ -60,7 +60,8 @@ public static class DbInitializer
             context.LegalProfessionals.Add(new LegalProfessional
             {
                 Id = deniseUser.Id,
-                BarNumber = "1004384"
+                BarNumber = "1004384",
+                BarState = "DC"
             });
 
             await context.SaveChangesAsync();
