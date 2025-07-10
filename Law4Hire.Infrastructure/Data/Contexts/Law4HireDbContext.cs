@@ -25,6 +25,7 @@ public class Law4HireDbContext : IdentityDbContext<User, IdentityRole<Guid>, Gui
     public DbSet<VisaGroup> VisaGroups { get; set; }
     public DbSet<VisaType> VisaTypes { get; set; }
     public DbSet<DocumentType> DocumentTypes { get; set; }
+    public DbSet<UserVisa> UserVisas { get; set; }
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
