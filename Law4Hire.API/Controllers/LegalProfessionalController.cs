@@ -34,7 +34,8 @@ public class LegalProfessionalController(Law4HireDbContext context) : Controller
         context.LegalProfessionals.Add(new LegalProfessional
         {
             Id = user.Id,
-            BarNumber = dto.BarNumber ?? string.Empty
+            BarNumber = dto.BarNumber ?? string.Empty,
+            BarState = dto.BarState ?? string.Empty
         });
 
         await context.SaveChangesAsync();
