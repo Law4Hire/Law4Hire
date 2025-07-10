@@ -275,6 +275,162 @@ public static class DataSeeder
                 logger?.LogInformation("Added {Count} localized content items", localizedContent.Length);
             }
 
+            // Visa Types
+            if (!await context.VisaTypes.AnyAsync())
+            {
+                logger?.LogInformation("Seeding visa types and related data");
+
+                var b1b2Id = Guid.Parse("1aa2bf5e-7242-49c2-9303-04ddef44e8b1");
+                var gcFamilyId = Guid.Parse("a8e01e04-27a1-4380-b9cc-cace62830fab");
+                var f1Id = Guid.Parse("cdeb31d4-d778-495b-a4e3-dcd67e1aa737");
+                var h1bId = Guid.Parse("162e3e30-ec8b-438e-8f96-e836465d0908");
+                var asylumId = Guid.Parse("a767bd9a-272e-440d-99fc-955e1b1d9303");
+
+                var visaTypes = new[]
+                {
+                    new VisaType
+                    {
+                        Id = b1b2Id,
+                        Name = "B1/B2 Visitor Visa",
+                        Description = "Temporary visit for business or tourism",
+                        Category = "Visit"
+                    },
+                    new VisaType
+                    {
+                        Id = gcFamilyId,
+                        Name = "Family Based Green Card",
+                        Description = "Immigrate through qualifying family",
+                        Category = "Immigrate"
+                    },
+                    new VisaType
+                    {
+                        Id = f1Id,
+                        Name = "F1 Student Visa",
+                        Description = "Academic study in the U.S.",
+                        Category = "Study"
+                    },
+                    new VisaType
+                    {
+                        Id = h1bId,
+                        Name = "H1B Specialty Occupation",
+                        Description = "Work visa for specialty occupations",
+                        Category = "Work"
+                    },
+                    new VisaType
+                    {
+                        Id = asylumId,
+                        Name = "Asylum",
+                        Description = "Protection for those fearing persecution",
+                        Category = "Protect"
+                    }
+                };
+
+                await context.VisaTypes.AddRangeAsync(visaTypes);
+                logger?.LogInformation("Added {Count} visa types", visaTypes.Length);
+
+                var i130Id = Guid.Parse("2919140a-6230-42a7-a7c8-6972b8a19311");
+                var i485Id = Guid.Parse("411dfd9e-6180-49ab-80b8-3756541de505");
+                var i864Id = Guid.Parse("fe86ca4b-3808-482b-89fb-e2fc9375684b");
+                var ds160Id = Guid.Parse("678634b3-de95-4f16-83c9-dc86aad68723");
+                var i129Id = Guid.Parse("3e27b6a3-8a52-4185-854c-5f584aea28e8");
+
+                var documents = new[]
+                {
+                    new DocumentType
+                    {
+                        Id = i130Id,
+                        FormNumber = "I-130",
+                        Name = "Petition for Alien Relative",
+                        Description = "Establish qualifying family relationship",
+                        IssuingAgency = "USCIS"
+                    },
+                    new DocumentType
+                    {
+                        Id = i485Id,
+                        FormNumber = "I-485",
+                        Name = "Application to Register Permanent Residence",
+                        Description = "Apply for permanent residence",
+                        IssuingAgency = "USCIS"
+                    },
+                    new DocumentType
+                    {
+                        Id = i864Id,
+                        FormNumber = "I-864",
+                        Name = "Affidavit of Support",
+                        Description = "Sponsor financial support form",
+                        IssuingAgency = "USCIS"
+                    },
+                    new DocumentType
+                    {
+                        Id = ds160Id,
+                        FormNumber = "DS-160",
+                        Name = "Online Nonimmigrant Visa Application",
+                        Description = "Application for temporary visas",
+                        IssuingAgency = "DOS"
+                    },
+                    new DocumentType
+                    {
+                        Id = i129Id,
+                        FormNumber = "I-129",
+                        Name = "Petition for a Nonimmigrant Worker",
+                        Description = "For H-1B and other workers",
+                        IssuingAgency = "USCIS"
+                    }
+                };
+
+                await context.DocumentTypes.AddRangeAsync(documents);
+                logger?.LogInformation("Added {Count} document types", documents.Length);
+
+                var requirements = new[]
+                {
+                    new VisaDocumentRequirement
+                    {
+                        Id = Guid.Parse("77ff7722-759d-4906-8f2b-d3e393ed9587"),
+                        VisaTypeId = b1b2Id,
+                        DocumentTypeId = ds160Id,
+                        IsRequired = true
+                    },
+                    new VisaDocumentRequirement
+                    {
+                        Id = Guid.Parse("3b7bb132-1a0c-4d20-9c31-f4d5fd31bf6a"),
+                        VisaTypeId = gcFamilyId,
+                        DocumentTypeId = i130Id,
+                        IsRequired = true
+                    },
+                    new VisaDocumentRequirement
+                    {
+                        Id = Guid.Parse("a33e806d-6d34-4f2b-b1b9-0ceaaf479faf"),
+                        VisaTypeId = gcFamilyId,
+                        DocumentTypeId = i485Id,
+                        IsRequired = true
+                    },
+                    new VisaDocumentRequirement
+                    {
+                        Id = Guid.Parse("abb2b7e9-0fb2-4f56-b96e-a1806f6df7f8"),
+                        VisaTypeId = gcFamilyId,
+                        DocumentTypeId = i864Id,
+                        IsRequired = true
+                    },
+                    new VisaDocumentRequirement
+                    {
+                        Id = Guid.Parse("c9ea5edd-974b-4150-bee5-2cc506cf9ac9"),
+                        VisaTypeId = f1Id,
+                        DocumentTypeId = ds160Id,
+                        IsRequired = true
+                    },
+                    new VisaDocumentRequirement
+                    {
+                        Id = Guid.Parse("25d18774-32bd-466f-9b6e-677d23dbe0de"),
+                        VisaTypeId = h1bId,
+                        DocumentTypeId = i129Id,
+                        IsRequired = true
+                    }
+                };
+
+                await context.VisaDocumentRequirements.AddRangeAsync(requirements);
+                logger?.LogInformation("Added {Count} visa document requirements", requirements.Length);
+            }
+
             await context.SaveChangesAsync();
             logger?.LogInformation("Data seeding completed successfully");
         }
