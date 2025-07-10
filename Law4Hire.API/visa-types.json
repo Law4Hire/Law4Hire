@@ -3,18 +3,21 @@
     "Id": "00000000-0000-0000-0000-000000000001",
     "Name": "Tourist Visa",
     "Description": "Allows short-term visits for tourism and leisure.",
-    "Category": "Non-Immigrant"
+    "Category": "Visit",
+    "VisaGroupId": "11111111-1111-1111-1111-111111111111"
   },
   {
     "Id": "00000000-0000-0000-0000-000000000002",
     "Name": "Student Visa",
     "Description": "For individuals pursuing academic studies.",
-    "Category": "Non-Immigrant"
+    "Category": "Study",
+    "VisaGroupId": "66666666-6666-6666-6666-666666666666"
   },
   {
     "Id": "00000000-0000-0000-0000-000000000003",
     "Name": "Employment-Based Immigrant Visa",
     "Description": "Permanent residency through employment sponsorship.",
-    "Category": "Immigrant"
+    "Category": "Work",
+    "VisaGroupId": "44444444-4444-4444-4444-444444444444"
   }
-]
+] 
