@@ -3,6 +3,8 @@
 @using System.Net.Http.Json
 @using System.Text.Json
 @using Law4Hire.Core.DTOs
+@using Law4Hire.Core.Entities
+@using System.Linq
 @using Microsoft.Extensions.Localization
 @rendermode InteractiveServer
 @inject HttpClient Http
@@ -196,6 +198,10 @@
                             <div class="text-center">
                                 <div class="success-icon mb-3">✅</div>
                                 <h4>@Localizer["RegistrationComplete"]</h4>
+                                @if (!string.IsNullOrEmpty(selectedVisaName))
+                                {
+                                    <p class="fw-bold">@selectedVisaName</p>
+                                }
                                 <p class="text-muted">@Localizer["WelcomeMessage", registrationModel.FirstName]</p>
                                 <button class="btn btn-success" @onclick="GoToDashboard">
                                     @Localizer["GoToDashboard"]
@@ -237,6 +243,7 @@
     private Guid? intakeSessionId;
     private Dictionary<string, string> savedAnswers = new();
     private int goalStartIndex;
+    private string? selectedVisaName;
     private string? errorMessage;
 
     protected override async Task OnInitializedAsync()
@@ -288,23 +295,28 @@
             }
         };
 
-        steps = new List<InterviewStep>
+        steps = new List<InterviewStep>();
+
+        if (!AuthState.IsLoggedIn)
         {
-            new InterviewStep {
+            steps.Add(new InterviewStep
+            {
                 Question = Localizer["EmailQuestion"],
                 Placeholder = Localizer["EmailPlaceholder"],
                 PropertyName = "Email",
                 Type = "email"
-            },
-            new InterviewStep {
+            });
+            steps.Add(new InterviewStep
+            {
                 Question = Localizer["PasswordQuestion"],
                 Placeholder = Localizer["PasswordPlaceholder"],
                 PropertyName = "Password",
                 Type = "password",
                 Pattern = @"(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*\W).{8,}",
                 Title = Localizer["PasswordRequirements"]
-            }
-        };
+            });
+        }
+
 
         steps.AddRange(registrationSteps);
         goalStartIndex = steps.Count;
@@ -372,6 +384,10 @@
                     {
                         savedAnswers = progress.Answers;
                         currentStepIndex = progress.CurrentStep;
+                        if (AuthState.IsLoggedIn && !steps.Any(s => s.PropertyName == "Email") && currentStepIndex >= 2)
+                        {
+                            currentStepIndex -= 2;
+                        }
                         if (currentStepIndex >= steps.Count)
                         {
                             isCompleted = true;
@@ -465,7 +481,21 @@
             case "Email":
                 registrationModel.Email = userInput.CurrentValue ?? "";
                 emailExists = await CheckEmailExists(registrationModel.Email);
-                steps[1].Question = emailExists ? Localizer["ExistingPasswordQuestion"] : Localizer["PasswordQuestion"];
+                if (!AuthState.IsLoggedIn && steps.Count > 1)
+                {
+                    steps[1].Question = emailExists ? Localizer["ExistingPasswordQuestion"] : Localizer["PasswordQuestion"];
+                    steps[1].Placeholder = emailExists ? Localizer["ExistingPasswordPlaceholder"] : Localizer["PasswordPlaceholder"];
+                    if (emailExists)
+                    {
+                        steps[1].Pattern = null;
+                        steps[1].Title = null;
+                    }
+                    else
+                    {
+                        steps[1].Pattern = @"(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*\W).{8,}";
+                        steps[1].Title = Localizer["PasswordRequirements"];
+                    }
+                }
                 break;
             case "Password":
                 registrationModel.Password = userInput.CurrentValue ?? "";
@@ -480,11 +510,12 @@
                         {
                             if (selectedGoal == ImmigrationGoal.Visit)
                             {
-                                CompleteVisitInterview();
+                                await CompleteVisitInterview();
                             }
                             else
                             {
                                 isCompleted = true;
+                                await FinalizeVisaTypeAsync();
                             }
                             StateHasChanged();
                             return;
@@ -520,20 +551,22 @@
         {
             if (selectedGoal == ImmigrationGoal.Visit)
             {
-                CompleteVisitInterview();
+                await CompleteVisitInterview();
             }
             else
             {
                 isCompleted = true;
+                await FinalizeVisaTypeAsync();
             }
         }
 
         StateHasChanged();
     }
 
-    private void CompleteVisitInterview()
+    private async Task CompleteVisitInterview()
     {
         isCompleted = true;
+        await FinalizeVisaTypeAsync();
 
     }
 
@@ -610,6 +643,22 @@
 
         var progress = new UpdateSessionProgressDto(currentStepIndex, savedAnswers);
         await Http.PatchAsJsonAsync($"api/intake/sessions/{intakeSessionId}/progress", progress);
+    }
+
+    private async Task FinalizeVisaTypeAsync()
+    {
+        if (AuthState.CurrentUser == null) return;
+        try
+        {
+            var visaTypes = await Http.GetFromJsonAsync<List<VisaType>>($"api/visatypes/category/{selectedGoal}");
+            var visa = visaTypes?.FirstOrDefault();
+            if (visa != null)
+            {
+                selectedVisaName = visa.Name;
+                await Http.PostAsync($"api/DocumentStatus/seed/user/{AuthState.CurrentUser.Id}/visa/{visa.Id}", null);
+            }
+        }
+        catch { }
     }
 
     public class InterviewStep 
