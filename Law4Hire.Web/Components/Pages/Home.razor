@@ -227,7 +227,10 @@
     private ImmigrationGoal selectedGoal;
     private List<InterviewStep> steps = new();
     private int currentStepIndex = 0;
-    private InterviewStep currentStep => steps[currentStepIndex];
+    private InterviewStep currentStep =>
+        currentStepIndex >= 0 && currentStepIndex < steps.Count
+            ? steps[currentStepIndex]
+            : new InterviewStep();
     private UserInputModel userInput = new();
     private UserRegistrationDto registrationModel = new();
     private Dictionary<string, string> visitAnswers = new();
@@ -369,8 +372,14 @@
                     {
                         savedAnswers = progress.Answers;
                         currentStepIndex = progress.CurrentStep;
-                        if (currentStepIndex < steps.Count && savedAnswers.TryGetValue(currentStep.PropertyName, out var val))
+                        if (currentStepIndex >= steps.Count)
+                        {
+                            isCompleted = true;
+                        }
+                        else if (savedAnswers.TryGetValue(currentStep.PropertyName, out var val))
+                        {
                             userInput.CurrentValue = val;
+                        }
                     }
                 }
             }
@@ -467,8 +476,24 @@
                     {
                         await LoadExistingSession();
                         currentStepIndex = goalStartIndex;
+                        if (currentStepIndex >= steps.Count)
+                        {
+                            if (selectedGoal == ImmigrationGoal.Visit)
+                            {
+                                CompleteVisitInterview();
+                            }
+                            else
+                            {
+                                isCompleted = true;
+                            }
+                            StateHasChanged();
+                            return;
+                        }
+
                         if (savedAnswers.TryGetValue(currentStep.PropertyName, out var val))
+                        {
                             userInput.CurrentValue = val;
+                        }
                         StateHasChanged();
                         return;
                     }
