@@ -22,6 +22,7 @@ public class Law4HireDbContext : IdentityDbContext<User, IdentityRole<Guid>, Gui
     public DbSet<LegalProfessional> LegalProfessionals { get; set; }
     public DbSet<UserDocumentStatus> UserDocumentStatuses { get; set; }
     public DbSet<VisaDocumentRequirement> VisaDocumentRequirements { get; set; }
+    public DbSet<VisaGroup> VisaGroups { get; set; }
     public DbSet<VisaType> VisaTypes { get; set; }
     public DbSet<DocumentType> DocumentTypes { get; set; }
 
@@ -42,6 +43,7 @@ public class Law4HireDbContext : IdentityDbContext<User, IdentityRole<Guid>, Gui
             .HasPrecision(18, 2);
 
         modelBuilder.Entity<VisaType>().ToTable("VisaTypes");
+        modelBuilder.Entity<VisaGroup>().ToTable("VisaGroups");
         modelBuilder.Entity<DocumentType>().ToTable("DocumentTypes");
 
         modelBuilder.Entity<UserDocumentStatus>()
@@ -70,10 +72,16 @@ public class Law4HireDbContext : IdentityDbContext<User, IdentityRole<Guid>, Gui
             .HasForeignKey(uds => uds.VisaTypeId)
             .OnDelete(DeleteBehavior.Restrict);
     
-    modelBuilder.Entity<UserVisa>().ToTable("UserVisas")
+        modelBuilder.Entity<UserVisa>().ToTable("UserVisas")
             .HasOne(uv => uv.VisaType)
             .WithMany(vt => vt.UserVisas)
             .HasForeignKey(uv => uv.VisaTypeId);
+
+        modelBuilder.Entity<VisaType>()
+            .HasOne(v => v.VisaGroup)
+            .WithMany(g => g.VisaTypes)
+            .HasForeignKey(v => v.VisaGroupId)
+            .OnDelete(DeleteBehavior.Restrict);
 
         modelBuilder.Entity<UserVisa>()
             .HasOne(uv => uv.User)
