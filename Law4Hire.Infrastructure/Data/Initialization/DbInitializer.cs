@@ -39,7 +39,7 @@ public static class DbInitializer
         }
 
         // Seed LegalProfessional user (Denise Cann)
-        var deniseEmail = "denise.cann@cannlaw.com";
+        var deniseEmail = "dcann@cannlaw.com";
         if (!await context.Users.AnyAsync(u => u.Email == deniseEmail))
         {
             CreatePasswordHash("Law4HireSecure!", out var hash, out var salt);
@@ -49,7 +49,7 @@ public static class DbInitializer
                 Email = deniseEmail,
                 FirstName = "Denise",
                 LastName = "Cann",
-                PhoneNumber = "+1-555-111-2222",
+                PhoneNumber = "+1-410-783-1888",
                 IsActive = true,
                 CreatedAt = DateTime.UtcNow,
                 PasswordHash = hash,
@@ -60,7 +60,7 @@ public static class DbInitializer
             context.LegalProfessionals.Add(new LegalProfessional
             {
                 Id = deniseUser.Id,
-                BarNumber = "CN123456"
+                BarNumber = "1004384"
             });
 
             await context.SaveChangesAsync();
