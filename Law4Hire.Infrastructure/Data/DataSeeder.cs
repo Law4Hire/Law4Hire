@@ -275,10 +275,32 @@ public static class DataSeeder
                 logger?.LogInformation("Added {Count} localized content items", localizedContent.Length);
             }
 
-            // Visa Types
+            // Visa Groups and Types
             if (!await context.VisaTypes.AnyAsync())
             {
                 logger?.LogInformation("Seeding visa types and related data");
+
+                var visitGroupId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+                var immigrateGroupId = Guid.Parse("22222222-2222-2222-2222-222222222222");
+                var investmentGroupId = Guid.Parse("33333333-3333-3333-3333-333333333333");
+                var workGroupId = Guid.Parse("44444444-4444-4444-4444-444444444444");
+                var asylumGroupId = Guid.Parse("55555555-5555-5555-5555-555555555555");
+                var studyGroupId = Guid.Parse("66666666-6666-6666-6666-666666666666");
+                var familyGroupId = Guid.Parse("77777777-7777-7777-7777-777777777777");
+
+                var visaGroups = new[]
+                {
+                    new VisaGroup { Id = visitGroupId, Name = VisaGroupEnum.Visit },
+                    new VisaGroup { Id = immigrateGroupId, Name = VisaGroupEnum.Immigrate },
+                    new VisaGroup { Id = investmentGroupId, Name = VisaGroupEnum.Investment },
+                    new VisaGroup { Id = workGroupId, Name = VisaGroupEnum.Work },
+                    new VisaGroup { Id = asylumGroupId, Name = VisaGroupEnum.Asylum },
+                    new VisaGroup { Id = studyGroupId, Name = VisaGroupEnum.Study },
+                    new VisaGroup { Id = familyGroupId, Name = VisaGroupEnum.Family }
+                };
+
+                await context.VisaGroups.AddRangeAsync(visaGroups);
+                logger?.LogInformation("Added {Count} visa groups", visaGroups.Length);
 
                 var b1b2Id = Guid.Parse("1aa2bf5e-7242-49c2-9303-04ddef44e8b1");
                 var gcFamilyId = Guid.Parse("a8e01e04-27a1-4380-b9cc-cace62830fab");
@@ -293,35 +315,56 @@ public static class DataSeeder
                         Id = b1b2Id,
                         Name = "B1/B2 Visitor Visa",
                         Description = "Temporary visit for business or tourism",
-                        Category = "Visit"
+                        Category = "Visit",
+                        VisaGroupId = visitGroupId
                     },
                     new VisaType
                     {
                         Id = gcFamilyId,
                         Name = "Family Based Green Card",
                         Description = "Immigrate through qualifying family",
-                        Category = "Immigrate"
+                        Category = "Immigrate",
+                        VisaGroupId = immigrateGroupId
                     },
                     new VisaType
                     {
                         Id = f1Id,
                         Name = "F1 Student Visa",
                         Description = "Academic study in the U.S.",
-                        Category = "Study"
+                        Category = "Study",
+                        VisaGroupId = studyGroupId
                     },
                     new VisaType
                     {
                         Id = h1bId,
                         Name = "H1B Specialty Occupation",
                         Description = "Work visa for specialty occupations",
-                        Category = "Work"
+                        Category = "Work",
+                        VisaGroupId = workGroupId
                     },
                     new VisaType
                     {
                         Id = asylumId,
                         Name = "Asylum",
                         Description = "Protection for those fearing persecution",
-                        Category = "Protect"
+                        Category = "Protect",
+                        VisaGroupId = asylumGroupId
+                    },
+                    new VisaType
+                    {
+                        Id = Guid.Parse("88888888-8888-8888-8888-888888888888"),
+                        Name = "EB-5 Immigrant Investor",
+                        Description = "Investment-based path to permanent residence",
+                        Category = "Investment",
+                        VisaGroupId = investmentGroupId
+                    },
+                    new VisaType
+                    {
+                        Id = Guid.Parse("99999999-9999-9999-9999-999999999999"),
+                        Name = "K-1 Fianc\u00E9(e) Visa",
+                        Description = "For foreign-citizen fianc\u00E9s of U.S. citizens",
+                        Category = "Family",
+                        VisaGroupId = familyGroupId
                     }
                 };
 
