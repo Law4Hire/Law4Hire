@@ -3,8 +3,10 @@
 @inject IStringLocalizer<NavMenu> Localizer
 @inject Law4Hire.Web.State.CultureState CultureState
 @inject Law4Hire.Web.State.AuthState AuthState
+@inject HttpClient Http
 @using Microsoft.Extensions.Localization
 @using System.Globalization
+@using System.Net.Http.Json
 @implements IDisposable
 
 <header class="top-nav-header">
@@ -33,9 +35,12 @@
                 <li class="nav-item">
                     <NavLink class="nav-link" href="" Match="NavLinkMatch.All">@Localizer["Home"]</NavLink>
                 </li>
-                <li class="nav-item">
-                    <NavLink class="nav-link" href="pricing">@Localizer["Pricing"]</NavLink>
-                </li>
+                @if (hasVisa)
+                {
+                    <li class="nav-item">
+                        <NavLink class="nav-link" href="pricing">@Localizer["Pricing"]</NavLink>
+                    </li>
+                }
                 <li class="nav-item">
                     <NavLink class="nav-link" href="immigrationLibrary">@Localizer["Library"]</NavLink>
                 </li>
@@ -96,11 +101,13 @@
 @code {
     private bool collapseNavMenu = true;
     private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+    private bool hasVisa;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        CultureState.OnChange += StateHasChanged;
-        AuthState.OnChange += StateHasChanged;
+        CultureState.OnChange += OnStateChanged;
+        AuthState.OnChange += OnStateChanged;
+        await LoadVisaStatus();
     }
 
     protected override void OnAfterRender(bool firstRender)
@@ -183,9 +190,33 @@
 
     public record LanguageInfo(string Name, string CultureCode);
 
+    private async void OnStateChanged()
+    {
+        await LoadVisaStatus();
+        StateHasChanged();
+    }
+
+    private async Task LoadVisaStatus()
+    {
+        if (AuthState.CurrentUser == null)
+        {
+            hasVisa = false;
+            return;
+        }
+
+        try
+        {
+            hasVisa = await Http.GetFromJsonAsync<bool>($"api/UserVisas/user/{AuthState.CurrentUser.Id}/exists");
+        }
+        catch
+        {
+            hasVisa = false;
+        }
+    }
+
     public void Dispose()
     {
-        CultureState.OnChange -= StateHasChanged;
-        AuthState.OnChange -= StateHasChanged;
+        CultureState.OnChange -= OnStateChanged;
+        AuthState.OnChange -= OnStateChanged;
     }
 }

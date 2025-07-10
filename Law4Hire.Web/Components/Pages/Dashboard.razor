@@ -1,8 +1,10 @@
 @page "/dashboard"
 @using System.Net.Http.Json
 @using Law4Hire.Core.DTOs
+@using System.Linq
 @inject HttpClient Http
 @inject Law4Hire.Web.State.AuthState AuthState
+@inject NavigationManager NavigationManager
 
 <PageTitle>Dashboard</PageTitle>
 
@@ -96,6 +98,12 @@ else
                     {
                         <li>Loading...</li>
                     }
+                    else if (!documents.Any())
+                    {
+                        <li class="text-center">
+                            <button class="btn btn-danger" @onclick="ContinueInterview">Continue Interview</button>
+                        </li>
+                    }
                     else
                     {
                         @foreach (var doc in documents)
@@ -167,6 +175,11 @@ else
                 editMode = false;
             }
         }
+    }
+
+    private void ContinueInterview()
+    {
+        NavigationManager.NavigateTo("/interview/phase2");
     }
 
     private record DocumentInfo(Guid DocumentTypeId, string DocumentName, string Status, string VisaType);
