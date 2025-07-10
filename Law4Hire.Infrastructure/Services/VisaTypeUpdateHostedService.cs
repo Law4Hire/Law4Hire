@@ -8,12 +8,12 @@ using Microsoft.Extensions.Options;
 namespace Law4Hire.Infrastructure.Services;
 
 public class VisaTypeUpdateHostedService(
-    IVisaTypeRepository visaTypeRepository,
+    IServiceScopeFactory scopeFactory,
     IOptions<VisaTypeUpdateOptions> options,
     ILogger<VisaTypeUpdateHostedService> logger)
     : BackgroundService
 {
-    private readonly IVisaTypeRepository _repo = visaTypeRepository;
+    private readonly IServiceScopeFactory _scopeFactory = scopeFactory;
     private readonly VisaTypeUpdateOptions _options = options.Value;
     private readonly ILogger<VisaTypeUpdateHostedService> _logger = logger;
 
@@ -51,7 +51,9 @@ public class VisaTypeUpdateHostedService(
             return;
         }
 
-        await _repo.UpsertRangeAsync(visaTypes);
+        using var scope = _scopeFactory.CreateScope();
+        var repo = scope.ServiceProvider.GetRequiredService<IVisaTypeRepository>();
+        await repo.UpsertRangeAsync(visaTypes);
         _logger.LogInformation("Visa types updated: {Count}", visaTypes.Count);
     }
 }
