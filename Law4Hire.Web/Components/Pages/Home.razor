@@ -1,6 +1,7 @@
 ﻿@page "/"
 @using System.ComponentModel.DataAnnotations
 @using System.Net.Http.Json
+@using System.Net
 @using System.Text.Json
 @using Law4Hire.Core.DTOs
 @using Law4Hire.Core.Entities
@@ -163,12 +164,16 @@
                                     }
                                     
                                     <ValidationMessage For="@(() => userInput.CurrentValue)" />
-                                    
+
                                     @if (emailExists && currentStepIndex == 5)
                                     {
                                         <div class="alert alert-info mt-2">
                                             @Localizer["EmailExistsMessage"]
                                         </div>
+                                    }
+                                    @if (!string.IsNullOrEmpty(errorMessage))
+                                    {
+                                        <div class="alert alert-danger mt-2">@errorMessage</div>
                                     }
                                 </div>
                                 
@@ -202,7 +207,10 @@
                                 {
                                     <p class="fw-bold">@selectedVisaName</p>
                                 }
-                                <p class="text-muted">@Localizer["WelcomeMessage", registrationModel.FirstName]</p>
+                                @if (accountCreated)
+                                {
+                                    <p class="text-muted">@Localizer["WelcomeMessage", registrationModel.FirstName]</p>
+                                }
                                 <button class="btn btn-success" @onclick="GoToDashboard">
                                     @Localizer["GoToDashboard"]
                                 </button>
@@ -230,6 +238,7 @@
     private bool showInterview = false;
     private bool isCompleted = false;
     private bool emailExists = false;
+    private bool accountCreated = false;
     private ImmigrationGoal selectedGoal;
     private List<InterviewStep> steps = new();
     private int currentStepIndex = 0;
@@ -250,12 +259,22 @@
     {
         await InitializeStepsAsync();
         CultureState.OnChange += OnCultureChanged;
+        AuthState.OnChange += OnAuthChanged;
     }
 
     private async void OnCultureChanged()
     {
         await InitializeStepsAsync(); // Reinitialize steps with new culture
         InvokeAsync(StateHasChanged);
+    }
+
+    private void OnAuthChanged()
+    {
+        if (!AuthState.IsLoggedIn)
+        {
+            BackToOptions();
+            InvokeAsync(StateHasChanged);
+        }
     }
 
     private async Task InitializeStepsAsync()
@@ -347,6 +366,7 @@
     {
         selectedGoal = goal;
         showInterview = true;
+        accountCreated = false;
         currentStepIndex = 0;
         userInput = new UserInputModel();
         registrationModel = new UserRegistrationDto();
@@ -501,9 +521,11 @@
                 registrationModel.Password = userInput.CurrentValue ?? "";
                 if (emailExists)
                 {
+                    errorMessage = null;
                     var success = await CompleteRegistration();
                     if (success)
                     {
+                        accountCreated = false;
                         await LoadExistingSession();
                         currentStepIndex = goalStartIndex;
                         if (currentStepIndex >= steps.Count)
@@ -528,6 +550,12 @@
                         StateHasChanged();
                         return;
                     }
+                    else
+                    {
+                        userInput.CurrentValue = null;
+                        StateHasChanged();
+                        return;
+                    }
                 }
                 break;
         }
@@ -537,9 +565,20 @@
 
         if (!emailExists && currentStepIndex == goalStartIndex)
         {
+            errorMessage = null;
             var success = await CompleteRegistration();
             if (success)
+            {
+                accountCreated = true;
                 await LoadExistingSession();
+            }
+            else
+            {
+                currentStepIndex--;
+                userInput.CurrentValue = null;
+                StateHasChanged();
+                return;
+            }
         }
 
         if (intakeSessionId.HasValue && currentStepIndex > goalStartIndex)
@@ -608,10 +647,20 @@
                     Password = registrationModel.Password
                 };
                 response = await Http.PostAsJsonAsync("api/auth/login", loginDto);
+                if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+                {
+                    errorMessage = Localizer["LoginError"];
+                    return false;
+                }
             }
             else
             {
                 response = await Http.PostAsJsonAsync("api/auth/register", registrationModel);
+                if (!response.IsSuccessStatusCode)
+                {
+                    errorMessage = Localizer["RegistrationError"];
+                    return false;
+                }
             }
 
             if (response.IsSuccessStatusCode)
@@ -631,6 +680,7 @@
         catch (Exception ex)
         {
             Console.WriteLine($"Registration/Login error: {ex.Message}");
+            errorMessage = Localizer["RegistrationError"];
         }
 
         return false;
@@ -682,6 +732,7 @@
     public void Dispose()
     {
         CultureState.OnChange -= OnCultureChanged;
+        AuthState.OnChange -= OnAuthChanged;
     }
 
     private record LoginResult(Guid UserId, string Message);
