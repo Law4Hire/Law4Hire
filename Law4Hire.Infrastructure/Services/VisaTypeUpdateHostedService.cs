@@ -3,6 +3,7 @@ using Law4Hire.Core.Entities;
 using Law4Hire.Core.Interfaces;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 namespace Law4Hire.Infrastructure.Services;
