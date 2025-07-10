@@ -52,6 +52,9 @@ namespace Law4Hire.API.Migrations
             migrationBuilder.Sql("UPDATE VisaTypes SET VisaGroupId = '66666666-6666-6666-6666-666666666666' WHERE Category = 'Study';");
             migrationBuilder.Sql("UPDATE VisaTypes SET VisaGroupId = '77777777-7777-7777-7777-777777777777' WHERE Category = 'Family';");
 
+            // Ensure all existing visa types have an assigned group before making the column non-nullable
+            migrationBuilder.Sql("UPDATE VisaTypes SET VisaGroupId = '11111111-1111-1111-1111-111111111111' WHERE VisaGroupId IS NULL;");
+
             migrationBuilder.AlterColumn<Guid>(
                 name: "VisaGroupId",
                 table: "VisaTypes",
