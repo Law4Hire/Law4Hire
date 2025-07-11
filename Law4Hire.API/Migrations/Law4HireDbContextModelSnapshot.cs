@@ -514,6 +514,31 @@ namespace Law4Hire.API.Migrations
                     b.ToTable("UserVisas", (string)null);
                 });
 
+            modelBuilder.Entity("Law4Hire.Core.Entities.ScrapeLog", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("EntityAffected")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ScrapeLogs");
+                });
+
             modelBuilder.Entity("Law4Hire.Core.Entities.VisaDocumentRequirement", b =>
                 {
                     b.Property<Guid>("Id")
