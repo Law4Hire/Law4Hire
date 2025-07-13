@@ -59,6 +59,7 @@ builder.Services.AddScoped<ILocalizedContentRepository, LocalizedContentReposito
 builder.Services.AddScoped<IVisaTypeRepository, VisaTypeRepository>();
 builder.Services.AddScoped<IScrapeLogRepository, ScrapeLogRepository>();
 builder.Services.AddScoped<IIntakeQuestionRepository, IntakeQuestionRepository>();
+builder.Services.AddScoped<IVisaTypeQuestionRepository, VisaTypeQuestionRepository>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IIntakeService, IntakeService>();
 builder.Services.AddScoped<IEncryptionService, EncryptionService>();

@@ -27,6 +27,7 @@ public class Law4HireDbContext : IdentityDbContext<User, IdentityRole<Guid>, Gui
     public DbSet<DocumentType> DocumentTypes { get; set; }
     public DbSet<UserVisa> UserVisas { get; set; }
     public DbSet<ScrapeLog> ScrapeLogs { get; set; }
+    public DbSet<VisaTypeQuestion> VisaTypeQuestions { get; set; }
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -78,6 +79,12 @@ public class Law4HireDbContext : IdentityDbContext<User, IdentityRole<Guid>, Gui
             .HasOne(uv => uv.VisaType)
             .WithMany(vt => vt.UserVisas)
             .HasForeignKey(uv => uv.VisaTypeId);
+
+        modelBuilder.Entity<VisaTypeQuestion>()
+            .HasOne(vq => vq.VisaType)
+            .WithMany()
+            .HasForeignKey(vq => vq.VisaTypeId)
+            .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<VisaType>()
             .HasOne(v => v.VisaGroup)
