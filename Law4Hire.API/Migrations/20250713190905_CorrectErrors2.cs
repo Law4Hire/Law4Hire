@@ -35,11 +35,6 @@ namespace Law4Hire.API.Migrations
                 values: new object[] { "Sponsor financial support form", "I-864", "USCIS", "Affidavit of Support" });
 
             migrationBuilder.InsertData(
-                table: "VisaTypes",
-                columns: new[] { "Id", "Category", "Description", "Name", "VisaGroupId" },
-                values: new object[] { new Guid("162e3e30-ec8b-438e-8f96-e836465d0908"), "Work", "Work visa for specialty occupations", "H1B Specialty Occupation", new Guid("44444444-4444-4444-4444-444444444444") });
-
-            migrationBuilder.InsertData(
                 table: "VisaDocumentRequirements",
                 columns: new[] { "Id", "DocumentTypeId", "IsRequired", "VisaTypeId" },
                 values: new object[,]
@@ -69,10 +64,6 @@ namespace Law4Hire.API.Migrations
                 keyValue: new Guid("e8e5455e-1878-4b73-afca-33a32d4b66ed"));
 
 
-            migrationBuilder.DeleteData(
-                table: "VisaTypes",
-                keyColumn: "Id",
-                keyValue: new Guid("162e3e30-ec8b-438e-8f96-e836465d0908"));
         }
     }
 }
