@@ -76,7 +76,7 @@ public class VisaScraperBot(
     {
         var list = new List<VisaType>();
         using var playwright = await Playwright.CreateAsync();
-        await using var browser = await playwright.Chromium.LaunchAsync(new BrowserTypeLaunchOptions { Headless = true });
+        await using var browser = await playwright.Chromium.LaunchAsync(new LaunchOptions { Headless = true });
         var page = await browser.NewPageAsync();
         await page.GoToAsync(SourceUrl);
         var rows = await page.QuerySelectorAllAsync("table.grid tbody tr");
@@ -94,7 +94,7 @@ public class VisaScraperBot(
             if (cells.Length < 2) continue;
             var desc = (await (await cells[0].GetPropertyAsync("innerText")).JsonValueAsync<string>()).Trim();
             var visaName = (await (await cells[1].GetPropertyAsync("innerText")).JsonValueAsync<string>()).Trim();
-            visaName = Regex.Replace(visaName, "\s+", " ");
+            visaName = Regex.Replace(visaName, "\\s+", " ");
             if (string.IsNullOrWhiteSpace(visaName)) continue;
             list.Add(new VisaType
             {
