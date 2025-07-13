@@ -13,15 +13,26 @@ namespace Law4Hire.API.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.InsertData(
+            migrationBuilder.UpdateData(
                 table: "DocumentTypes",
-                columns: new[] { "Id", "Description", "FormNumber", "IssuingAgency", "Name" },
-                values: new object[,]
-                {
-                    { new Guid("3e27b6a3-8a52-4185-854c-5f584aea28e8"), "For H-1B and other workers", "I-129", "USCIS", "Petition for a Nonimmigrant Worker" },
-                    { new Guid("678634b3-de95-4f16-83c9-dc86aad68723"), "Application for temporary visas", "DS-160", "DOS", "Online Nonimmigrant Visa Application" },
-                    { new Guid("fe86ca4b-3808-482b-89fb-e2fc9375684b"), "Sponsor financial support form", "I-864", "USCIS", "Affidavit of Support" }
-                });
+                keyColumn: "Id",
+                keyValue: new Guid("3e27b6a3-8a52-4185-854c-5f584aea28e8"),
+                columns: new[] { "Description", "FormNumber", "IssuingAgency", "Name" },
+                values: new object[] { "For H-1B and other workers", "I-129", "USCIS", "Petition for a Nonimmigrant Worker" });
+
+            migrationBuilder.UpdateData(
+                table: "DocumentTypes",
+                keyColumn: "Id",
+                keyValue: new Guid("678634b3-de95-4f16-83c9-dc86aad68723"),
+                columns: new[] { "Description", "FormNumber", "IssuingAgency", "Name" },
+                values: new object[] { "Application for temporary visas", "DS-160", "DOS", "Online Nonimmigrant Visa Application" });
+
+            migrationBuilder.UpdateData(
+                table: "DocumentTypes",
+                keyColumn: "Id",
+                keyValue: new Guid("fe86ca4b-3808-482b-89fb-e2fc9375684b"),
+                columns: new[] { "Description", "FormNumber", "IssuingAgency", "Name" },
+                values: new object[] { "Sponsor financial support form", "I-864", "USCIS", "Affidavit of Support" });
 
             migrationBuilder.InsertData(
                 table: "VisaTypes",
@@ -57,20 +68,6 @@ namespace Law4Hire.API.Migrations
                 keyColumn: "Id",
                 keyValue: new Guid("e8e5455e-1878-4b73-afca-33a32d4b66ed"));
 
-            migrationBuilder.DeleteData(
-                table: "DocumentTypes",
-                keyColumn: "Id",
-                keyValue: new Guid("3e27b6a3-8a52-4185-854c-5f584aea28e8"));
-
-            migrationBuilder.DeleteData(
-                table: "DocumentTypes",
-                keyColumn: "Id",
-                keyValue: new Guid("678634b3-de95-4f16-83c9-dc86aad68723"));
-
-            migrationBuilder.DeleteData(
-                table: "DocumentTypes",
-                keyColumn: "Id",
-                keyValue: new Guid("fe86ca4b-3808-482b-89fb-e2fc9375684b"));
 
             migrationBuilder.DeleteData(
                 table: "VisaTypes",
