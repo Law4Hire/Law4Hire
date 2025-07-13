@@ -3,6 +3,7 @@ using Law4Hire.Infrastructure.Data.Contexts;
 using Law4Hire.Infrastructure.Data.Repositories;
 using Law4Hire.Scraper;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 

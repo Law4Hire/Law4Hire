@@ -90,10 +90,10 @@ public class VisaScraperBot(
 
         foreach (var row in rows)
         {
-            var cells = await row.QuerySelectorAllAsync("td");
+            var cells = (await row.QuerySelectorAllAsync("td")).ToArray();
             if (cells.Length < 2) continue;
-            var desc = (await (await cells[0].GetPropertyAsync("innerText")).JsonValueAsync<string>()).Trim();
-            var visaName = (await (await cells[1].GetPropertyAsync("innerText")).JsonValueAsync<string>()).Trim();
+            var desc = (await (await cells[0].GetPropertyAsync("innerText")).GetJsonValueAsync<string>()).Trim();
+            var visaName = (await (await cells[1].GetPropertyAsync("innerText")).GetJsonValueAsync<string>()).Trim();
             visaName = Regex.Replace(visaName, "\\s+", " ");
             if (string.IsNullOrWhiteSpace(visaName)) continue;
             list.Add(new VisaType
