@@ -1,14 +1,22 @@
-CREATE TABLE IF NOT EXISTS VisaTypeQuestions (
-    Id UNIQUEIDENTIFIER PRIMARY KEY,
-    VisaTypeId UNIQUEIDENTIFIER NOT NULL,
-    QuestionKey NVARCHAR(100) NOT NULL,
-    QuestionText NVARCHAR(500) NOT NULL,
-    Type INT NOT NULL,
-    [Order] INT NOT NULL,
-    IsRequired BIT NOT NULL,
-    ValidationRules NVARCHAR(1000) NULL,
-    CONSTRAINT FK_VisaTypeQuestions_VisaTypes FOREIGN KEY (VisaTypeId) REFERENCES VisaTypes(Id)
-);
+IF NOT EXISTS (
+    SELECT 1
+    FROM INFORMATION_SCHEMA.TABLES
+    WHERE TABLE_NAME = 'VisaTypeQuestions'
+)
+BEGIN
+    CREATE TABLE VisaTypeQuestions (
+        Id UNIQUEIDENTIFIER PRIMARY KEY,
+        VisaTypeId UNIQUEIDENTIFIER NOT NULL,
+        QuestionKey NVARCHAR(100) NOT NULL,
+        QuestionText NVARCHAR(500) NOT NULL,
+        Type INT NOT NULL,
+        [Order] INT NOT NULL,
+        IsRequired BIT NOT NULL,
+        ValidationRules NVARCHAR(1000) NULL,
+        CONSTRAINT FK_VisaTypeQuestions_VisaTypes FOREIGN KEY (VisaTypeId) REFERENCES VisaTypes(Id)
+    );
+END
+GO
 
 -- Sample question for B1/B2 visitor visa
 INSERT INTO VisaTypeQuestions (Id, VisaTypeId, QuestionKey, QuestionText, Type, [Order], IsRequired, ValidationRules)
