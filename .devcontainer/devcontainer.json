@@ -1,0 +1,10 @@
+{
+    "name": "Law4Hire Dev Container",
+    "build": {
+        "dockerfile": "Dockerfile"
+    },
+    "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash"
+    },
+    "postCreateCommand": "dotnet --version && node --version && psql --version"
+}
