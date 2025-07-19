@@ -70,6 +70,13 @@ builder.Services.AddControllers();
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 builder.Services.AddHttpClient();
+builder.Services.AddScoped(sp =>
+{
+    var factory = sp.GetRequiredService<IHttpClientFactory>();
+    var config = sp.GetRequiredService<IConfiguration>();
+    var apiKey = config["OpenAI:ApiKey"] ?? string.Empty;
+    return new VisaInterviewBot(factory.CreateClient(), apiKey);
+});
 builder.Services.AddIdentity<User, IdentityRole<Guid>>()
     .AddEntityFrameworkStores<Law4HireDbContext>()
     .AddDefaultTokenProviders();

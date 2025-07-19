@@ -4,6 +4,7 @@ using Law4Hire.Infrastructure.Data.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Law4Hire.API.Migrations
 {
     [DbContext(typeof(Law4HireDbContext))]
-    partial class Law4HireDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250718175251_ChangesInterview")]
+    partial class ChangesInterview
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -639,12 +642,6 @@ namespace Law4Hire.API.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ExtractedDocumentsJson")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("LastBotMessage")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("LastClientMessage")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("LastUpdated")

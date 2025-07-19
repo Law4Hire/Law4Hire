@@ -1,3 +1,68 @@
 @page "/interview/phase2"
-<h1>Interview Phase 2</h1>
-<p>Continue the interview here.</p>
+@using System.Net.Http.Json
+@using Law4Hire.Core.Entities
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+@inject Law4Hire.Web.State.AuthState AuthState
+
+<h3>Visa Interview</h3>
+
+<div class="mb-3">
+    <textarea class="form-control" rows="6" readonly>@jsonState</textarea>
+</div>
+<div class="input-group mb-3">
+    <input class="form-control" @bind="userAnswer" placeholder="Enter answer or command" />
+    <button class="btn btn-primary" @onclick="SendAnswer">Send</button>
+    <button class="btn btn-secondary" @onclick="Reset">Reset</button>
+</div>
+
+@code {
+    private VisaInterviewState? state;
+    private string userAnswer = string.Empty;
+    private string jsonState = string.Empty;
+    private List<string> conversation = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (AuthState.CurrentUser != null)
+        {
+            var resp = await Http.GetAsync($"api/VisaInterview/{AuthState.CurrentUser.Id}");
+            if (resp.IsSuccessStatusCode)
+            {
+                state = await resp.Content.ReadFromJsonAsync<VisaInterviewState>();
+                if (state != null)
+                {
+                    var stateText = System.Text.Json.JsonSerializer.Serialize(state, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
+                    conversation.Add($"Stacy: {stateText}");
+                    jsonState = string.Join("\n\n", conversation);
+                }
+            }
+        }
+    }
+
+    private async Task SendAnswer()
+    {
+        conversation.Add($"You: {userAnswer}");
+        var input = new { userId = AuthState.CurrentUser?.Id, message = userAnswer };
+        var response = await Http.PostAsJsonAsync("api/VisaInterview/step", input);
+        if (response.IsSuccessStatusCode)
+        {
+            state = await response.Content.ReadFromJsonAsync<VisaInterviewState>();
+            var stateText = System.Text.Json.JsonSerializer.Serialize(state, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
+            conversation.Add($"Stacy: {stateText}");
+            jsonState = string.Join("\n\n", conversation);
+            userAnswer = string.Empty;
+        }
+    }
+
+    private async Task Reset()
+    {
+        var id = AuthState.CurrentUser?.Id;
+        await Http.DeleteAsync($"api/VisaInterview/reset?userId={id}");
+        state = null;
+        conversation.Clear();
+        jsonState = string.Empty;
+        userAnswer = string.Empty;
+        NavigationManager.NavigateTo("/");
+    }
+}

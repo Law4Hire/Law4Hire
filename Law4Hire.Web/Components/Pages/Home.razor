@@ -98,6 +98,12 @@
                         <button class="btn btn-outline-secondary btn-sm mb-3" @onclick="BackToOptions">
                             ← @Localizer["BackToOptions"]
                         </button>
+                        @if (AuthState.IsLoggedIn)
+                        {
+                            <button class="btn btn-outline-danger btn-sm mb-3 ms-2" @onclick="ResetInterview">
+                                🔄 Reset Interview
+                            </button>
+                        }
                         <h2 class="mb-4">@Localizer["StartYourJourney"]</h2>
                         <p class="text-muted mb-4">@GetGoalDescription(selectedGoal)</p>
                     </div>
@@ -144,13 +150,14 @@
                                     }
                                     else if (currentStep.Type == "password")
                                     {
-                                        <input type="password" 
-                                               @bind-value="userInput.CurrentValue" 
-                                               class="form-control" 
-                                               placeholder="@currentStep.Placeholder" 
-                                               pattern="@currentStep.Pattern" 
-                                               title="@currentStep.Title" 
-                                               required="@currentStep.Required" />
+                                        <input type="password"
+                                               @bind-value="userInput.CurrentValue"
+                                               class="form-control"
+                                               placeholder="@currentStep.Placeholder"
+                                               pattern="@currentStep.Pattern"
+                                               title="@currentStep.Title"
+                                               required="@currentStep.Required"
+                                               autofocus />
                                     }
                                     else
                                     {
@@ -198,24 +205,6 @@
                                 </div>
                             </EditForm>
                         }
-                        else
-                        {
-                            <div class="text-center">
-                                <div class="success-icon mb-3">✅</div>
-                                <h4>@Localizer["RegistrationComplete"]</h4>
-                                @if (!string.IsNullOrEmpty(selectedVisaName))
-                                {
-                                    <p class="fw-bold">@selectedVisaName</p>
-                                }
-                                @if (accountCreated)
-                                {
-                                    <p class="text-muted">@Localizer["WelcomeMessage", registrationModel.FirstName]</p>
-                                }
-                                <button class="btn btn-success" @onclick="GoToDashboard">
-                                    @Localizer["GoToDashboard"]
-                                </button>
-                            </div>
-                        }
                     </div>
                 </div>
             </div>
@@ -239,6 +228,7 @@
     private bool isCompleted = false;
     private bool emailExists = false;
     private bool accountCreated = false;
+    private bool askState = false;
     private ImmigrationGoal selectedGoal;
     private List<InterviewStep> steps = new();
     private int currentStepIndex = 0;
@@ -248,11 +238,9 @@
             : new InterviewStep();
     private UserInputModel userInput = new();
     private UserRegistrationDto registrationModel = new();
-    private Dictionary<string, string> visitAnswers = new();
     private Guid? intakeSessionId;
     private Dictionary<string, string> savedAnswers = new();
     private int goalStartIndex;
-    private string? selectedVisaName;
     private string? errorMessage;
 
     protected override async Task OnInitializedAsync()
@@ -281,32 +269,74 @@
     {
         var registrationSteps = new List<InterviewStep>
         {
-            new InterviewStep {
+            new InterviewStep
+            {
                 Question = Localizer["FirstNameQuestion"],
                 Placeholder = Localizer["FirstNamePlaceholder"],
                 PropertyName = "FirstName",
                 Type = "text"
             },
-            new InterviewStep {
+            new InterviewStep
+            {
                 Question = Localizer["LastNameQuestion"],
                 Placeholder = Localizer["LastNamePlaceholder"],
                 PropertyName = "LastName",
                 Type = "text"
             },
-            new InterviewStep {
+            new InterviewStep
+            {
                 Question = Localizer["MiddleNameQuestion"],
                 Placeholder = Localizer["MiddleNamePlaceholder"],
                 PropertyName = "MiddleName",
                 Type = "text",
                 Required = false
             },
-            new InterviewStep {
+            new InterviewStep
+            {
                 Question = Localizer["AddressQuestion"],
                 Placeholder = Localizer["AddressPlaceholder"],
                 PropertyName = "Address1",
                 Type = "text"
             },
-            new InterviewStep {
+            new InterviewStep
+            {
+                Question = Localizer["Address2Question"],
+                Placeholder = Localizer["Address2Placeholder"],
+                PropertyName = "Address2",
+                Type = "text",
+                Required = false
+            },
+            new InterviewStep
+            {
+                Question = Localizer["CityQuestion"],
+                Placeholder = Localizer["CityPlaceholder"],
+                PropertyName = "City",
+                Type = "text"
+            },
+            new InterviewStep
+            {
+                Question = Localizer["CountryQuestion"],
+                Placeholder = Localizer["CountryPlaceholder"],
+                PropertyName = "Country",
+                Type = "text"
+            },
+            new InterviewStep
+            {
+                Question = Localizer["StateQuestion"],
+                Placeholder = Localizer["StatePlaceholder"],
+                PropertyName = "State",
+                Type = "text",
+                Required = false
+            },
+            new InterviewStep
+            {
+                Question = Localizer["PostalCodeQuestion"],
+                Placeholder = Localizer["PostalCodePlaceholder"],
+                PropertyName = "PostalCode",
+                Type = "text"
+            },
+            new InterviewStep
+            {
                 Question = Localizer["PhoneQuestion"],
                 Placeholder = Localizer["PhonePlaceholder"],
                 PropertyName = "PhoneNumber",
@@ -325,6 +355,12 @@
                 PropertyName = "Email",
                 Type = "email"
             });
+        }
+
+        steps.AddRange(registrationSteps);
+
+        if (!AuthState.IsLoggedIn)
+        {
             steps.Add(new InterviewStep
             {
                 Question = Localizer["PasswordQuestion"],
@@ -336,30 +372,7 @@
             });
         }
 
-
-        steps.AddRange(registrationSteps);
         goalStartIndex = steps.Count;
-        steps.AddRange(await GetGoalStepsAsync());
-    }
-    private async Task<List<InterviewStep>> GetGoalStepsAsync()
-    {
-        try
-        {
-            var questions = await Http.GetFromJsonAsync<List<IntakeQuestionDto>>($"api/intake/questions?category={selectedGoal}");
-            if (questions == null) return new List<InterviewStep>();
-
-            return questions.Select(q => new InterviewStep
-            {
-                Question = q.QuestionText,
-                PropertyName = q.QuestionKey,
-                Type = q.Type.ToString().ToLower(),
-                Required = q.IsRequired
-            }).ToList();
-        }
-        catch
-        {
-            return new List<InterviewStep>();
-        }
     }
 
     private async Task StartInterview(ImmigrationGoal goal)
@@ -370,7 +383,6 @@
         currentStepIndex = 0;
         userInput = new UserInputModel();
         registrationModel = new UserRegistrationDto();
-        visitAnswers = new Dictionary<string, string>();
         savedAnswers = new Dictionary<string, string>();
         isCompleted = false;
         emailExists = false;
@@ -404,9 +416,9 @@
                     {
                         savedAnswers = progress.Answers;
                         currentStepIndex = progress.CurrentStep;
-                        if (AuthState.IsLoggedIn && !steps.Any(s => s.PropertyName == "Email") && currentStepIndex >= 2)
+                        if (AuthState.IsLoggedIn && !steps.Any(s => s.PropertyName == "Email") && currentStepIndex >= 1)
                         {
-                            currentStepIndex -= 2;
+                            currentStepIndex -= 1;
                         }
                         if (currentStepIndex >= steps.Count)
                         {
@@ -433,11 +445,21 @@
         catch {}
     }
 
-    private void BackToOptions() 
-    { 
-        showInterview = false; 
-        selectedGoal = ImmigrationGoal.Visit; 
-        currentStepIndex = 0; 
+    private void BackToOptions()
+    {
+        showInterview = false;
+        selectedGoal = ImmigrationGoal.Visit;
+        currentStepIndex = 0;
+    }
+
+    private async Task ResetInterview()
+    {
+        if (AuthState.CurrentUser == null)
+            return;
+        await Http.DeleteAsync($"api/VisaInterview/reset?userId={AuthState.CurrentUser.Id}");
+        BackToOptions();
+        savedAnswers.Clear();
+        intakeSessionId = null;
     }
 
     private void GoToLogin() 
@@ -475,11 +497,6 @@
 
         switch (propName)
         {
-            case "Purpose":
-            case "VWP":
-            case "PaidByUS":
-                visitAnswers[propName] = userInput.CurrentValue ?? "";
-                break;
             case "FirstName":
                 registrationModel.FirstName = userInput.CurrentValue ?? "";
                 break;
@@ -495,25 +512,49 @@
             case "Address2":
                 registrationModel.Address2 = userInput.CurrentValue ?? "";
                 break;
+            case "City":
+                registrationModel.City = userInput.CurrentValue ?? "";
+                break;
+            case "Country":
+                registrationModel.Country = userInput.CurrentValue ?? "";
+                askState = registrationModel.Country.Trim().Equals("USA", StringComparison.OrdinalIgnoreCase) ||
+                           registrationModel.Country.Trim().Equals("United States", StringComparison.OrdinalIgnoreCase) ||
+                           registrationModel.Country.Trim().Equals("US", StringComparison.OrdinalIgnoreCase);
+                break;
+            case "State":
+                registrationModel.State = userInput.CurrentValue ?? "";
+                break;
+            case "PostalCode":
+                registrationModel.PostalCode = userInput.CurrentValue ?? "";
+                break;
             case "PhoneNumber":
                 registrationModel.PhoneNumber = userInput.CurrentValue ?? "";
                 break;
             case "Email":
                 registrationModel.Email = userInput.CurrentValue ?? "";
                 emailExists = await CheckEmailExists(registrationModel.Email);
-                if (!AuthState.IsLoggedIn && steps.Count > 1)
+                if (!AuthState.IsLoggedIn)
                 {
-                    steps[1].Question = emailExists ? Localizer["ExistingPasswordQuestion"] : Localizer["PasswordQuestion"];
-                    steps[1].Placeholder = emailExists ? Localizer["ExistingPasswordPlaceholder"] : Localizer["PasswordPlaceholder"];
-                    if (emailExists)
+                    var pwdIndex = steps.FindIndex(s => s.PropertyName == "Password");
+                    if (pwdIndex >= 0)
                     {
-                        steps[1].Pattern = null;
-                        steps[1].Title = null;
-                    }
-                    else
-                    {
-                        steps[1].Pattern = @"(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*\W).{8,}";
-                        steps[1].Title = Localizer["PasswordRequirements"];
+                        steps[pwdIndex].Question = emailExists ? Localizer["ExistingPasswordQuestion"] : Localizer["PasswordQuestion"];
+                        steps[pwdIndex].Placeholder = emailExists ? Localizer["ExistingPasswordPlaceholder"] : Localizer["PasswordPlaceholder"];
+                        if (emailExists)
+                        {
+                            steps[pwdIndex].Pattern = null;
+                            steps[pwdIndex].Title = null;
+                        }
+                        else
+                        {
+                            steps[pwdIndex].Pattern = @"(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*\W).{8,}";
+                            steps[pwdIndex].Title = Localizer["PasswordRequirements"];
+                        }
+                        if (emailExists)
+                        {
+                            // jump directly to password step
+                            currentStepIndex = pwdIndex - 1;
+                        }
                     }
                 }
                 break;
@@ -530,16 +571,8 @@
                         currentStepIndex = goalStartIndex;
                         if (currentStepIndex >= steps.Count)
                         {
-                            if (selectedGoal == ImmigrationGoal.Visit)
-                            {
-                                await CompleteVisitInterview();
-                            }
-                            else
-                            {
-                                isCompleted = true;
-                                await FinalizeVisaTypeAsync();
-                            }
-                            StateHasChanged();
+                            await StartVisaInterviewAsync();
+                            NavigationManager.NavigateTo("/interview/phase2");
                             return;
                         }
 
@@ -562,6 +595,15 @@
 
         userInput.CurrentValue = null;
         currentStepIndex++;
+
+        // Skip state step if not required
+        if (propName == "Country" && !askState)
+        {
+            if (currentStepIndex < steps.Count && steps[currentStepIndex].PropertyName == "State")
+            {
+                currentStepIndex++;
+            }
+        }
 
         if (!emailExists && currentStepIndex == goalStartIndex)
         {
@@ -588,26 +630,14 @@
 
         if (currentStepIndex >= steps.Count)
         {
-            if (selectedGoal == ImmigrationGoal.Visit)
-            {
-                await CompleteVisitInterview();
-            }
-            else
-            {
-                isCompleted = true;
-                await FinalizeVisaTypeAsync();
-            }
+            await StartVisaInterviewAsync();
+            NavigationManager.NavigateTo("/interview/phase2");
+            return;
         }
 
         StateHasChanged();
     }
 
-    private async Task CompleteVisitInterview()
-    {
-        isCompleted = true;
-        await FinalizeVisaTypeAsync();
-
-    }
 
     private void PreviousStep()
     {
@@ -686,6 +716,28 @@
         return false;
     }
 
+    private async Task StartVisaInterviewAsync()
+    {
+        if (AuthState.CurrentUser == null)
+            return;
+
+        var initPayload = new
+        {
+            userId = AuthState.CurrentUser.Id,
+            role = "client",
+            category = GetGoalDescription(selectedGoal),
+            language = CultureState.CurrentCulture.Name,
+            firstName = registrationModel.FirstName,
+            lastName = registrationModel.LastName
+        };
+
+        try
+        {
+            await Http.PostAsJsonAsync("api/VisaInterview/step", initPayload);
+        }
+        catch { }
+    }
+
     private async Task SaveProgress()
     {
         if (!intakeSessionId.HasValue)
@@ -695,21 +747,6 @@
         await Http.PatchAsJsonAsync($"api/intake/sessions/{intakeSessionId}/progress", progress);
     }
 
-    private async Task FinalizeVisaTypeAsync()
-    {
-        if (AuthState.CurrentUser == null) return;
-        try
-        {
-            var visaTypes = await Http.GetFromJsonAsync<List<VisaType>>($"api/visatypes/category/{selectedGoal}");
-            var visa = visaTypes?.FirstOrDefault();
-            if (visa != null)
-            {
-                selectedVisaName = visa.Name;
-                await Http.PostAsync($"api/DocumentStatus/seed/user/{AuthState.CurrentUser.Id}/visa/{visa.Id}", null);
-            }
-        }
-        catch { }
-    }
 
     public class InterviewStep 
     { 
@@ -723,10 +760,9 @@
         public List<string>? Options { get; set; }
     }
 
-    public class UserInputModel 
-    { 
-        [Required] 
-        public string? CurrentValue { get; set; } 
+    public class UserInputModel
+    {
+        public string? CurrentValue { get; set; }
     }
 
     public void Dispose()

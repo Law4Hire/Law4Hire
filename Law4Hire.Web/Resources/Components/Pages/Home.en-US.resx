@@ -69,8 +69,23 @@
 	<data name="MiddleNameQuestion" xml:space="preserve">
     <value>Do you have a middle name? (Optional)</value>
   </data>
-	<data name="AddressQuestion" xml:space="preserve">
-    <value>What is your current address?</value>
+        <data name="AddressQuestion" xml:space="preserve">
+    <value>What is your street address?</value>
+  </data>
+        <data name="Address2Question" xml:space="preserve">
+    <value>Address line 2 (optional)</value>
+  </data>
+        <data name="CityQuestion" xml:space="preserve">
+    <value>Which city do you live in?</value>
+  </data>
+        <data name="CountryQuestion" xml:space="preserve">
+    <value>What country do you reside in?</value>
+  </data>
+        <data name="StateQuestion" xml:space="preserve">
+    <value>Which state do you live in?</value>
+  </data>
+        <data name="PostalCodeQuestion" xml:space="preserve">
+    <value>What is your postal code?</value>
   </data>
 	<data name="PhoneQuestion" xml:space="preserve">
     <value>What is your phone number?</value>
@@ -95,8 +110,23 @@
 	<data name="MiddleNamePlaceholder" xml:space="preserve">
     <value>Enter your middle name (optional)</value>
   </data>
-	<data name="AddressPlaceholder" xml:space="preserve">
-    <value>Enter your full address</value>
+        <data name="AddressPlaceholder" xml:space="preserve">
+    <value>Street address</value>
+  </data>
+        <data name="Address2Placeholder" xml:space="preserve">
+    <value>Apt, suite, etc. (optional)</value>
+  </data>
+        <data name="CityPlaceholder" xml:space="preserve">
+    <value>City</value>
+  </data>
+        <data name="CountryPlaceholder" xml:space="preserve">
+    <value>Country</value>
+  </data>
+        <data name="StatePlaceholder" xml:space="preserve">
+    <value>State</value>
+  </data>
+        <data name="PostalCodePlaceholder" xml:space="preserve">
+    <value>ZIP or postal code</value>
   </data>
 	<data name="PhonePlaceholder" xml:space="preserve">
     <value>Enter your phone number</value>

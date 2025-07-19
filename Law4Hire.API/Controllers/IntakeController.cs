@@ -10,7 +10,6 @@ namespace Law4Hire.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize]
 [EnableRateLimiting("fixed")]
 public class IntakeController(IIntakeSessionRepository intakeSessionRepository,
     IIntakeQuestionRepository intakeQuestionRepository) : ControllerBase
@@ -24,6 +23,7 @@ public class IntakeController(IIntakeSessionRepository intakeSessionRepository,
     /// <param name="createSessionDto">Intake session creation data</param>
     /// <returns>Created intake session</returns>
     [HttpPost("sessions")]
+    [AllowAnonymous]
     [ProducesResponseType<IntakeSessionDto>(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<IntakeSessionDto>> CreateIntakeSession([FromBody] CreateIntakeSessionDto createSessionDto)
@@ -56,6 +56,7 @@ public class IntakeController(IIntakeSessionRepository intakeSessionRepository,
     /// <param name="id">Session ID</param>
     /// <returns>Intake session details</returns>
     [HttpGet("sessions/{id:guid}")]
+    [AllowAnonymous]
     [ProducesResponseType<IntakeSessionDto>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<IntakeSessionDto>> GetIntakeSession(Guid id)
@@ -83,6 +84,7 @@ public class IntakeController(IIntakeSessionRepository intakeSessionRepository,
     /// <param name="userId">User ID</param>
     /// <returns>List of user's intake sessions</returns>
     [HttpGet("users/{userId:guid}/sessions")]
+    [AllowAnonymous]
     [ProducesResponseType<IEnumerable<IntakeSessionDto>>(StatusCodes.Status200OK)]
     public async Task<ActionResult<IEnumerable<IntakeSessionDto>>> GetUserIntakeSessions(Guid userId)
     {
@@ -102,6 +104,7 @@ public class IntakeController(IIntakeSessionRepository intakeSessionRepository,
     }
 
     [HttpPatch("sessions/{id:guid}/progress")]
+    [AllowAnonymous]
     public async Task<IActionResult> UpdateProgress(Guid id, [FromBody] UpdateSessionProgressDto progress)
     {
         var session = await _intakeSessionRepository.GetByIdAsync(id);
