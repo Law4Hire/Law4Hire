@@ -87,3 +87,34 @@ public class VisaInterviewBot
         return content.Trim();
     }
 }
+
+
+public async Task FinalizeInterviewAsync(Guid userId, string finalVisa, WorkflowResult workflow)
+{
+    var user = await _context.Users.Include(u => u.VisaInterview).FirstOrDefaultAsync(u => u.Id == userId);
+    if (user == null) throw new Exception("User not found");
+
+    user.VisaType = finalVisa;
+    user.WorkflowJson = JsonSerializer.Serialize(workflow);
+    user.VisaInterview.IsCompleted = true;
+
+    await _context.SaveChangesAsync();
+}
+
+public async Task ResetInterviewAsync(Guid userId)
+{
+    var user = await _context.Users.Include(u => u.VisaInterview).FirstOrDefaultAsync(u => u.Id == userId);
+    if (user == null) throw new Exception("User not found");
+
+    if (user.VisaInterview != null)
+    {
+        user.VisaInterview.IsReset = true;
+        user.VisaInterview.IsCompleted = false;
+        user.VisaInterview.CurrentStep = 0;
+        user.WorkflowJson = null;
+        user.Category = null;
+        user.VisaType = null;
+    }
+
+    await _context.SaveChangesAsync();
+}

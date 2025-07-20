@@ -213,6 +213,15 @@
 </div>
 
 @code {
+    [Inject] private HttpClient Http { get; set; }
+    [Inject] private NavigationManager Nav { get; set; }
+
+    private async Task SelectCategory(string category)
+    {
+        await Http.PostAsync($"/api/visainterview/reset?category={category}", null);
+        Nav.NavigateTo("/interview");
+    }
+
     public enum ImmigrationGoal
     {
         Visit,

@@ -4,6 +4,12 @@ namespace Law4Hire.Web.State;
 
 public class AuthState
 {
+    public string SelectedCategory { get; set; }  // E.g., 'Immigrate', 'Work'
+    public bool InterviewStarted { get; set; }
+    public bool InterviewCompleted { get; set; }
+    public bool InterviewReset { get; set; }
+
+{
     public UserDto? CurrentUser { get; private set; }
 
     public bool IsLoggedIn => CurrentUser != null;
