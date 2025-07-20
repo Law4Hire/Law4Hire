@@ -50,21 +50,21 @@ public class AuthController(IUserRepository userRepository, IAuthService authSer
         return Ok(new { UserId = createdUser.Id, Message = "User registered successfully." });
     }
 
+    //[HttpPost("login")]
+    //public async Task<IActionResult> Login([FromBody] UserLoginDto dto)
+    //{
+    //    try
+    //    {
+    //        var result = await _authService.LoginWithRouteAsync(dto);
+    //        return Ok(result);
+    //    }
+    //    catch (UnauthorizedAccessException)
+    //    {
+    //        return Unauthorized("Invalid credentials.");
+    //    }
+    //}
     [HttpPost("login")]
-public async Task<IActionResult> Login([FromBody] LoginDto dto)
-{
-    try
-    {
-        var result = await _authService.LoginWithRouteAsync(dto);
-        return Ok(result);
-    }
-    catch (UnauthorizedAccessException)
-    {
-        return Unauthorized("Invalid credentials.");
-    }
-}
-
-    public async Task<IActionResult> Login(UserLoginDto request)
+    public async Task<IActionResult> Login([FromBody] UserLoginDto request)
     {
         var user = await userRepository.GetByEmailAsync(request.Email);
         if (user == null)

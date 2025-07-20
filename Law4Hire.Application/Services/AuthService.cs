@@ -51,12 +51,15 @@ public class AuthService : IAuthService
     }
 
 
-    public async Task<LoginResultWithRoute> LoginWithRouteAsync(LoginDto loginDto)
+    public async Task<LoginResultWithRoute> LoginWithRouteAsync(UserLoginDto loginDto)
     {
         var user = await _context.Users
-            .Include(u => u.VisaInterview)
-            .Include(u => u.Documents)
-            .FirstOrDefaultAsync(u => u.Email == loginDto.Email);
+     .FirstOrDefaultAsync(u => u.Email == loginDto.Email);
+
+        var hasDocs = await _context.UserVisas
+            .Include(uv => uv.DocumentStatuses)
+            .AnyAsync(uv => uv.UserId == user.Id && uv.DocumentStatuses.Any());
+
 
         if (user == null || !BCrypt.Net.BCrypt.Verify(loginDto.Password, user.PasswordHash))
             throw new UnauthorizedAccessException("Invalid credentials");

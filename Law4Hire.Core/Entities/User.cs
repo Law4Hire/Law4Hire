@@ -28,4 +28,11 @@ public class User : IdentityUser<Guid> // Inherits from IdentityUser with Guid a
     public byte[] PasswordSalt { get; set; } = Array.Empty<byte>();
     public ICollection<IntakeSession> IntakeSessions { get; set; } = new List<IntakeSession>();
     public ICollection<ServiceRequest> ServiceRequests { get; set; } = new List<ServiceRequest>();
+
+
+    public string? Category { get; set; }
+    public bool InterviewCompleted { get; set; } = false;
+    public bool InterviewReset { get; set; } = false;
+    public string? WorkflowJson { get; set; }
+
 }

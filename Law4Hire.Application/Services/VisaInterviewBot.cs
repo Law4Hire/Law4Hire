@@ -1,7 +1,12 @@
 using Azure;
+using Law4Hire.Core.DTOs;
+using Law4Hire.Infrastructure.Data.Contexts;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Metrics;
+using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -13,6 +18,15 @@ namespace Law4Hire.Application.Services;
 
 public class VisaInterviewBot
 {
+    private readonly Law4HireDbContext _context;
+
+    public VisaInterviewBot(Law4HireDbContext context, HttpClient httpClient, string apiKey)
+    {
+        _httpClient = httpClient;
+        _apiKey = apiKey;
+        _context = context;
+    }
+
     private readonly HttpClient _httpClient;
     private readonly string _apiKey;
 
@@ -34,11 +48,6 @@ public class VisaInterviewBot
     "Never explain your actions. Never include a greeting. Return valid JSON only on a single line.";
 
 
-    public VisaInterviewBot(HttpClient httpClient, string apiKey)
-    {
-        _httpClient = httpClient;
-        _apiKey = apiKey;
-    }
 
     public async Task<string> ProcessAsync(string inputJson)
     {
@@ -86,35 +95,36 @@ public class VisaInterviewBot
 
         return content.Trim();
     }
-}
 
 
-public async Task FinalizeInterviewAsync(Guid userId, string finalVisa, WorkflowResult workflow)
-{
-    var user = await _context.Users.Include(u => u.VisaInterview).FirstOrDefaultAsync(u => u.Id == userId);
-    if (user == null) throw new Exception("User not found");
 
-    user.VisaType = finalVisa;
-    user.WorkflowJson = JsonSerializer.Serialize(workflow);
-    user.VisaInterview.IsCompleted = true;
-
-    await _context.SaveChangesAsync();
-}
-
-public async Task ResetInterviewAsync(Guid userId)
-{
-    var user = await _context.Users.Include(u => u.VisaInterview).FirstOrDefaultAsync(u => u.Id == userId);
-    if (user == null) throw new Exception("User not found");
-
-    if (user.VisaInterview != null)
+    public async Task FinalizeInterviewAsync(Guid userId, string finalVisa, WorkflowResult workflow)
     {
-        user.VisaInterview.IsReset = true;
-        user.VisaInterview.IsCompleted = false;
-        user.VisaInterview.CurrentStep = 0;
-        user.WorkflowJson = null;
-        user.Category = null;
-        user.VisaType = null;
+        var user = await _context.Users.Include(u => u.VisaInterview).FirstOrDefaultAsync(u => u.Id == userId);
+        if (user == null) throw new Exception("User not found");
+
+        user.VisaType = finalVisa;
+        user.WorkflowJson = JsonSerializer.Serialize(workflow);
+        user.VisaInterview.IsCompleted = true;
+
+        await _context.SaveChangesAsync();
     }
 
-    await _context.SaveChangesAsync();
+    public async Task ResetInterviewAsync(Guid userId)
+    {
+        var user = await _context.Users.Include(u => u.VisaInterview).FirstOrDefaultAsync(u => u.Id == userId);
+        if (user == null) throw new Exception("User not found");
+
+        if (user.VisaInterview != null)
+        {
+            user.VisaInterview.IsReset = true;
+            user.VisaInterview.IsCompleted = false;
+            user.VisaInterview.CurrentStep = 0;
+            user.WorkflowJson = null;
+            user.Category = null;
+            user.VisaType = null;
+        }
+
+        await _context.SaveChangesAsync();
+    }
 }

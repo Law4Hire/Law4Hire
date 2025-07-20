@@ -70,17 +70,21 @@ builder.Services.AddControllers();
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 builder.Services.AddHttpClient();
-builder.Services.AddScoped(sp =>
+
+builder.Services.AddScoped<VisaInterviewBot>(sp =>
 {
     var factory = sp.GetRequiredService<IHttpClientFactory>();
     var config = sp.GetRequiredService<IConfiguration>();
     var apiKey = config["OpenAI:ApiKey"] ?? string.Empty;
-    return new VisaInterviewBot(factory.CreateClient(), apiKey);
+    var dbContext = sp.GetRequiredService<Law4HireDbContext>(); // ✅ This line fixes the error
+
+    return new VisaInterviewBot(dbContext, factory.CreateClient(), apiKey);
 });
+
 builder.Services.AddIdentity<User, IdentityRole<Guid>>()
     .AddEntityFrameworkStores<Law4HireDbContext>()
     .AddDefaultTokenProviders();
-
+builder.Services.AddScoped<ITokenService, TokenService>();
 //builder.Services.AddHttpClient("Law4Hire.API", client =>
 //{
 //    client.BaseAddress = new Uri("https://localhost:7123");

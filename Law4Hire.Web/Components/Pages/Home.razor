@@ -8,7 +8,7 @@
 @using System.Linq
 @using Microsoft.Extensions.Localization
 @rendermode InteractiveServer
-@inject HttpClient Http
+@* @inject HttpClient Http *@
 @inject NavigationManager NavigationManager
 @inject IStringLocalizer<Home> Localizer
 @inject Law4Hire.Web.State.CultureState CultureState
@@ -213,8 +213,9 @@
 </div>
 
 @code {
-    [Inject] private HttpClient Http { get; set; }
-    [Inject] private NavigationManager Nav { get; set; }
+[Inject] private HttpClient Http { get; set; } = default!;
+[Inject] private NavigationManager Nav { get; set; } = default!;
+
 
     private async Task SelectCategory(string category)
     {
