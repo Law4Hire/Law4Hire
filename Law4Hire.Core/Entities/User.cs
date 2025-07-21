@@ -26,13 +26,15 @@ public class User : IdentityUser<Guid> // Inherits from IdentityUser with Guid a
     public DateTime? DateOfBirth { get; set; }
     public new byte[] PasswordHash { get; set; } = Array.Empty<byte>();
     public byte[] PasswordSalt { get; set; } = Array.Empty<byte>();
-    public ICollection<IntakeSession> IntakeSessions { get; set; } = new List<IntakeSession>();
-    public ICollection<ServiceRequest> ServiceRequests { get; set; } = new List<ServiceRequest>();
 
-
+    // ✅ Add missing navigation properties
     public string? Category { get; set; }
-    public bool InterviewCompleted { get; set; } = false;
-    public bool InterviewReset { get; set; } = false;
+    public string? VisaType { get; set; }
     public string? WorkflowJson { get; set; }
 
+    // Navigation properties
+    public ICollection<IntakeSession> IntakeSessions { get; set; } = new List<IntakeSession>();
+    public ICollection<ServiceRequest> ServiceRequests { get; set; } = new List<ServiceRequest>();
+    public ICollection<UserDocumentStatus> Documents { get; set; } = new List<UserDocumentStatus>();
+    public VisaInterviewState? VisaInterview { get; set; }
 }

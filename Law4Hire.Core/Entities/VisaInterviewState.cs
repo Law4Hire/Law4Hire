@@ -1,4 +1,4 @@
-namespace Law4Hire.Core.Entities;
+﻿namespace Law4Hire.Core.Entities;
 
 public class VisaInterviewState
 {
@@ -12,4 +12,9 @@ public class VisaInterviewState
     public DateTime LastUpdated { get; set; } = DateTime.UtcNow;
     public string? LastClientMessage { get; set; }
     public string? LastBotMessage { get; set; }
+
+    // ✅ Add missing properties
+    public bool IsReset { get; set; }
+    public bool IsCompleted { get; set; }
+    public int CurrentStep { get; set; }
 }

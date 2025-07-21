@@ -78,13 +78,25 @@ builder.Services.AddScoped<VisaInterviewBot>(sp =>
     var apiKey = config["OpenAI:ApiKey"] ?? string.Empty;
     var dbContext = sp.GetRequiredService<Law4HireDbContext>(); // ✅ This line fixes the error
 
-    return new VisaInterviewBot(dbContext, factory.CreateClient(), apiKey);
+    return new VisaInterviewBot(factory.CreateClient(), apiKey, config, dbContext);
 });
 
 builder.Services.AddIdentity<User, IdentityRole<Guid>>()
     .AddEntityFrameworkStores<Law4HireDbContext>()
     .AddDefaultTokenProviders();
 builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
+                builder.Configuration["TokenKey"] ?? "your-super-secret-key-that-is-at-least-32-characters-long")),
+            ValidateIssuer = false,
+            ValidateAudience = false
+        };
+    });
 //builder.Services.AddHttpClient("Law4Hire.API", client =>
 //{
 //    client.BaseAddress = new Uri("https://localhost:7123");

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Law4Hire.API.Migrations
 {
     [DbContext(typeof(Law4HireDbContext))]
-    [Migration("20250710005807_AutoMigration")]
-    partial class AutoMigration
+    [Migration("20250720172142_CurrentState")]
+    partial class CurrentState
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -50,6 +50,32 @@ namespace Law4Hire.API.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("DocumentTypes", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("3e27b6a3-8a52-4185-854c-5f584aea28e8"),
+                            Description = "For H-1B and other workers",
+                            FormNumber = "I-129",
+                            IssuingAgency = "USCIS",
+                            Name = "Petition for a Nonimmigrant Worker"
+                        },
+                        new
+                        {
+                            Id = new Guid("678634b3-de95-4f16-83c9-dc86aad68723"),
+                            Description = "Application for temporary visas",
+                            FormNumber = "DS-160",
+                            IssuingAgency = "DOS",
+                            Name = "Online Nonimmigrant Visa Application"
+                        },
+                        new
+                        {
+                            Id = new Guid("fe86ca4b-3808-482b-89fb-e2fc9375684b"),
+                            Description = "Sponsor financial support form",
+                            FormNumber = "I-864",
+                            IssuingAgency = "USCIS",
+                            Name = "Affidavit of Support"
+                        });
                 });
 
             modelBuilder.Entity("Law4Hire.Core.Entities.IntakeQuestion", b =>
@@ -250,6 +276,31 @@ namespace Law4Hire.API.Migrations
                     b.ToTable("RequiredForm");
                 });
 
+            modelBuilder.Entity("Law4Hire.Core.Entities.ScrapeLog", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("EntityAffected")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ScrapeLogs");
+                });
+
             modelBuilder.Entity("Law4Hire.Core.Entities.ServicePackage", b =>
                 {
                     b.Property<int>("Id")
@@ -348,6 +399,9 @@ namespace Law4Hire.API.Migrations
                     b.Property<string>("Address2")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Category")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("City")
                         .HasColumnType("nvarchar(max)");
 
@@ -433,6 +487,12 @@ namespace Law4Hire.API.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
+                    b.Property<string>("VisaType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("WorkflowJson")
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("NormalizedEmail")
@@ -482,6 +542,8 @@ namespace Law4Hire.API.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("DocumentTypeId");
+
+                    b.HasIndex("UserId");
 
                     b.HasIndex("UserVisaId");
 
@@ -539,6 +601,93 @@ namespace Law4Hire.API.Migrations
                     b.HasIndex("VisaTypeId");
 
                     b.ToTable("VisaDocumentRequirements");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("51860cfe-ba25-4461-8134-77c8fe6939fe"),
+                            DocumentTypeId = new Guid("3e27b6a3-8a52-4185-854c-5f584aea28e8"),
+                            IsRequired = true,
+                            VisaTypeId = new Guid("162e3e30-ec8b-438e-8f96-e836465d0908")
+                        },
+                        new
+                        {
+                            Id = new Guid("44e14fd0-418f-4719-8e94-a2fb862faf0f"),
+                            DocumentTypeId = new Guid("678634b3-de95-4f16-83c9-dc86aad68723"),
+                            IsRequired = true,
+                            VisaTypeId = new Guid("162e3e30-ec8b-438e-8f96-e836465d0908")
+                        },
+                        new
+                        {
+                            Id = new Guid("e8e5455e-1878-4b73-afca-33a32d4b66ed"),
+                            DocumentTypeId = new Guid("fe86ca4b-3808-482b-89fb-e2fc9375684b"),
+                            IsRequired = true,
+                            VisaTypeId = new Guid("162e3e30-ec8b-438e-8f96-e836465d0908")
+                        });
+                });
+
+            modelBuilder.Entity("Law4Hire.Core.Entities.VisaGroup", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Name")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("VisaGroups", (string)null);
+                });
+
+            modelBuilder.Entity("Law4Hire.Core.Entities.VisaInterviewState", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("CurrentStep")
+                        .HasColumnType("int");
+
+                    b.Property<string>("CurrentVisaOptionsJson")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ExtractedDocumentsJson")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsCompleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsReset")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("LastBotMessage")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("LastClientMessage")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("LastUpdated")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("SelectedVisaType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("VisaWorkflowJson")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId")
+                        .IsUnique();
+
+                    b.ToTable("VisaInterviewStates", (string)null);
                 });
 
             modelBuilder.Entity("Law4Hire.Core.Entities.VisaType", b =>
@@ -559,9 +708,63 @@ namespace Law4Hire.API.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<Guid>("VisaGroupId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("Id");
 
+                    b.HasIndex("VisaGroupId");
+
                     b.ToTable("VisaTypes", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("162e3e30-ec8b-438e-8f96-e836465d0908"),
+                            Category = "Work",
+                            Description = "Work visa for specialty occupations",
+                            Name = "H1B Specialty Occupation",
+                            VisaGroupId = new Guid("44444444-4444-4444-4444-444444444444")
+                        });
+                });
+
+            modelBuilder.Entity("Law4Hire.Core.Entities.VisaTypeQuestion", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsRequired")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("int");
+
+                    b.Property<string>("QuestionKey")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("QuestionText")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ValidationRules")
+                        .HasMaxLength(1000)
+                        .HasColumnType("nvarchar(1000)");
+
+                    b.Property<Guid>("VisaTypeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("VisaTypeId");
+
+                    b.ToTable("VisaTypeQuestions");
                 });
 
             modelBuilder.Entity("LegalProfessional", b =>
@@ -570,6 +773,10 @@ namespace Law4Hire.API.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("BarNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("BarState")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -789,6 +996,12 @@ namespace Law4Hire.API.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("Law4Hire.Core.Entities.User", null)
+                        .WithMany("Documents")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
                     b.HasOne("Law4Hire.Core.Entities.UserVisa", "UserVisa")
                         .WithMany("DocumentStatuses")
                         .HasForeignKey("UserVisaId")
@@ -813,13 +1026,13 @@ namespace Law4Hire.API.Migrations
                     b.HasOne("Law4Hire.Core.Entities.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.HasOne("Law4Hire.Core.Entities.VisaType", "VisaType")
                         .WithMany("UserVisas")
                         .HasForeignKey("VisaTypeId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("User");
@@ -846,12 +1059,45 @@ namespace Law4Hire.API.Migrations
                     b.Navigation("VisaType");
                 });
 
+            modelBuilder.Entity("Law4Hire.Core.Entities.VisaInterviewState", b =>
+                {
+                    b.HasOne("Law4Hire.Core.Entities.User", "User")
+                        .WithOne("VisaInterview")
+                        .HasForeignKey("Law4Hire.Core.Entities.VisaInterviewState", "UserId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Law4Hire.Core.Entities.VisaType", b =>
+                {
+                    b.HasOne("Law4Hire.Core.Entities.VisaGroup", "VisaGroup")
+                        .WithMany("VisaTypes")
+                        .HasForeignKey("VisaGroupId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("VisaGroup");
+                });
+
+            modelBuilder.Entity("Law4Hire.Core.Entities.VisaTypeQuestion", b =>
+                {
+                    b.HasOne("Law4Hire.Core.Entities.VisaType", "VisaType")
+                        .WithMany()
+                        .HasForeignKey("VisaTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("VisaType");
+                });
+
             modelBuilder.Entity("LegalProfessional", b =>
                 {
                     b.HasOne("Law4Hire.Core.Entities.User", "User")
                         .WithOne()
                         .HasForeignKey("LegalProfessional", "Id")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("User");
@@ -932,14 +1178,23 @@ namespace Law4Hire.API.Migrations
 
             modelBuilder.Entity("Law4Hire.Core.Entities.User", b =>
                 {
+                    b.Navigation("Documents");
+
                     b.Navigation("IntakeSessions");
 
                     b.Navigation("ServiceRequests");
+
+                    b.Navigation("VisaInterview");
                 });
 
             modelBuilder.Entity("Law4Hire.Core.Entities.UserVisa", b =>
                 {
                     b.Navigation("DocumentStatuses");
+                });
+
+            modelBuilder.Entity("Law4Hire.Core.Entities.VisaGroup", b =>
+                {
+                    b.Navigation("VisaTypes");
                 });
 
             modelBuilder.Entity("Law4Hire.Core.Entities.VisaType", b =>

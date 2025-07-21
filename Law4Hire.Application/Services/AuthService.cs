@@ -1,18 +1,24 @@
-﻿using Law4Hire.Core.Interfaces;
+﻿using BCrypt.Net;
+using Law4Hire.Core.DTOs;
+using Law4Hire.Core.Interfaces;
+using Law4Hire.Infrastructure.Data.Contexts;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Cryptography;
 using System.Text;
-using Law4Hire.Core.DTOs;
-using BCrypt.Net;
-using Law4Hire.Infrastructure.Data.Contexts;
+using static Law4Hire.Application.Services.AuthService;
 
 namespace Law4Hire.Application.Services;
-
 
 public interface IAuthService
 {
     void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt);
     bool VerifyPasswordHash(string password, byte[] passwordHash, byte[] passwordSalt);
+    Task<LoginResultWithRoute> LoginWithRouteAsync(LoginDto loginDto);
+}
+
+public interface ITokenService
+{
+    string CreateToken(Law4Hire.Core.Entities.User user);
 }
 
 public class AuthService : IAuthService
@@ -25,6 +31,7 @@ public class AuthService : IAuthService
         _context = context;
         _tokenService = tokenService;
     }
+
     public void CreatePasswordHash(string password, out byte[] passwordHash, out byte[] passwordSalt)
     {
         using (var hmac = new HMACSHA512())
@@ -43,25 +50,20 @@ public class AuthService : IAuthService
         }
     }
 
-
     public class LoginResultWithRoute
     {
         public string Token { get; set; } = string.Empty;
         public string Route { get; set; } = string.Empty;
     }
 
-
-    public async Task<LoginResultWithRoute> LoginWithRouteAsync(UserLoginDto loginDto)
+    public async Task<LoginResultWithRoute> LoginWithRouteAsync(LoginDto loginDto)
     {
         var user = await _context.Users
-     .FirstOrDefaultAsync(u => u.Email == loginDto.Email);
+            .Include(u => u.VisaInterview)
+            .Include(u => u.Documents)
+            .FirstOrDefaultAsync(u => u.Email == loginDto.Email);
 
-        var hasDocs = await _context.UserVisas
-            .Include(uv => uv.DocumentStatuses)
-            .AnyAsync(uv => uv.UserId == user.Id && uv.DocumentStatuses.Any());
-
-
-        if (user == null || !BCrypt.Net.BCrypt.Verify(loginDto.Password, user.PasswordHash))
+        if (user == null || !BCrypt.Net.BCrypt.Verify(loginDto.Password, Convert.ToBase64String(user.PasswordHash)))
             throw new UnauthorizedAccessException("Invalid credentials");
 
         var token = _tokenService.CreateToken(user);

@@ -1,34 +1,24 @@
-using Azure;
-using Law4Hire.Core.DTOs;
-using Law4Hire.Infrastructure.Data.Contexts;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
+﻿using Azure;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Metrics;
-using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Law4Hire.Infrastructure.Data.Contexts;
+using Microsoft.EntityFrameworkCore;
 using static System.Runtime.InteropServices.JavaScript.JSType;
+using Microsoft.Extensions.Configuration;
 
 namespace Law4Hire.Application.Services;
 
 public class VisaInterviewBot
 {
-    private readonly Law4HireDbContext _context;
-
-    public VisaInterviewBot(Law4HireDbContext context, HttpClient httpClient, string apiKey)
-    {
-        _httpClient = httpClient;
-        _apiKey = apiKey;
-        _context = context;
-    }
-
     private readonly HttpClient _httpClient;
     private readonly string _apiKey;
+    private readonly Law4HireDbContext _context;
 
     private const string SystemPrompt =
     "You are Stacy, an immigration legal assistant bot. Your job is to return a valid single-line JSON response only. " +
@@ -47,7 +37,14 @@ public class VisaInterviewBot
     "and also include estimatedTotalCost (decimal) and estimatedTotalTimeDays (int). " +
     "Never explain your actions. Never include a greeting. Return valid JSON only on a single line.";
 
-
+    public VisaInterviewBot(HttpClient httpClient, string apiKey, IConfiguration _configuration, Law4HireDbContext context)
+    {
+        _httpClient = httpClient;
+        _context = context; 
+        _apiKey = Environment.GetEnvironmentVariable("OpenAIKey")
+                 ?? _configuration["OpenAI:ApiKey"]
+                 ?? throw new InvalidOperationException("OpenAI API key not found");
+    }
 
     public async Task<string> ProcessAsync(string inputJson)
     {
@@ -62,7 +59,7 @@ public class VisaInterviewBot
             temperature = 0.2
         };
 
-        using var request = new HttpRequestMessage(HttpMethod.Post, "https://api.openai.com/v1/chat/completions");
+            using var request = new HttpRequestMessage(HttpMethod.Post, "https://api.openai.com/v1/chat/completions");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _apiKey);
         request.Content = new StringContent(JsonSerializer.Serialize(requestBody), Encoding.UTF8, "application/json");
 
@@ -96,8 +93,6 @@ public class VisaInterviewBot
         return content.Trim();
     }
 
-
-
     public async Task FinalizeInterviewAsync(Guid userId, string finalVisa, WorkflowResult workflow)
     {
         var user = await _context.Users.Include(u => u.VisaInterview).FirstOrDefaultAsync(u => u.Id == userId);
@@ -105,7 +100,10 @@ public class VisaInterviewBot
 
         user.VisaType = finalVisa;
         user.WorkflowJson = JsonSerializer.Serialize(workflow);
-        user.VisaInterview.IsCompleted = true;
+        if (user.VisaInterview != null)
+        {
+            user.VisaInterview.IsCompleted = true;
+        }
 
         await _context.SaveChangesAsync();
     }
@@ -127,4 +125,21 @@ public class VisaInterviewBot
 
         await _context.SaveChangesAsync();
     }
+}
+
+// ✅ Add missing WorkflowResult class
+public class WorkflowResult
+{
+    public List<WorkflowStep> Steps { get; set; } = new();
+    public decimal EstimatedTotalCost { get; set; }
+    public int EstimatedTotalTimeDays { get; set; }
+}
+
+public class WorkflowStep
+{
+    public string Name { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
+    public List<string> Documents { get; set; } = new();
+    public decimal EstimatedCost { get; set; }
+    public int EstimatedTimeDays { get; set; }
 }
