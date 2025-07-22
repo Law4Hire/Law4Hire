@@ -126,19 +126,3 @@ public class VisaInterviewBot
     }
 }
 
-// ✅ Add missing WorkflowResult class
-public class WorkflowResult
-{
-    public List<WorkflowStep> Steps { get; set; } = new();
-    public decimal EstimatedTotalCost { get; set; }
-    public int EstimatedTotalTimeDays { get; set; }
-}
-
-public class WorkflowStep
-{
-    public string Name { get; set; } = string.Empty;
-    public string Description { get; set; } = string.Empty;
-    public List<string> Documents { get; set; } = new();
-    public decimal EstimatedCost { get; set; }
-    public int EstimatedTimeDays { get; set; }
-}

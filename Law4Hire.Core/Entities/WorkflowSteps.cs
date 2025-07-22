@@ -21,6 +21,12 @@ public class WorkflowStep
     public User User { get; set; } = null!;
     public ICollection<WorkflowStepDocument> Documents { get; set; } = new List<WorkflowStepDocument>();
 }
+public class WorkflowResult
+{
+    public List<WorkflowStep> Steps { get; set; } = new();
+    public decimal EstimatedTotalCost { get; set; }
+    public int EstimatedTotalTimeDays { get; set; }
+}
 
 public class WorkflowStepDocument
 {
@@ -54,3 +60,6 @@ public enum DocumentStatusEnum
     Approved = 3,
     Rejected = 4
 }
+
+
+

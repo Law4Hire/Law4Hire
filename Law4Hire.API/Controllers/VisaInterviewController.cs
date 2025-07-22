@@ -323,6 +323,8 @@ namespace Law4Hire.API.Controllers
                                     Console.WriteLine($"[DEBUG] Updated list has {newList.Count} items: {JsonSerializer.Serialize(newList)}");
 
                                     // Check if down to one visa
+                                    // Replace your workflow completion section with this:
+
                                     if (newList.Count == 1)
                                     {
                                         var workflowPayload = newList[0];
@@ -331,13 +333,38 @@ namespace Law4Hire.API.Controllers
                                         var workflowResponse = await _bot.ProcessAsync(workflowPayload);
                                         Console.WriteLine($"[DEBUG] Workflow response: {workflowResponse}");
 
-                                        state.VisaWorkflowJson = workflowResponse;
+                                        // Check if the response is a proper workflow format
+                                        string finalWorkflow;
+                                        try
+                                        {
+                                            using var testDoc = JsonDocument.Parse(workflowResponse);
+                                            if (testDoc.RootElement.TryGetProperty("steps", out var steps) && steps.ValueKind == JsonValueKind.Array)
+                                            {
+                                                // It's a proper workflow
+                                                finalWorkflow = workflowResponse;
+                                                Console.WriteLine("[DEBUG] Using bot-generated workflow");
+                                            }
+                                            else
+                                            {
+                                                // Bad format, use fallback
+                                                finalWorkflow = CreateFallbackWorkflow(workflowPayload);
+                                                Console.WriteLine("[DEBUG] Bot returned bad format, using fallback workflow");
+                                            }
+                                        }
+                                        catch (JsonException)
+                                        {
+                                            // Invalid JSON, use fallback
+                                            finalWorkflow = CreateFallbackWorkflow(workflowPayload);
+                                            Console.WriteLine("[DEBUG] Bot returned invalid JSON, using fallback workflow");
+                                        }
+
+                                        state.VisaWorkflowJson = finalWorkflow;
                                         state.SelectedVisaType = newList[0];
                                         state.IsCompleted = true;
                                         state.LastUpdated = DateTime.UtcNow;
                                         await _db.SaveChangesAsync();
 
-                                        // Process workflow documents into UserDocumentStatuses
+                                        // Process workflow steps into database tables
                                         try
                                         {
                                             await _workflowProcessor.ProcessWorkflowSteps(dto.UserId, newList[0], finalWorkflow);
@@ -348,29 +375,6 @@ namespace Law4Hire.API.Controllers
                                             Console.WriteLine($"[ERROR] Failed to process workflow steps: {ex.Message}");
                                             // Continue anyway - we still have the workflow saved
                                         }
-
-                                        // Also make sure you have the finalWorkflow variable defined - add this before the try block:
-                                        string finalWorkflow;
-                                        try
-                                        {
-                                            using var testDoc = JsonDocument.Parse(workflowResponse);
-                                            if (testDoc.RootElement.TryGetProperty("steps", out var steps) && steps.ValueKind == JsonValueKind.Array)
-                                            {
-                                                finalWorkflow = workflowResponse;
-                                                Console.WriteLine("[DEBUG] Using bot-generated workflow");
-                                            }
-                                            else
-                                            {
-                                                finalWorkflow = CreateFallbackWorkflow(workflowPayload);
-                                                Console.WriteLine("[DEBUG] Bot returned bad format, using fallback workflow");
-                                            }
-                                        }
-                                        catch (JsonException)
-                                        {
-                                            finalWorkflow = CreateFallbackWorkflow(workflowPayload);
-                                            Console.WriteLine("[DEBUG] Bot returned invalid JSON, using fallback workflow");
-                                        }
-
 
                                         return Ok(new Phase2QuestionDto
                                         {
@@ -675,17 +679,131 @@ namespace Law4Hire.API.Controllers
 
             return "\"Could you describe your specific situation in more detail?\"";
         }
+        // Add this method to your VisaInterviewController class:
+
+        private string CreateFallbackWorkflow(string visaType)
+        {
+            return visaType.ToUpper() switch
+            {
+                "B-2" => """
+        {
+            "steps": [
+                {
+                    "name": "Complete DS-160 Form",
+                    "description": "Fill out the online nonimmigrant visa application form",
+                    "documents": [
+                        {"name": "DS-160 Form", "isGovernmentProvided": false, "downloadLink": null, "isRequired": true},
+                        {"name": "Passport Photo", "isGovernmentProvided": false, "downloadLink": null, "isRequired": true},
+                        {"name": "Passport", "isGovernmentProvided": false, "downloadLink": null, "isRequired": true}
+                    ],
+                    "estimatedCost": 0.00,
+                    "estimatedTimeDays": 1,
+                    "websiteLink": "https://ceac.state.gov/genniv/"
+                },
+                {
+                    "name": "Pay Visa Fee",
+                    "description": "Pay the non-refundable visa application fee",
+                    "documents": [
+                        {"name": "Payment Receipt", "isGovernmentProvided": true, "downloadLink": "https://www.ustraveldocs.com/", "isRequired": true}
+                    ],
+                    "estimatedCost": 185.00,
+                    "estimatedTimeDays": 1,
+                    "websiteLink": "https://www.ustraveldocs.com/"
+                },
+                {
+                    "name": "Schedule Interview",
+                    "description": "Schedule your visa interview appointment",
+                    "documents": [
+                        {"name": "Appointment Confirmation", "isGovernmentProvided": true, "downloadLink": null, "isRequired": true}
+                    ],
+                    "estimatedCost": 0.00,
+                    "estimatedTimeDays": 14,
+                    "websiteLink": "https://www.ustraveldocs.com/"
+                },
+                {
+                    "name": "Prepare Documents",
+                    "description": "Gather all required supporting documents",
+                    "documents": [
+                        {"name": "Bank Statements", "isGovernmentProvided": false, "downloadLink": null, "isRequired": true},
+                        {"name": "Employment Letter", "isGovernmentProvided": false, "downloadLink": null, "isRequired": true},
+                        {"name": "Travel Itinerary", "isGovernmentProvided": false, "downloadLink": null, "isRequired": true}
+                    ],
+                    "estimatedCost": 50.00,
+                    "estimatedTimeDays": 3
+                },
+                {
+                    "name": "Attend Interview",
+                    "description": "Attend your scheduled visa interview",
+                    "documents": [
+                        {"name": "All Required Documents", "isGovernmentProvided": false, "downloadLink": null, "isRequired": true}
+                    ],
+                    "estimatedCost": 0.00,
+                    "estimatedTimeDays": 1
+                }
+            ],
+            "estimatedTotalCost": 235.00,
+            "estimatedTotalTimeDays": 20
+        }
+        """,
+                "ESTA" => """
+        {
+            "steps": [
+                {
+                    "name": "Complete ESTA Application",
+                    "description": "Apply online for Electronic System for Travel Authorization",
+                    "documents": [
+                        {"name": "Passport", "isGovernmentProvided": false, "downloadLink": null, "isRequired": true}
+                    ],
+                    "estimatedCost": 21.00,
+                    "estimatedTimeDays": 1,
+                    "websiteLink": "https://esta.cbp.dhs.gov/"
+                },
+                {
+                    "name": "Receive Authorization",
+                    "description": "Wait for ESTA approval",
+                    "documents": [
+                        {"name": "ESTA Approval", "isGovernmentProvided": true, "downloadLink": null, "isRequired": true}
+                    ],
+                    "estimatedCost": 0.00,
+                    "estimatedTimeDays": 3
+                }
+            ],
+            "estimatedTotalCost": 21.00,
+            "estimatedTotalTimeDays": 4
+        }
+        """,
+                _ => $"""
+        {{
+        
+                    "steps": [
+                {{
+        
+                            "name": "Research {visaType} Requirements",
+                    "description": "Consult with immigration attorney for specific requirements",
+                    "documents": [
+                        {{"name": "Consultation Notes", "isGovernmentProvided": false, "downloadLink": null, "isRequired": true}}
+                    ],
+                    "estimatedCost": 200.00,
+                    "estimatedTimeDays": 7
+                }}
+            ],
+            "estimatedTotalCost": 200.00,
+            "estimatedTotalTimeDays": 7
+        }}
+        """
+            };
+        }
         public class Phase2StepDto
         {
             public Guid UserId { get; set; }
             public string Category { get; set; } = string.Empty;
-            public string Instructions { get; set; } = string.Empty;
+            public string? Instructions { get; set; } = string.Empty;
             public string? Answer { get; set; }
         }
 
         public class Phase2QuestionDto
         {
-            public string Question { get; set; } = string.Empty;
+            public string? Question { get; set; } = string.Empty;
             public int Step { get; set; }
             public bool IsComplete { get; set; }
         }
