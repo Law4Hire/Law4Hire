@@ -45,7 +45,8 @@ public class UsersController : ControllerBase
             user.State,
             user.Country,
             user.PostalCode,
-            user.DateOfBirth
+            user.DateOfBirth,
+            user.Category
         );
 
         return Ok(userDto);
@@ -93,7 +94,8 @@ public class UsersController : ControllerBase
             user.State,
             user.Country,
             user.PostalCode,
-            user.DateOfBirth
+            user.DateOfBirth,
+            user.Category
         );
 
         return Ok(userDto);

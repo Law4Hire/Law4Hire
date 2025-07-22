@@ -80,7 +80,7 @@ builder.Services.AddScoped<VisaInterviewBot>(sp =>
 
     return new VisaInterviewBot(factory.CreateClient(), apiKey, config, dbContext);
 });
-
+builder.Services.AddScoped<WorkflowProcessingService>();
 builder.Services.AddIdentity<User, IdentityRole<Guid>>()
     .AddEntityFrameworkStores<Law4HireDbContext>()
     .AddDefaultTokenProviders();

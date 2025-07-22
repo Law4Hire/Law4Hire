@@ -383,6 +383,8 @@
         }
 
         goalStartIndex = steps.Count;
+
+        await Task.CompletedTask;
     }
 
     private async Task StartInterview(ImmigrationGoal goal)
@@ -741,7 +743,7 @@
 
         try
         {
-            await Http.PostAsJsonAsync("api/VisaInterview/step", initPayload);
+            await Http.PostAsJsonAsync("api/VisaInterview/phase2/step", initPayload);
         }
         catch { }
     }

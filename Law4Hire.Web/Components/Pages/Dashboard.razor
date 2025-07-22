@@ -2,6 +2,7 @@
 @using System.Net.Http.Json
 @using Law4Hire.Core.DTOs
 @using System.Linq
+@using Law4Hire.Core.Enums
 @inject HttpClient Http
 @inject Law4Hire.Web.State.AuthState AuthState
 @inject NavigationManager NavigationManager
@@ -121,6 +122,274 @@ else
             </div>
         </div>
     </div>
+    <div class="workflow-section mt-8">
+        <h3 class="text-2xl font-bold mb-6">Your Visa Workflow</h3>
+
+        @if (workflow != null)
+        {
+            <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h4 class="text-xl font-semibold">@workflow.VisaType Visa Process</h4>
+                    <div class="text-sm text-gray-600">
+                        <span class="mr-4">Estimated Cost: $@workflow.EstimatedTotalCost.ToString("N2")</span>
+                        <span>Estimated Time: @workflow.EstimatedTotalTimeDays days</span>
+                    </div>
+                </div>
+
+                <div class="space-y-6">
+                    @foreach (var step in workflow.Steps)
+                    {
+                        <div class="border-l-4 border-blue-500 pl-4 py-2">
+                            <div class="flex justify-between items-start mb-2">
+                                <h5 class="font-semibold text-lg">@step.Name</h5>
+                                @if (!string.IsNullOrEmpty(step.GovernmentLink))
+                                {
+                                    <a href="@step.GovernmentLink" target="_blank"
+                                       class="inline-flex items-center px-3 py-1 text-sm bg-blue-100 text-blue-800 rounded-full hover:bg-blue-200">
+                                        <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z"></path>
+                                            <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z"></path>
+                                        </svg>
+                                        Government Form
+                                    </a>
+                                }
+                            </div>
+
+                            <p class="text-gray-700 mb-3">@step.Description</p>
+
+                            <div class="text-sm text-gray-500 mb-3">
+                                <span class="mr-4">Cost: $@step.EstimatedCost.ToString("N2")</span>
+                                <span>Time: @step.EstimatedTimeDays days</span>
+                            </div>
+
+                            @if (step.Documents.Any())
+                            {
+                                <div class="bg-gray-50 rounded-md p-3">
+                                    <h6 class="font-medium text-sm text-gray-700 mb-2">Required Documents:</h6>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                                        @foreach (var doc in step.Documents)
+                                        {
+                                            <div class="flex items-center justify-between p-2 bg-white rounded border">
+                                                <div class="flex items-center">
+                                                    @if (doc.IsGovernmentProvided)
+                                                    {
+                                                        <!-- PDF Government Document Icon -->
+                                                        <div class="w-8 h-8 mr-3 bg-red-100 rounded flex items-center justify-center">
+                                                            <svg class="w-5 h-5 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                                                                <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"></path>
+                                                            </svg>
+                                                        </div>
+                                                        <span class="text-xs bg-red-100 text-red-800 px-1 rounded absolute ml-6 mt-4">PDF</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <!-- User Upload Document Icon -->
+                                                        <div class="w-8 h-8 mr-3 bg-blue-100 rounded flex items-center justify-center">
+                                                            <svg class="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                                                                <path d="M5.5 13a3.5 3.5 0 01-.369-6.98 4 4 0 117.753-1.977A4.5 4.5 0 1113.5 13H11V9.413l1.293 1.293a1 1 0 001.414-1.414l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.413V13H5.5z"></path>
+                                                            </svg>
+                                                        </div>
+                                                    }
+
+                                                    <div>
+                                                        <span class="@doc.StatusColor font-medium">@doc.Name</span>
+                                                        <div class="text-xs text-gray-500">@doc.StatusText</div>
+                                                        @if (doc.SubmittedAt.HasValue)
+                                                        {
+                                                            <div class="text-xs text-gray-400">Submitted: @doc.SubmittedAt.Value.ToString("MM/dd/yyyy")</div>
+                                                        }
+                                                    </div>
+                                                </div>
+
+                                                <div class="flex items-center space-x-2">
+                                                    @if (doc.IsGovernmentProvided && !string.IsNullOrEmpty(doc.GovernmentLink))
+                                                    {
+                                                        <a href="@doc.GovernmentLink" target="_blank"
+                                                           class="text-blue-600 hover:text-blue-800 text-sm">
+                                                            Download
+                                                        </a>
+                                                    }
+                                                    else if (!doc.IsGovernmentProvided)
+                                                    {
+                                                        @if (doc.Status == DocumentStatusEnum.NotStarted)
+                                                        {
+                                                            <button class="text-blue-600 hover:text-blue-800 text-sm">
+                                                                Upload
+                                                            </button>
+                                                        }
+                                                        else if (!string.IsNullOrEmpty(doc.FilePath))
+                                                        {
+                                                            <button class="text-green-600 hover:text-green-800 text-sm">
+                                                                View
+                                                            </button>
+                                                        }
+                                                    }
+
+                                                    @if (doc.IsRequired)
+                                                    {
+                                                        <span class="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">Required</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">Optional</span>
+                                                    }
+                                                </div>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+            @* Add this to your Dashboard.razor component *@
+
+<div class="workflow-section mt-8">
+    <h3 class="text-2xl font-bold mb-6">Your Visa Workflow Steps</h3>
+    
+    @if (workflowSteps != null && workflowSteps.Any())
+    {
+        <div class="grid gap-6">
+            @foreach (var step in workflowSteps)
+            {
+                <div class="bg-white rounded-lg shadow-md p-6 border-l-4 @GetStepBorderColor(step.Status)">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h4 class="text-xl font-semibold flex items-center">
+                                <span class="bg-blue-100 text-blue-800 rounded-full w-8 h-8 flex items-center justify-center text-sm font-bold mr-3">
+                                    @step.StepNumber
+                                </span>
+                                @step.Name
+                            </h4>
+                            <p class="text-gray-600 mt-2">@step.Description</p>
+                        </div>
+                        
+                        <div class="text-right">
+                            <div class="text-sm text-gray-500">
+                                <div>Cost: $@step.EstimatedCost.ToString("N2")</div>
+                                <div>Time: @step.EstimatedTimeDays days</div>
+                            </div>
+                            @if (!string.IsNullOrEmpty(step.WebsiteLink))
+                            {
+                                <a href="@step.WebsiteLink" target="_blank" 
+                                   class="mt-2 inline-flex items-center px-3 py-1 text-sm bg-blue-100 text-blue-800 rounded-full hover:bg-blue-200">
+                                    <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z"></path>
+                                        <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z"></path>
+                                    </svg>
+                                    Complete Online
+                                </a>
+                            }
+                        </div>
+                    </div>
+                    
+                    @if (step.Documents.Any())
+                    {
+                        <div class="bg-gray-50 rounded-md p-4">
+                            <h5 class="font-medium text-gray-700 mb-3">Required Documents:</h5>
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                @foreach (var doc in step.Documents)
+                                {
+                                    <div class="flex items-center justify-between p-3 bg-white rounded border">
+                                        <div class="flex items-center">
+                                            @if (doc.IsGovernmentProvided)
+                                            {
+                                                <!-- Government PDF Icon -->
+                                                <div class="w-10 h-10 mr-3 bg-red-100 rounded flex items-center justify-center relative">
+                                                    <svg class="w-6 h-6 text-red-600" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"></path>
+                                                    </svg>
+                                                    <span class="absolute -bottom-1 -right-1 text-xs bg-red-600 text-white px-1 rounded">PDF</span>
+                                                </div>
+                                            }
+                                            else
+                                            {
+                                                <!-- User Upload Icon -->
+                                                <div class="w-10 h-10 mr-3 bg-blue-100 rounded flex items-center justify-center">
+                                                    <svg class="w-6 h-6 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                                                        <path d="M5.5 13a3.5 3.5 0 01-.369-6.98 4 4 0 117.753-1.977A4.5 4.5 0 1113.5 13H11V9.413l1.293 1.293a1 1 0 001.414-1.414l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.413V13H5.5z"></path>
+                                                    </svg>
+                                                </div>
+                                            }
+                                            
+                                            <div>
+                                                <span class="@doc.StatusColor font-medium">@doc.DocumentName</span>
+                                                <div class="text-xs text-gray-500">@doc.StatusText</div>
+                                                @if (doc.SubmittedAt.HasValue)
+                                                {
+                                                    <div class="text-xs text-gray-400">Submitted: @doc.SubmittedAt.Value.ToString("MM/dd/yyyy")</div>
+                                                }
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="flex items-center space-x-2">
+                                            @if (doc.IsGovernmentProvided && !string.IsNullOrEmpty(doc.DownloadLink))
+                                            {
+                                                <a href="@doc.DownloadLink" target="_blank" 
+                                                   class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                                    Download
+                                                </a>
+                                            }
+                                            else if (!doc.IsGovernmentProvided)
+                                            {
+                                                @if (doc.Status == DocumentStatusEnum.NotStarted)
+                                                {
+                                                    <button @onclick="() => UploadDocument(doc.Id)" 
+                                                            class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                                        Upload
+                                                    </button>
+                                                }
+                                                else if (!string.IsNullOrEmpty(doc.FilePath))
+                                                {
+                                                    <button @onclick="() => ViewDocument(doc.FilePath)" 
+                                                            class="text-green-600 hover:text-green-800 text-sm font-medium">
+                                                        View
+                                                    </button>
+                                                }
+                                            }
+                                            
+                                            @if (doc.IsRequired)
+                                            {
+                                                <span class="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">Required</span>
+                                            }
+                                            else
+                                            {
+                                                <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">Optional</span>
+                                            }
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+
+        else if (isLoadingWorkflow)
+        {
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <div class="animate-pulse">
+                    <div class="h-4 bg-gray-200 rounded w-1/4 mb-4"></div>
+                    <div class="space-y-3">
+                        <div class="h-3 bg-gray-200 rounded"></div>
+                        <div class="h-3 bg-gray-200 rounded w-5/6"></div>
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="bg-white rounded-lg shadow-md p-6 text-center">
+                <p class="text-gray-500">No visa workflow found. Complete your visa interview to see your personalized workflow.</p>
+                <a href="/interview/phase2" class="mt-4 inline-block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+                    Start Visa Interview
+                </a>
+            </div>
+        }
+        </div>
+
+
 
     <div class="dashboard-footer mt-4">
         Appointments, Messages and Statuses coming soon
@@ -131,11 +400,14 @@ else
     private bool editMode;
     private UpdateUserDto? editModel;
     private List<DocumentInfo>? documents;
-
-    private string FullName => string.Join(" ", new[]{editModel?.FirstName, editModel?.MiddleName, editModel?.LastName}.Where(s => !string.IsNullOrWhiteSpace(s)));
+    private DashboardWorkflowDto? workflow;
+    private bool isLoadingWorkflow = true;
+    private List<WorkflowStepDto>? workflowSteps;
+    private bool isLoadingWorkflow = true;
 
     protected override async Task OnInitializedAsync()
     {
+        await LoadWorkflowSteps();
         if (AuthState.CurrentUser != null)
         {
             var u = AuthState.CurrentUser;
@@ -157,7 +429,88 @@ else
             };
             documents = await Http.GetFromJsonAsync<List<DocumentInfo>>($"api/DocumentStatus/user/{u.Id}");
         }
+        await LoadWorkflow();
     }
+    private async Task LoadWorkflowSteps()
+    {
+        try
+        {
+            isLoadingWorkflow = true;
+            StateHasChanged();
+
+            if (AuthState.CurrentUser != null)
+            {
+                var response = await Http.GetAsync($"api/Dashboard/workflow-steps/{AuthState.CurrentUser.Id}");
+                if (response.IsSuccessStatusCode)
+                {
+                    workflowSteps = await response.Content.ReadFromJsonAsync<List<WorkflowStepDto>>();
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading workflow steps: {ex.Message}");
+        }
+        finally
+        {
+            isLoadingWorkflow = false;
+            StateHasChanged();
+        }
+    }
+
+    private string GetStepBorderColor(WorkflowStepStatus status)
+    {
+        return status switch
+        {
+            WorkflowStepStatus.NotStarted => "border-red-500",
+            WorkflowStepStatus.InProgress => "border-yellow-500",
+            WorkflowStepStatus.Completed => "border-green-500",
+            _ => "border-gray-300"
+        };
+    }
+
+    private async Task UploadDocument(Guid documentId)
+    {
+        // TODO: Implement document upload functionality
+        // This will be implemented later for file uploads
+        Console.WriteLine($"Upload document: {documentId}");
+    }
+
+    private async Task ViewDocument(string filePath)
+    {
+        // TODO: Implement document viewing functionality
+        // This will be implemented later for file viewing
+        Console.WriteLine($"View document: {filePath}");
+    }
+    private async Task LoadWorkflow()
+    {
+        try
+        {
+            isLoadingWorkflow = true;
+            StateHasChanged();
+
+            if (AuthState.CurrentUser != null)
+            {
+                var response = await Http.GetAsync($"api/Dashboard/workflow/{AuthState.CurrentUser.Id}");
+                if (response.IsSuccessStatusCode)
+                {
+                    workflow = await response.Content.ReadFromJsonAsync<DashboardWorkflowDto>();
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading workflow: {ex.Message}");
+        }
+        finally
+        {
+            isLoadingWorkflow = false;
+            StateHasChanged();
+        }
+    }
+
+    private string FullName => string.Join(" ", new[]{editModel?.FirstName, editModel?.MiddleName, editModel?.LastName}.Where(s => !string.IsNullOrWhiteSpace(s)));
+
 
     private void EnableEdit() => editMode = true;
 

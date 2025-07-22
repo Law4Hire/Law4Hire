@@ -16,8 +16,8 @@ public record UserDto(
     string? State,
     string? Country,
     string? PostalCode,
-    DateTime? DateOfBirth
-    
+    DateTime? DateOfBirth,
+    string? Category
 );
 
 public record CreateUserDto(

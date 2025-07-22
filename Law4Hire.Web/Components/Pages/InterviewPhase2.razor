@@ -1,68 +1,212 @@
 @page "/interview/phase2"
-@using System.Net.Http.Json
-@using Law4Hire.Core.Entities
+@using Law4Hire.Web.DTOs
 @inject HttpClient Http
-@inject NavigationManager NavigationManager
 @inject Law4Hire.Web.State.AuthState AuthState
 
-<h3>Visa Interview</h3>
+<h3>Visa Interview - Phase 2</h3>
 
-<div class="mb-3">
-    <textarea class="form-control" rows="6" readonly>@jsonState</textarea>
-</div>
-<div class="input-group mb-3">
-    <input class="form-control" @bind="userAnswer" placeholder="Enter answer or command" />
-    <button class="btn btn-primary" @onclick="SendAnswer">Send</button>
-    <button class="btn btn-secondary" @onclick="Reset">Reset</button>
-</div>
+@if (isLoading)
+{
+    <div class="spinner-border" role="status">
+        <span class="visually-hidden">Loading...</span>
+    </div>
+    <p>Loading question...</p>
+}
+else if (!string.IsNullOrEmpty(errorMessage))
+{
+    <div class="alert alert-danger" role="alert">
+        @errorMessage
+    </div>
+    <button class="btn btn-secondary" @onclick="RetryLoadQuestion">Retry</button>
+}
+else if (question != null)
+{
+    @if (question.IsComplete)
+    {
+        <div class="alert alert-success" role="alert">
+            <h4>Interview Complete!</h4>
+            <p>@question.Question</p>
+            <a href="/dashboard" class="btn btn-primary">Continue to Dashboard</a>
+        </div>
+    }
+    else
+    {
+        <div class="question-box card">
+            <div class="card-header">
+                <h5>Step @question.Step</h5>
+            </div>
+            <div class="card-body">
+                <p class="card-text">@question.Question</p>
+                <EditForm Model="@answerModel" OnValidSubmit="SubmitAnswer">
+                    <div class="mb-3">
+                        <label for="answer" class="form-label">Your Answer:</label>
+                        <InputText id="answer" @bind-Value="answerModel.Answer" class="form-control" placeholder="Enter your answer here..." />
+                    </div>
+                    <button type="submit" class="btn btn-primary" disabled="@isSubmitting">
+                        @if (isSubmitting)
+                        {
+                            <span class="spinner-border spinner-border-sm" role="status"></span>
+                            <span>Processing...</span>
+                        }
+                        else
+                        {
+                            <span>Next</span>
+                        }
+                    </button>
+                </EditForm>
+            </div>
+        </div>
+    }
+}
+else
+{
+    <p>No question available. Please try refreshing the page.</p>
+    <button class="btn btn-secondary" @onclick="RetryLoadQuestion">Refresh</button>
+}
 
 @code {
-    private VisaInterviewState? state;
-    private string userAnswer = string.Empty;
-    private string jsonState = string.Empty;
-    private List<string> conversation = new();
+    private Phase2QuestionDto? question;
+    private AnswerModel answerModel = new();
+    private bool isLoading = true;
+    private bool isSubmitting = false;
+    private string errorMessage = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
-        if (AuthState.CurrentUser != null)
+        await LoadFirstQuestion();
+    }
+
+    private async Task LoadFirstQuestion()
+    {
+        try
         {
-            var resp = await Http.GetAsync($"api/VisaInterview/{AuthState.CurrentUser.Id}");
-            if (resp.IsSuccessStatusCode)
+            isLoading = true;
+            errorMessage = string.Empty;
+            StateHasChanged();
+
+            // Check if user has necessary data
+            if (AuthState.CurrentUser == null)
             {
-                state = await resp.Content.ReadFromJsonAsync<VisaInterviewState>();
-                if (state != null)
-                {
-                    var stateText = System.Text.Json.JsonSerializer.Serialize(state, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
-                    conversation.Add($"Stacy: {stateText}");
-                    jsonState = string.Join("\n\n", conversation);
-                }
+                errorMessage = "User not authenticated. Please log in.";
+                return;
+            }
+
+            // Get the category from wherever it's stored (you may need to adjust this)
+            // You might need to get this from a previous step or user preferences
+            var category = GetUserCategory();
+            if (string.IsNullOrEmpty(category))
+            {
+                errorMessage = "No visa category selected. Please complete Phase 1 first.";
+                return;
+            }
+
+            var payload = new Phase2StepDto
+            {
+                UserId = AuthState.CurrentUser.Id,
+                Category = category,
+                Instructions = "Please help me find the right visa type based on my specific situation."
+            };
+
+            var response = await Http.PostAsJsonAsync("api/VisaInterview/phase2/step", payload);
+
+            if (response.IsSuccessStatusCode)
+            {
+                question = await response.Content.ReadFromJsonAsync<Phase2QuestionDto>();
+            }
+            else
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                errorMessage = $"Failed to load question: {response.StatusCode} - {errorContent}";
             }
         }
-    }
-
-    private async Task SendAnswer()
-    {
-        conversation.Add($"You: {userAnswer}");
-        var input = new { userId = AuthState.CurrentUser?.Id, message = userAnswer };
-        var response = await Http.PostAsJsonAsync("api/VisaInterview/step", input);
-        if (response.IsSuccessStatusCode)
+        catch (Exception ex)
         {
-            state = await response.Content.ReadFromJsonAsync<VisaInterviewState>();
-            var stateText = System.Text.Json.JsonSerializer.Serialize(state, new System.Text.Json.JsonSerializerOptions { WriteIndented = true });
-            conversation.Add($"Stacy: {stateText}");
-            jsonState = string.Join("\n\n", conversation);
-            userAnswer = string.Empty;
+            errorMessage = $"Error loading question: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+            StateHasChanged();
         }
     }
 
-    private async Task Reset()
+    private async Task SubmitAnswer()
     {
-        var id = AuthState.CurrentUser?.Id;
-        await Http.DeleteAsync($"api/VisaInterview/reset?userId={id}");
-        state = null;
-        conversation.Clear();
-        jsonState = string.Empty;
-        userAnswer = string.Empty;
-        NavigationManager.NavigateTo("/");
+        if (string.IsNullOrWhiteSpace(answerModel.Answer))
+        {
+            return;
+        }
+
+        try
+        {
+            isSubmitting = true;
+            errorMessage = string.Empty;
+            StateHasChanged();
+
+            var category = GetUserCategory();
+            var payload = new Phase2StepDto
+            {
+                UserId = AuthState.CurrentUser!.Id,
+                Category = category ?? "",
+                Instructions = "Please help me find the right visa type based on my specific situation.",
+                Answer = answerModel.Answer.Trim()
+            };
+
+            var response = await Http.PostAsJsonAsync("api/VisaInterview/phase2/step", payload);
+
+            if (response.IsSuccessStatusCode)
+            {
+                question = await response.Content.ReadFromJsonAsync<Phase2QuestionDto>();
+                answerModel.Answer = string.Empty; // Clear the answer for next question
+            }
+            else
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                errorMessage = $"Failed to submit answer: {response.StatusCode} - {errorContent}";
+            }
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Error submitting answer: {ex.Message}";
+        }
+        finally
+        {
+            isSubmitting = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task RetryLoadQuestion()
+    {
+        await LoadFirstQuestion();
+    }
+
+    private string? GetUserCategory()
+    {
+        // TODO: Implement this method to get the category from wherever it's stored
+        // This might be from:
+        // 1. AuthState.CurrentUser if UserDto has a Category property
+        // 2. Local storage
+        // 3. A previous interview step
+        // 4. Query parameter
+        // 5. Session state
+
+        // For now, you might need to add this property to your UserDto or get it from elsewhere
+        // Example implementations:
+
+        // Option 1: If Category is added to UserDto
+        // return AuthState.CurrentUser?.Category;
+
+        // Option 2: From query parameter (add @page "/interview/phase2/{category?}" at top)
+        // [Parameter] public string? Category { get; set; }
+        // return Category;
+
+        // Option 3: Hard-coded for testing (remove this in production)
+        return "Permanent residency and green card options";
+    }
+
+    public class AnswerModel
+    {
+        public string Answer { get; set; } = string.Empty;
     }
 }
