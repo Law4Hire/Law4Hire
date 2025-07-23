@@ -31,7 +31,7 @@ public class Law4HireDbContext : IdentityDbContext<User, IdentityRole<Guid>, Gui
     public DbSet<WorkflowStepDocument> WorkflowStepDocuments { get; set; }
     public DbSet<VisaCategory> VisaCategories { get; set; }
     public DbSet<VisaSubCategory> VisaSubCategories { get; set; }
-
+    public DbSet<BaseVisaType> BaseVisaTypes { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -52,7 +52,22 @@ public class Law4HireDbContext : IdentityDbContext<User, IdentityRole<Guid>, Gui
         modelBuilder.Entity<VisaType>().ToTable("VisaTypes");
         modelBuilder.Entity<VisaGroup>().ToTable("VisaGroups");
         modelBuilder.Entity<DocumentType>().ToTable("DocumentTypes");
+        modelBuilder.Entity<BaseVisaType>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Name).HasMaxLength(100).IsRequired();
+            entity.Property(e => e.Status).HasMaxLength(20).HasDefaultValue("Active");
+            entity.Property(e => e.ConfidenceScore).HasColumnType("decimal(3,2)");
 
+            entity.HasOne(e => e.Category)
+                  .WithMany()
+                  .HasForeignKey(e => e.CategoryId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            // Index for performance
+            entity.HasIndex(e => new { e.CategoryId, e.Name }).IsUnique();
+            entity.HasIndex(e => e.Status);
+        });
         // ✅ Fix UserDocumentStatus relationships with NO ACTION to prevent cascade cycles
         modelBuilder.Entity<UserDocumentStatus>()
             .HasOne(uds => uds.DocumentType)
