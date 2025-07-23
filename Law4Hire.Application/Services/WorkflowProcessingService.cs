@@ -1,4 +1,5 @@
 ﻿using Law4Hire.Core.Entities;
+using Law4Hire.Core.Enums;
 using Law4Hire.Infrastructure.Data.Contexts;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
@@ -77,39 +78,13 @@ namespace Law4Hire.Application.Services
             await _context.SaveChangesAsync();
         }
 
-        public async Task<List<WorkflowStepDto>> GetUserWorkflowSteps(Guid userId, string visaType)
+        // Add the missing ProcessWorkflowDocuments method
+        public async Task ProcessWorkflowDocuments(Guid userId, string visaType, string workflowJson)
         {
-            var steps = await _context.WorkflowSteps
-                .Include(ws => ws.Documents)
-                .Where(ws => ws.UserId == userId && ws.VisaType == visaType)
-                .OrderBy(ws => ws.StepNumber)
-                .ToListAsync();
-
-            return steps.Select(step => new WorkflowStepDto
-            {
-                Id = step.Id,
-                StepNumber = step.StepNumber,
-                Name = step.Name,
-                Description = step.Description,
-                EstimatedCost = step.EstimatedCost,
-                EstimatedTimeDays = step.EstimatedTimeDays,
-                WebsiteLink = step.WebsiteLink,
-                Status = step.Status,
-                Documents = step.Documents.Select(doc => new WorkflowStepDocumentDto
-                {
-                    Id = doc.Id,
-                    DocumentName = doc.DocumentName,
-                    IsGovernmentProvided = doc.IsGovernmentProvided,
-                    DownloadLink = doc.DownloadLink,
-                    IsRequired = doc.IsRequired,
-                    Status = doc.Status,
-                    FilePath = doc.FilePath,
-                    SubmittedAt = doc.SubmittedAt,
-                    StatusColor = GetStatusColor(doc.Status),
-                    StatusText = GetStatusText(doc.Status)
-                }).ToList()
-            }).ToList();
+            // This method can be an alias for ProcessWorkflowSteps or handle documents specifically
+            await ProcessWorkflowSteps(userId, visaType, workflowJson);
         }
+    
 
         private string GetStatusColor(DocumentStatusEnum status)
         {
@@ -138,31 +113,5 @@ namespace Law4Hire.Application.Services
         }
     }
 
-    // DTOs for the workflow steps
-    public class WorkflowStepDto
-    {
-        public Guid Id { get; set; }
-        public int StepNumber { get; set; }
-        public string Name { get; set; } = string.Empty;
-        public string Description { get; set; } = string.Empty;
-        public decimal EstimatedCost { get; set; }
-        public int EstimatedTimeDays { get; set; }
-        public string? WebsiteLink { get; set; }
-        public WorkflowStepStatus Status { get; set; }
-        public List<WorkflowStepDocumentDto> Documents { get; set; } = new();
-    }
-
-    public class WorkflowStepDocumentDto
-    {
-        public Guid Id { get; set; }
-        public string DocumentName { get; set; } = string.Empty;
-        public bool IsGovernmentProvided { get; set; }
-        public string? DownloadLink { get; set; }
-        public bool IsRequired { get; set; }
-        public DocumentStatusEnum Status { get; set; }
-        public string? FilePath { get; set; }
-        public DateTime? SubmittedAt { get; set; }
-        public string StatusColor { get; set; } = string.Empty;
-        public string StatusText { get; set; } = string.Empty;
-    }
+   
 }

@@ -13,6 +13,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<ProjectReference Include="..\Law4Hire.Application\Law4Hire.Application.csproj" />
 		<ProjectReference Include="..\Law4Hire.Core\Law4Hire.Core.csproj" />
 	</ItemGroup>
 

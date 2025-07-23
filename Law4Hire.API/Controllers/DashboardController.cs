@@ -1,6 +1,4 @@
-﻿// Create or update your DashboardController
-
-using Law4Hire.Core.Enums;
+﻿using Law4Hire.Core.Enums;
 using Law4Hire.Infrastructure.Data.Contexts;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -11,10 +9,12 @@ using System.Text.Json;
 public class DashboardController : ControllerBase
 {
     private readonly Law4HireDbContext _context;
+    private readonly ILogger<DashboardController> _logger;
 
-    public DashboardController(Law4HireDbContext context)
+    public DashboardController(Law4HireDbContext context, ILogger<DashboardController> logger)
     {
         _context = context;
+        _logger = logger;
     }
 
     [HttpGet("workflow/{userId:guid}")]
@@ -54,8 +54,8 @@ public class DashboardController : ControllerBase
             {
                 var stepDto = new WorkflowStepDto
                 {
-                    Name = step.TryGetProperty("name", out var name) ? name.GetString() ?? "" : "",
-                    Description = step.TryGetProperty("description", out var desc) ? desc.GetString() ?? "" : "",
+                    Name = step.TryGetProperty("name", out var name) ? (name.GetString() ?? "") : "",
+                    Description = step.TryGetProperty("description", out var desc) ? (desc.GetString() ?? "") : "",
                     EstimatedCost = step.TryGetProperty("estimatedCost", out var cost) ? cost.GetDecimal() : 0,
                     EstimatedTimeDays = step.TryGetProperty("estimatedTimeDays", out var time) ? time.GetInt32() : 0
                 };
@@ -80,10 +80,13 @@ public class DashboardController : ControllerBase
 
                         stepDto.Documents.Add(new WorkflowDocumentDto
                         {
+                            Id = Guid.NewGuid(),
                             Name = documentName,
+                            DocumentName = documentName,
                             Status = docStatus?.Status ?? DocumentStatusEnum.NotStarted,
                             IsGovernmentProvided = docStatus?.DocumentType.IsGovernmentProvided ?? false,
                             GovernmentLink = docStatus?.DocumentType.GovernmentLink,
+                            DownloadLink = docStatus?.DocumentType.GovernmentLink,
                             IsRequired = docStatus?.DocumentType.IsRequired ?? true,
                             SubmittedAt = docStatus?.SubmittedAt,
                             FilePath = docStatus?.FilePath
@@ -96,5 +99,59 @@ public class DashboardController : ControllerBase
         }
 
         return Ok(workflow);
+    }
+
+    [HttpGet("workflow-steps/{userId:guid}")]
+    public async Task<ActionResult<List<WorkflowStepDto>>> GetUserWorkflowSteps(Guid userId)
+    {
+        try
+        {
+            // Get the user's completed interview state to find their visa type
+            var interviewState = await _context.VisaInterviewStates
+                .FirstOrDefaultAsync(vis => vis.UserId == userId && vis.IsCompleted);
+
+            if (interviewState == null || string.IsNullOrEmpty(interviewState.SelectedVisaType))
+            {
+                return NotFound("No completed workflow found for user");
+            }
+
+            // Get workflow steps for this user and visa type
+            var steps = await _context.WorkflowSteps
+                .Include(ws => ws.Documents)
+                .Where(ws => ws.UserId == userId && ws.VisaType == interviewState.SelectedVisaType)
+                .OrderBy(ws => ws.StepNumber)
+                .ToListAsync();
+
+            var stepDtos = steps.Select(step => new WorkflowStepDto
+            {
+                Id = step.Id,
+                StepNumber = step.StepNumber,
+                Name = step.Name,
+                Description = step.Description,
+                EstimatedCost = step.EstimatedCost,
+                EstimatedTimeDays = step.EstimatedTimeDays,
+                WebsiteLink = step.WebsiteLink,
+                Status = step.Status,
+                Documents = step.Documents.Select(doc => new WorkflowDocumentDto
+                {
+                    Id = doc.Id,
+                    Name = doc.DocumentName,
+                    DocumentName = doc.DocumentName,
+                    IsGovernmentProvided = doc.IsGovernmentProvided,
+                    DownloadLink = doc.DownloadLink,
+                    IsRequired = doc.IsRequired,
+                    Status = doc.Status,
+                    FilePath = doc.FilePath,
+                    SubmittedAt = doc.SubmittedAt
+                }).ToList()
+            }).ToList();
+
+            return Ok(stepDtos);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error retrieving workflow steps for user {UserId}", userId);
+            return StatusCode(500, "An error occurred while retrieving workflow steps");
+        }
     }
 }

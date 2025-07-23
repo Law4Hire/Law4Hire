@@ -191,20 +191,21 @@ public class Law4HireDbContext : IdentityDbContext<User, IdentityRole<Guid>, Gui
                 VisaTypeId = Guid.Parse("162E3E30-EC8B-438E-8F96-E836465D0908"),
                 DocumentTypeId = Guid.Parse("FE86CA4B-3808-482B-89FB-E2FC9375684B"),
                 IsRequired = true
-            },
-            modelBuilder.Entity<WorkflowStep>(entity =>
-            {
-                entity.HasKey(e => e.Id);
-                entity.Property(e => e.Name).HasMaxLength(255).IsRequired();
-                entity.Property(e => e.Description).IsRequired();
-                entity.Property(e => e.VisaType).HasMaxLength(50).IsRequired();
-                entity.Property(e => e.EstimatedCost).HasColumnType("decimal(10,2)");
+            }
+);
+        modelBuilder.Entity<WorkflowStep>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Name).HasMaxLength(255).IsRequired();
+            entity.Property(e => e.Description).IsRequired();
+            entity.Property(e => e.VisaType).HasMaxLength(50).IsRequired();
+            entity.Property(e => e.EstimatedCost).HasColumnType("decimal(10,2)");
 
-                entity.HasOne(e => e.User)
-                      .WithMany()
-                      .HasForeignKey(e => e.UserId)
-                      .OnDelete(DeleteBehavior.Cascade);
-            }),
+            entity.HasOne(e => e.User)
+                  .WithMany()
+                  .HasForeignKey(e => e.UserId)
+                  .OnDelete(DeleteBehavior.Cascade);
+        });
 
         // WorkflowStepDocument configuration
         modelBuilder.Entity<WorkflowStepDocument>(entity =>
@@ -217,6 +218,6 @@ public class Law4HireDbContext : IdentityDbContext<User, IdentityRole<Guid>, Gui
                   .HasForeignKey(e => e.WorkflowStepId)
                   .OnDelete(DeleteBehavior.Cascade);
         }
-        ));
+        );
     }
 }

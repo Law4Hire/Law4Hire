@@ -685,112 +685,104 @@ namespace Law4Hire.API.Controllers
         {
             return visaType.ToUpper() switch
             {
-                "B-2" => """
-        {
-            "steps": [
+                "B-2" => @"{
+            ""steps"": [
                 {
-                    "name": "Complete DS-160 Form",
-                    "description": "Fill out the online nonimmigrant visa application form",
-                    "documents": [
-                        {"name": "DS-160 Form", "isGovernmentProvided": false, "downloadLink": null, "isRequired": true},
-                        {"name": "Passport Photo", "isGovernmentProvided": false, "downloadLink": null, "isRequired": true},
-                        {"name": "Passport", "isGovernmentProvided": false, "downloadLink": null, "isRequired": true}
+                    ""name"": ""Complete DS-160 Form"",
+                    ""description"": ""Fill out the online nonimmigrant visa application form"",
+                    ""documents"": [
+                        {""name"": ""DS-160 Form"", ""isGovernmentProvided"": false, ""downloadLink"": null, ""isRequired"": true},
+                        {""name"": ""Passport Photo"", ""isGovernmentProvided"": false, ""downloadLink"": null, ""isRequired"": true},
+                        {""name"": ""Passport"", ""isGovernmentProvided"": false, ""downloadLink"": null, ""isRequired"": true}
                     ],
-                    "estimatedCost": 0.00,
-                    "estimatedTimeDays": 1,
-                    "websiteLink": "https://ceac.state.gov/genniv/"
+                    ""estimatedCost"": 0.00,
+                    ""estimatedTimeDays"": 1,
+                    ""websiteLink"": ""https://ceac.state.gov/genniv/""
                 },
                 {
-                    "name": "Pay Visa Fee",
-                    "description": "Pay the non-refundable visa application fee",
-                    "documents": [
-                        {"name": "Payment Receipt", "isGovernmentProvided": true, "downloadLink": "https://www.ustraveldocs.com/", "isRequired": true}
+                    ""name"": ""Pay Visa Fee"",
+                    ""description"": ""Pay the non-refundable visa application fee"",
+                    ""documents"": [
+                        {""name"": ""Payment Receipt"", ""isGovernmentProvided"": true, ""downloadLink"": ""https://www.ustraveldocs.com/"", ""isRequired"": true}
                     ],
-                    "estimatedCost": 185.00,
-                    "estimatedTimeDays": 1,
-                    "websiteLink": "https://www.ustraveldocs.com/"
+                    ""estimatedCost"": 185.00,
+                    ""estimatedTimeDays"": 1,
+                    ""websiteLink"": ""https://www.ustraveldocs.com/""
                 },
                 {
-                    "name": "Schedule Interview",
-                    "description": "Schedule your visa interview appointment",
-                    "documents": [
-                        {"name": "Appointment Confirmation", "isGovernmentProvided": true, "downloadLink": null, "isRequired": true}
+                    ""name"": ""Schedule Interview"",
+                    ""description"": ""Schedule your visa interview appointment"",
+                    ""documents"": [
+                        {""name"": ""Appointment Confirmation"", ""isGovernmentProvided"": true, ""downloadLink"": null, ""isRequired"": true}
                     ],
-                    "estimatedCost": 0.00,
-                    "estimatedTimeDays": 14,
-                    "websiteLink": "https://www.ustraveldocs.com/"
+                    ""estimatedCost"": 0.00,
+                    ""estimatedTimeDays"": 14,
+                    ""websiteLink"": ""https://www.ustraveldocs.com/""
                 },
                 {
-                    "name": "Prepare Documents",
-                    "description": "Gather all required supporting documents",
-                    "documents": [
-                        {"name": "Bank Statements", "isGovernmentProvided": false, "downloadLink": null, "isRequired": true},
-                        {"name": "Employment Letter", "isGovernmentProvided": false, "downloadLink": null, "isRequired": true},
-                        {"name": "Travel Itinerary", "isGovernmentProvided": false, "downloadLink": null, "isRequired": true}
+                    ""name"": ""Prepare Documents"",
+                    ""description"": ""Gather all required supporting documents"",
+                    ""documents"": [
+                        {""name"": ""Bank Statements"", ""isGovernmentProvided"": false, ""downloadLink"": null, ""isRequired"": true},
+                        {""name"": ""Employment Letter"", ""isGovernmentProvided"": false, ""downloadLink"": null, ""isRequired"": true},
+                        {""name"": ""Travel Itinerary"", ""isGovernmentProvided"": false, ""downloadLink"": null, ""isRequired"": true}
                     ],
-                    "estimatedCost": 50.00,
-                    "estimatedTimeDays": 3
+                    ""estimatedCost"": 50.00,
+                    ""estimatedTimeDays"": 3
                 },
                 {
-                    "name": "Attend Interview",
-                    "description": "Attend your scheduled visa interview",
-                    "documents": [
-                        {"name": "All Required Documents", "isGovernmentProvided": false, "downloadLink": null, "isRequired": true}
+                    ""name"": ""Attend Interview"",
+                    ""description"": ""Attend your scheduled visa interview"",
+                    ""documents"": [
+                        {""name"": ""All Required Documents"", ""isGovernmentProvided"": false, ""downloadLink"": null, ""isRequired"": true}
                     ],
-                    "estimatedCost": 0.00,
-                    "estimatedTimeDays": 1
+                    ""estimatedCost"": 0.00,
+                    ""estimatedTimeDays"": 1
                 }
             ],
-            "estimatedTotalCost": 235.00,
-            "estimatedTotalTimeDays": 20
-        }
-        """,
-                "ESTA" => """
-        {
-            "steps": [
+            ""estimatedTotalCost"": 235.00,
+            ""estimatedTotalTimeDays"": 20
+        }",
+                "ESTA" => @"{
+            ""steps"": [
                 {
-                    "name": "Complete ESTA Application",
-                    "description": "Apply online for Electronic System for Travel Authorization",
-                    "documents": [
-                        {"name": "Passport", "isGovernmentProvided": false, "downloadLink": null, "isRequired": true}
+                    ""name"": ""Complete ESTA Application"",
+                    ""description"": ""Apply online for Electronic System for Travel Authorization"",
+                    ""documents"": [
+                        {""name"": ""Passport"", ""isGovernmentProvided"": false, ""downloadLink"": null, ""isRequired"": true}
                     ],
-                    "estimatedCost": 21.00,
-                    "estimatedTimeDays": 1,
-                    "websiteLink": "https://esta.cbp.dhs.gov/"
+                    ""estimatedCost"": 21.00,
+                    ""estimatedTimeDays"": 1,
+                    ""websiteLink"": ""https://esta.cbp.dhs.gov/""
                 },
                 {
-                    "name": "Receive Authorization",
-                    "description": "Wait for ESTA approval",
-                    "documents": [
-                        {"name": "ESTA Approval", "isGovernmentProvided": true, "downloadLink": null, "isRequired": true}
+                    ""name"": ""Receive Authorization"",
+                    ""description"": ""Wait for ESTA approval"",
+                    ""documents"": [
+                        {""name"": ""ESTA Approval"", ""isGovernmentProvided"": true, ""downloadLink"": null, ""isRequired"": true}
                     ],
-                    "estimatedCost": 0.00,
-                    "estimatedTimeDays": 3
+                    ""estimatedCost"": 0.00,
+                    ""estimatedTimeDays"": 3
                 }
             ],
-            "estimatedTotalCost": 21.00,
-            "estimatedTotalTimeDays": 4
-        }
-        """,
-                _ => $"""
-        {{
-        
-                    "steps": [
+            ""estimatedTotalCost"": 21.00,
+            ""estimatedTotalTimeDays"": 4
+        }",
+                _ => $@"{{
+            ""steps"": [
                 {{
-        
-                            "name": "Research {visaType} Requirements",
-                    "description": "Consult with immigration attorney for specific requirements",
-                    "documents": [
-                        {{"name": "Consultation Notes", "isGovernmentProvided": false, "downloadLink": null, "isRequired": true}}
+                    ""name"": ""Research {visaType} Requirements"",
+                    ""description"": ""Consult with immigration attorney for specific requirements"",
+                    ""documents"": [
+                        {{""name"": ""Consultation Notes"", ""isGovernmentProvided"": false, ""downloadLink"": null, ""isRequired"": true}}
                     ],
-                    "estimatedCost": 200.00,
-                    "estimatedTimeDays": 7
+                    ""estimatedCost"": 200.00,
+                    ""estimatedTimeDays"": 7
                 }}
             ],
-            "estimatedTotalCost": 200.00,
-            "estimatedTotalTimeDays": 7
-        }}
-        """
+            ""estimatedTotalCost"": 200.00,
+            ""estimatedTotalTimeDays"": 7
+        }}"
             };
         }
         public class Phase2StepDto

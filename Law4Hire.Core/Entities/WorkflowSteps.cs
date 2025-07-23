@@ -45,12 +45,6 @@ public class WorkflowStepDocument
     public WorkflowStep WorkflowStep { get; set; } = null!;
 }
 
-public enum WorkflowStepStatus
-{
-    NotStarted = 0,
-    InProgress = 1,
-    Completed = 2
-}
 
 public enum DocumentStatusEnum
 {
