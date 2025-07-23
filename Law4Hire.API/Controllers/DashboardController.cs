@@ -106,23 +106,23 @@ public class DashboardController : ControllerBase
     {
         try
         {
-            // Get the user's completed interview state to find their visa type
+            // Check if user has completed visa interview
             var interviewState = await _context.VisaInterviewStates
                 .FirstOrDefaultAsync(vis => vis.UserId == userId && vis.IsCompleted);
 
             if (interviewState == null || string.IsNullOrEmpty(interviewState.SelectedVisaType))
             {
-                return NotFound("No completed workflow found for user");
+                return Ok(new List<WorkflowStepDto>()); // Return empty list if no completed interview
             }
 
-            // Get workflow steps for this user and visa type
+            // Get workflow steps from database
             var steps = await _context.WorkflowSteps
                 .Include(ws => ws.Documents)
                 .Where(ws => ws.UserId == userId && ws.VisaType == interviewState.SelectedVisaType)
                 .OrderBy(ws => ws.StepNumber)
                 .ToListAsync();
 
-            var stepDtos = steps.Select(step => new WorkflowStepDto
+            var result = steps.Select(step => new WorkflowStepDto
             {
                 Id = step.Id,
                 StepNumber = step.StepNumber,
@@ -132,26 +132,54 @@ public class DashboardController : ControllerBase
                 EstimatedTimeDays = step.EstimatedTimeDays,
                 WebsiteLink = step.WebsiteLink,
                 Status = step.Status,
-                Documents = step.Documents.Select(doc => new WorkflowDocumentDto
+                Documents = step.Documents.Select(doc => new WorkflowStepDocumentDto
                 {
                     Id = doc.Id,
-                    Name = doc.DocumentName,
                     DocumentName = doc.DocumentName,
                     IsGovernmentProvided = doc.IsGovernmentProvided,
                     DownloadLink = doc.DownloadLink,
                     IsRequired = doc.IsRequired,
                     Status = doc.Status,
                     FilePath = doc.FilePath,
-                    SubmittedAt = doc.SubmittedAt
+                    SubmittedAt = doc.SubmittedAt,
+                    StatusColor = GetStatusColor(doc.Status),
+                    StatusText = GetStatusText(doc.Status)
                 }).ToList()
             }).ToList();
 
-            return Ok(stepDtos);
+            return Ok(result);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error retrieving workflow steps for user {UserId}", userId);
-            return StatusCode(500, "An error occurred while retrieving workflow steps");
+            // Log the exception
+            Console.WriteLine($"Error loading workflow steps: {ex.Message}");
+            return StatusCode(500, "Internal server error");
         }
     }
+    private string GetStatusColor(DocumentStatusEnum status)
+    {
+        return status switch
+        {
+            DocumentStatusEnum.NotStarted => "text-red-500",
+            DocumentStatusEnum.InProgress => "text-black",
+            DocumentStatusEnum.Submitted => "text-black",
+            DocumentStatusEnum.Approved => "text-green-500",
+            DocumentStatusEnum.Rejected => "text-red-500",
+            _ => "text-black"
+        };
+    }
+
+    private string GetStatusText(DocumentStatusEnum status)
+    {
+        return status switch
+        {
+            DocumentStatusEnum.NotStarted => "Not Started",
+            DocumentStatusEnum.InProgress => "In Progress",
+            DocumentStatusEnum.Submitted => "Submitted",
+            DocumentStatusEnum.Approved => "Approved",
+            DocumentStatusEnum.Rejected => "Rejected",
+            _ => "Unknown"
+        };
+    }
 }
+ 
