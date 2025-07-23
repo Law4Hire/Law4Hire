@@ -78,6 +78,7 @@ public class DashboardController : ControllerBase
                         var docStatus = documentStatuses.FirstOrDefault(ds =>
                             ds.DocumentType.Name.Equals(documentName, StringComparison.OrdinalIgnoreCase));
 
+                        // Create WorkflowDocumentDto (not WorkflowStepDocumentDto)
                         stepDto.Documents.Add(new WorkflowDocumentDto
                         {
                             Id = Guid.NewGuid(),
@@ -132,9 +133,10 @@ public class DashboardController : ControllerBase
                 EstimatedTimeDays = step.EstimatedTimeDays,
                 WebsiteLink = step.WebsiteLink,
                 Status = step.Status,
-                Documents = step.Documents.Select(doc => new WorkflowStepDocumentDto
+                Documents = step.Documents.Select(doc => new WorkflowDocumentDto // Changed from WorkflowStepDocumentDto
                 {
                     Id = doc.Id,
+                    Name = doc.DocumentName,
                     DocumentName = doc.DocumentName,
                     IsGovernmentProvided = doc.IsGovernmentProvided,
                     DownloadLink = doc.DownloadLink,
@@ -142,8 +144,6 @@ public class DashboardController : ControllerBase
                     Status = doc.Status,
                     FilePath = doc.FilePath,
                     SubmittedAt = doc.SubmittedAt,
-                    StatusColor = GetStatusColor(doc.Status),
-                    StatusText = GetStatusText(doc.Status)
                 }).ToList()
             }).ToList();
 
@@ -156,6 +156,7 @@ public class DashboardController : ControllerBase
             return StatusCode(500, "Internal server error");
         }
     }
+
     private string GetStatusColor(DocumentStatusEnum status)
     {
         return status switch
@@ -182,4 +183,3 @@ public class DashboardController : ControllerBase
         };
     }
 }
- 

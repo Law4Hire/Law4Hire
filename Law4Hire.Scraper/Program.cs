@@ -7,15 +7,25 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
+
 var host = Host.CreateDefaultBuilder(args)
     .ConfigureServices((context, services) =>
     {
-        var connection = context.Configuration.GetConnectionString("DefaultConnection");
-        services.AddDbContext<Law4HireDbContext>(options => options.UseSqlServer(connection));
-        services.AddScoped<IVisaTypeRepository, VisaTypeRepository>();
+        services.AddScoped<IBruceOpenAIAgent, BruceOpenAIAgent>();
+        services.AddScoped<IVisaSyncService, VisaSyncService>();
+        services.AddHostedService<BruceVisaBot>();
         services.AddScoped<IScrapeLogRepository, ScrapeLogRepository>();
-        services.AddHostedService<VisaScraperBot>();
+
     })
     .Build();
 
 await host.RunAsync();
+public class Law4HireDbContext : DbContext
+{
+    public Law4HireDbContext(DbContextOptions<Law4HireDbContext> options)
+        : base(options)
+    {
+    }
+
+    // DbSets...
+}

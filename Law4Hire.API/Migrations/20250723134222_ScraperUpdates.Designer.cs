@@ -4,6 +4,7 @@ using Law4Hire.Infrastructure.Data.Contexts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Law4Hire.API.Migrations
 {
     [DbContext(typeof(Law4HireDbContext))]
-    partial class Law4HireDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250723134222_ScraperUpdates")]
+    partial class ScraperUpdates
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -591,30 +594,6 @@ namespace Law4Hire.API.Migrations
                     b.ToTable("UserVisas", (string)null);
                 });
 
-            modelBuilder.Entity("Law4Hire.Core.Entities.VisaCategory", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("VisaTypesJson")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("VisaCategory");
-                });
-
             modelBuilder.Entity("Law4Hire.Core.Entities.VisaDocumentRequirement", b =>
                 {
                     b.Property<Guid>("Id")
@@ -724,36 +703,6 @@ namespace Law4Hire.API.Migrations
                         .IsUnique();
 
                     b.ToTable("VisaInterviewStates", (string)null);
-                });
-
-            modelBuilder.Entity("Law4Hire.Core.Entities.VisaSubCategory", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("CategoryId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CategoryId");
-
-                    b.ToTable("VisaSubCategories");
                 });
 
             modelBuilder.Entity("Law4Hire.Core.Entities.VisaType", b =>
@@ -1227,17 +1176,6 @@ namespace Law4Hire.API.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("Law4Hire.Core.Entities.VisaSubCategory", b =>
-                {
-                    b.HasOne("Law4Hire.Core.Entities.VisaCategory", "Category")
-                        .WithMany()
-                        .HasForeignKey("CategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Category");
                 });
 
             modelBuilder.Entity("Law4Hire.Core.Entities.VisaType", b =>

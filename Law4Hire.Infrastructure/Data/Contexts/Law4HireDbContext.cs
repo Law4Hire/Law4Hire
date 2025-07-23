@@ -29,6 +29,8 @@ public class Law4HireDbContext : IdentityDbContext<User, IdentityRole<Guid>, Gui
     public DbSet<VisaInterviewState> VisaInterviewStates { get; set; }
     public DbSet<WorkflowStep> WorkflowSteps { get; set; }
     public DbSet<WorkflowStepDocument> WorkflowStepDocuments { get; set; }
+    public DbSet<VisaCategory> VisaCategories { get; set; }
+    public DbSet<VisaSubCategory> VisaSubCategories { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
