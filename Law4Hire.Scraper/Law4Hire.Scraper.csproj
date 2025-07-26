@@ -23,4 +23,10 @@
     <PackageReference Include="OpenAI-DotNet" Version="8.8.1" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

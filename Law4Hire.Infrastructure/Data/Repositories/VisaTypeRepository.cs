@@ -16,7 +16,7 @@ public class VisaTypeRepository(Law4HireDbContext context) : IVisaTypeRepository
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<VisaType>> GetByCategoryAsync(string category)
+    public async Task<IEnumerable<VisaType>> GetByCategoryAsync(VisaCategory category)
     {
         return await _context.Set<VisaType>()
             .Where(v => v.Category == category)

@@ -29,9 +29,10 @@ namespace Law4Hire.Application.Services
                 await _context.SaveChangesAsync();
             }
 
-            // Parse the workflow JSON
+            // Parse the workflow JSON with new Steps/Totals schema
             using var doc = JsonDocument.Parse(workflowJson);
-            var steps = doc.RootElement.GetProperty("steps");
+            var root = doc.RootElement;
+            var steps = root.GetProperty("Steps");
 
             int stepNumber = 1;
             foreach (var step in steps.EnumerateArray())

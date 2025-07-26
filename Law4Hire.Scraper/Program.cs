@@ -10,9 +10,26 @@ using Microsoft.Extensions.Hosting;
 var host = Host.CreateDefaultBuilder(args)
     .ConfigureServices((context, services) =>
     {
-        // ADD THIS: Register the DbContext with connection string
+        // Get the connection string from configuration
+        var connectionString = context.Configuration.GetConnectionString("DefaultConnection");
+
+        if (string.IsNullOrEmpty(connectionString))
+        {
+            throw new InvalidOperationException("Connection string 'DefaultConnection' not found in configuration.");
+        }
+
+        // Register the DbContext with connection string
         services.AddDbContext<Law4HireDbContext>(options =>
-            options.UseSqlServer(context.Configuration.GetConnectionString("DefaultConnection")));
+            options.UseSqlServer(connectionString, sqlOptions =>
+            {
+                sqlOptions.EnableRetryOnFailure(
+                    maxRetryCount: 3,
+                    maxRetryDelay: TimeSpan.FromSeconds(5),
+                    errorNumbersToAdd: null);
+
+                // Set the migrations assembly to the API project where migrations are located
+                sqlOptions.MigrationsAssembly("Law4Hire.API");
+            }));
 
         services.AddScoped<IBruceOpenAIAgent, BruceOpenAIAgent>();
         services.AddScoped<IVisaSyncService, VisaSyncService>();

@@ -27,7 +27,6 @@ public class User : IdentityUser<Guid> // Inherits from IdentityUser with Guid a
     public new byte[] PasswordHash { get; set; } = Array.Empty<byte>();
     public byte[] PasswordSalt { get; set; } = Array.Empty<byte>();
 
-    // ✅ Add missing navigation properties
     public string? Category { get; set; }
     public string? VisaType { get; set; }
     public string? WorkflowJson { get; set; }

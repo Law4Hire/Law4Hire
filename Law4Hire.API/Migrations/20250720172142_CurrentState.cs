@@ -72,25 +72,14 @@ namespace Law4Hire.API.Migrations
                 name: "FK_UserVisas_VisaTypes_VisaTypeId",
                 table: "UserVisas");
 
-            migrationBuilder.DropForeignKey(
-                name: "FK_VisaTypes_VisaGroups_VisaGroupId",
-                table: "VisaTypes");
-
             migrationBuilder.DropTable(
                 name: "ScrapeLogs");
-
-            migrationBuilder.DropTable(
-                name: "VisaGroups");
 
             migrationBuilder.DropTable(
                 name: "VisaInterviewStates");
 
             migrationBuilder.DropTable(
                 name: "VisaTypeQuestions");
-
-            migrationBuilder.DropIndex(
-                name: "IX_VisaTypes_VisaGroupId",
-                table: "VisaTypes");
 
             migrationBuilder.DropIndex(
                 name: "IX_UserDocumentStatuses_UserId",

@@ -21,21 +21,12 @@ public class VisaInterviewBot
     private readonly Law4HireDbContext _context;
 
     private const string SystemPrompt =
-        "You are Stacy, an immigration legal assistant bot. Your job is to return a valid single-line JSON response only. " +
-        "Never include markdown, comments, formatting, explanations, or text outside the JSON. " +
-        "CRITICAL RESPONSE FORMATS: " +
-        "1. When given an object with 'category' property, respond with ONLY a JSON array of visa types. " +
-        "2. When given a JSON array of visa types, respond with ONLY a JSON string containing a question. " +
-        "3. When given an object with 'visaTypes' and 'answer', respond with ONLY a JSON array of filtered visa types. " +
-        "4. When given a single visa type string, respond with a complete workflow JSON object in this EXACT format: " +
-        "{\\\"steps\\\":[" +
-        "{\\\"name\\\":\\\"Complete DS-160 Form\\\",\\\"description\\\":\\\"Fill out the online nonimmigrant visa application form\\\",\\\"documents\\\":[{\\\"name\\\":\\\"DS-160 Form\\\",\\\"isGovernmentProvided\\\":false,\\\"downloadLink\\\":null,\\\"isRequired\\\":true},{\\\"name\\\":\\\"Passport Photo\\\",\\\"isGovernmentProvided\\\":false,\\\"downloadLink\\\":null,\\\"isRequired\\\":true}],\\\"estimatedCost\\\":0.00,\\\"estimatedTimeDays\\\":1,\\\"websiteLink\\\":\\\"https://ceac.state.gov/genniv/\\\"}," +
-        "{\\\"name\\\":\\\"Pay Visa Fee\\\",\\\"description\\\":\\\"Pay the non-refundable visa application fee\\\",\\\"documents\\\":[{\\\"name\\\":\\\"Payment Receipt\\\",\\\"isGovernmentProvided\\\":true,\\\"downloadLink\\\":\\\"https://www.ustraveldocs.com/\\\",\\\"isRequired\\\":true}],\\\"estimatedCost\\\":185.00,\\\"estimatedTimeDays\\\":1,\\\"websiteLink\\\":\\\"https://www.ustraveldocs.com/\\\"}]," +
-        "\\\"estimatedTotalCost\\\":185.00,\\\"estimatedTotalTimeDays\\\":15} " +
-        "Each step MUST include: name, description, documents array (with name, isGovernmentProvided, downloadLink, isRequired), estimatedCost, estimatedTimeDays, websiteLink (if applicable). " +
-        "Documents array items must have: name (string), isGovernmentProvided (boolean), downloadLink (string or null), isRequired (boolean). " +
-        "Include realistic government links for forms and fee payments. " +
-        "NEVER return text descriptions - only the structured JSON workflow object.";
+        "You are Stacy, an immigration legal assistant bot. You only process and emit strict JSON; never include any text outside valid JSON. " +
+        "When given a JSON object 'Payload' with property 'visaTypes' (an array of strings), respond with a JSON object 'Question' with property 'text' containing the question to ask. " +
+        "When given a JSON object 'Answer' with properties 'question' and 'response', if the response is off-topic or inappropriate, respond with 'Question' re-asking the same question. If appropriate but the visaTypes list is not reduced, respond with 'Question' asking a follow-up (never repeat questions). " +
+        "When given a JSON object 'Answer' that reduces the visaTypes list, respond with a JSON object 'UpdatedList' with property 'visaTypes' containing the remaining list. " +
+        "When given a JSON object 'Payload' with a single visaTypes entry, respond with a JSON object 'Workflow' containing 'Steps' (array of objects with StepName, StepDescription, GovernmentDocs (array of {Name, Link}), GovernmentDocLink, UserProvidedDocs (array of {Name, Link}), WebsiteLinks (array of strings), EstimatedCost (number), EstimatedTime (string)) and 'Totals' (object with TotalEstimatedCost and TotalEstimatedTime). " +
+        "Always return exactly one JSON object matching the required schema and nothing else.";
     public VisaInterviewBot(HttpClient httpClient, string apiKey, IConfiguration _configuration, Law4HireDbContext context)
     {
         _httpClient = httpClient;

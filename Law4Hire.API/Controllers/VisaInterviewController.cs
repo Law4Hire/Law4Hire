@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Security.Claims;
+using System.Linq;
 using System.Text.Json;
 
 namespace Law4Hire.API.Controllers
@@ -192,8 +193,53 @@ namespace Law4Hire.API.Controllers
                     CurrentStep = 0
                 };
                 _db.VisaInterviewStates.Add(state);
-                await _db.SaveChangesAsync();
-            }
+        await _db.SaveChangesAsync();
+    }
+
+    // Initial handshake: send base visa types as Payload
+    if (string.IsNullOrEmpty(state.CurrentVisaOptionsJson))
+    {
+        var baseVisaTypes = await _db.BaseVisaTypes
+            .Where(b => b.Status == "Active")
+            .Select(b => b.Name)
+            .ToListAsync();
+
+        var payloadObj = new { Payload = new { visaTypes = baseVisaTypes } };
+        var payloadJson = JsonSerializer.Serialize(payloadObj);
+        Console.WriteLine($"[DEBUG] Sending initial Payload: {payloadJson}");
+
+        var botResponseInternal = await _bot.ProcessAsync(payloadJson);
+        Console.WriteLine($"[DEBUG] Bot response to initial Payload: {botResponseInternal}");
+
+        string questionText;
+        try
+        {
+            using var doc = JsonDocument.Parse(botResponseInternal);
+            questionText = doc.RootElement
+                .GetProperty("Question")
+                .GetProperty("text")
+                .GetString() ?? string.Empty;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"[ERROR] Failed to parse Question response: {ex.Message}");
+            return BadRequest("Invalid Question response from bot.");
+        }
+
+        state.CurrentVisaOptionsJson = JsonSerializer.Serialize(baseVisaTypes);
+        state.CurrentStep++;
+        state.LastBotMessage = botResponseInternal;
+        state.LastClientMessage = payloadJson;
+        state.LastUpdated = DateTime.UtcNow;
+        await _db.SaveChangesAsync();
+
+        return Ok(new Phase2QuestionDto
+        {
+            Question = questionText,
+            Step = state.CurrentStep,
+            IsComplete = false
+        });
+    }
 
             string? botResponse = null;
 

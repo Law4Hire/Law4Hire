@@ -10,6 +10,7 @@ public class Law4HireDbContext : IdentityDbContext<User, IdentityRole<Guid>, Gui
 {
     public Law4HireDbContext(DbContextOptions<Law4HireDbContext> options) : base(options)
     {
+        
     }
 
     public DbSet<ServicePackage> ServicePackages { get; set; }
@@ -20,7 +21,6 @@ public class Law4HireDbContext : IdentityDbContext<User, IdentityRole<Guid>, Gui
     public DbSet<LegalProfessional> LegalProfessionals { get; set; }
     public DbSet<UserDocumentStatus> UserDocumentStatuses { get; set; }
     public DbSet<VisaDocumentRequirement> VisaDocumentRequirements { get; set; }
-    public DbSet<VisaGroup> VisaGroups { get; set; }
     public DbSet<VisaType> VisaTypes { get; set; }
     public DbSet<DocumentType> DocumentTypes { get; set; }
     public DbSet<UserVisa> UserVisas { get; set; }
@@ -50,7 +50,6 @@ public class Law4HireDbContext : IdentityDbContext<User, IdentityRole<Guid>, Gui
 
         // Configure table names
         modelBuilder.Entity<VisaType>().ToTable("VisaTypes");
-        modelBuilder.Entity<VisaGroup>().ToTable("VisaGroups");
         modelBuilder.Entity<DocumentType>().ToTable("DocumentTypes");
         modelBuilder.Entity<BaseVisaType>(entity =>
         {
@@ -129,12 +128,6 @@ public class Law4HireDbContext : IdentityDbContext<User, IdentityRole<Guid>, Gui
             .HasForeignKey<VisaInterviewState>(vis => vis.UserId)
             .OnDelete(DeleteBehavior.NoAction); // Use NoAction to prevent cascade cycles
 
-        // VisaGroup relationships
-        modelBuilder.Entity<VisaType>()
-            .HasOne(v => v.VisaGroup)
-            .WithMany(g => g.VisaTypes)
-            .HasForeignKey(v => v.VisaGroupId)
-            .OnDelete(DeleteBehavior.Restrict);
 
         // LegalProfessional relationships
         modelBuilder.Entity<LegalProfessional>()
@@ -153,8 +146,7 @@ public class Law4HireDbContext : IdentityDbContext<User, IdentityRole<Guid>, Gui
                 Id = Guid.Parse("162E3E30-EC8B-438E-8F96-E836465D0908"),
                 Name = "H1B Specialty Occupation",
                 Description = "Work visa for specialty occupations",
-                Category = "Work",
-                VisaGroupId = Guid.Parse("44444444-4444-4444-4444-444444444444")
+                Category = "Work"
             }
         );
 
