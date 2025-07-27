@@ -641,23 +641,6 @@ namespace Law4Hire.API.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Law4Hire.Core.Entities.VisaGroup", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Name")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("VisaGroups", (string)null);
-                });
-
             modelBuilder.Entity("Law4Hire.Core.Entities.VisaInterviewState", b =>
                 {
                     b.Property<Guid>("Id")
@@ -723,24 +706,10 @@ namespace Law4Hire.API.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("VisaGroupId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("VisaGroupId");
 
                     b.ToTable("VisaTypes", (string)null);
 
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("162e3e30-ec8b-438e-8f96-e836465d0908"),
-                            Category = "Work",
-                            Description = "Work visa for specialty occupations",
-                            Name = "H1B Specialty Occupation",
-                            VisaGroupId = new Guid("44444444-4444-4444-4444-444444444444")
-                        });
                 });
 
             modelBuilder.Entity("Law4Hire.Core.Entities.VisaTypeQuestion", b =>
@@ -1085,17 +1054,6 @@ namespace Law4Hire.API.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Law4Hire.Core.Entities.VisaType", b =>
-                {
-                    b.HasOne("Law4Hire.Core.Entities.VisaGroup", "VisaGroup")
-                        .WithMany("VisaTypes")
-                        .HasForeignKey("VisaGroupId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("VisaGroup");
-                });
-
             modelBuilder.Entity("Law4Hire.Core.Entities.VisaTypeQuestion", b =>
                 {
                     b.HasOne("Law4Hire.Core.Entities.VisaType", "VisaType")
@@ -1205,11 +1163,6 @@ namespace Law4Hire.API.Migrations
             modelBuilder.Entity("Law4Hire.Core.Entities.UserVisa", b =>
                 {
                     b.Navigation("DocumentStatuses");
-                });
-
-            modelBuilder.Entity("Law4Hire.Core.Entities.VisaGroup", b =>
-                {
-                    b.Navigation("VisaTypes");
                 });
 
             modelBuilder.Entity("Law4Hire.Core.Entities.VisaType", b =>

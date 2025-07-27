@@ -16,13 +16,14 @@ public class VisaTypeRepository(Law4HireDbContext context) : IVisaTypeRepository
             .ToListAsync();
     }
 
-    public async Task<IEnumerable<VisaType>> GetByCategoryAsync(VisaCategory category)
-    {
-        return await _context.Set<VisaType>()
-            .Where(v => v.Category == category)
-            .AsNoTracking()
-            .ToListAsync();
-    }
+public async Task<IEnumerable<VisaType>> GetByCategoryAsync(string categoryName)
+{
+    return await _context.Set<VisaType>()
+        .Include(v => v.Category)
+        .Where(v => v.Category.Name == categoryName)
+        .AsNoTracking()
+        .ToListAsync();
+}
 
     public async Task<VisaType?> GetByIdAsync(Guid id)
     {

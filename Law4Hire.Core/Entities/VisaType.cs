@@ -10,7 +10,6 @@ public class VisaType
     public Guid Id { get; set; }
     public string Name { get; set; } = null!;
     public string Description { get; set; } = null!;
-    // New foreign key to VisaCategory replacing legacy VisaGroup
     public Guid CategoryId { get; set; }
     public VisaCategory Category { get; set; } = null!;
 

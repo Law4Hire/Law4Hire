@@ -139,69 +139,6 @@ public class Law4HireDbContext : IdentityDbContext<User, IdentityRole<Guid>, Gui
             .HasForeignKey<LegalProfessional>(x => x.Id)
             .OnDelete(DeleteBehavior.NoAction); // Use NoAction to prevent cascade cycles
 
-        // Seed data for visa types
-        modelBuilder.Entity<VisaType>().HasData(
-            new VisaType
-            {
-                Id = Guid.Parse("162E3E30-EC8B-438E-8F96-E836465D0908"),
-                Name = "H1B Specialty Occupation",
-                Description = "Work visa for specialty occupations",
-                Category = "Work"
-            }
-        );
-
-        // Seed data for document types
-        modelBuilder.Entity<DocumentType>().HasData(
-            new DocumentType
-            {
-                Id = Guid.Parse("3E27B6A3-8A52-4185-854C-5F584AEA28E8"),
-                FormNumber = "I-129",
-                Name = "Petition for a Nonimmigrant Worker",
-                Description = "For H-1B and other workers",
-                IssuingAgency = "USCIS"
-            },
-            new DocumentType
-            {
-                Id = Guid.Parse("678634B3-DE95-4F16-83C9-DC86AAD68723"),
-                FormNumber = "DS-160",
-                Name = "Online Nonimmigrant Visa Application",
-                Description = "Application for temporary visas",
-                IssuingAgency = "DOS"
-            },
-            new DocumentType
-            {
-                Id = Guid.Parse("FE86CA4B-3808-482B-89FB-E2FC9375684B"),
-                FormNumber = "I-864",
-                Name = "Affidavit of Support",
-                Description = "Sponsor financial support form",
-                IssuingAgency = "USCIS"
-            }
-        );
-
-        // Seed visa document requirements with fixed GUIDs for migration support
-        modelBuilder.Entity<VisaDocumentRequirement>().HasData(
-            new VisaDocumentRequirement
-            {
-                Id = Guid.Parse("51860CFE-BA25-4461-8134-77C8FE6939FE"),
-                VisaTypeId = Guid.Parse("162E3E30-EC8B-438E-8F96-E836465D0908"),
-                DocumentTypeId = Guid.Parse("3E27B6A3-8A52-4185-854C-5F584AEA28E8"),
-                IsRequired = true
-            },
-            new VisaDocumentRequirement
-            {
-                Id = Guid.Parse("44E14FD0-418F-4719-8E94-A2FB862FAF0F"),
-                VisaTypeId = Guid.Parse("162E3E30-EC8B-438E-8F96-E836465D0908"),
-                DocumentTypeId = Guid.Parse("678634B3-DE95-4F16-83C9-DC86AAD68723"),
-                IsRequired = true
-            },
-            new VisaDocumentRequirement
-            {
-                Id = Guid.Parse("E8E5455E-1878-4B73-AFCA-33A32D4B66ED"),
-                VisaTypeId = Guid.Parse("162E3E30-EC8B-438E-8F96-E836465D0908"),
-                DocumentTypeId = Guid.Parse("FE86CA4B-3808-482B-89FB-E2FC9375684B"),
-                IsRequired = true
-            }
-);
         modelBuilder.Entity<WorkflowStep>(entity =>
         {
             entity.HasKey(e => e.Id);

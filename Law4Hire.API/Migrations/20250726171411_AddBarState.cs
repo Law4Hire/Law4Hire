@@ -16,12 +16,6 @@ namespace Law4Hire.API.Migrations
                 type: "nvarchar(max)",
                 nullable: false,
                 defaultValue: "");
-
-            migrationBuilder.AddColumn<string>(
-                name: "Category",
-                table: "VisaTypes",
-                type: "nvarchar(100)",
-                nullable: true);
         }
 
         /// <inheritdoc />
@@ -30,10 +24,6 @@ namespace Law4Hire.API.Migrations
             migrationBuilder.DropColumn(
                 name: "BarState",
                 table: "LegalProfessionals");
-
-            migrationBuilder.DropColumn(
-                name: "Category",
-                table: "VisaTypes");
         }
     }
 }

@@ -210,6 +210,12 @@ using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
     await DbInitializer.SeedAsync(services);
+
+    var context = services.GetRequiredService<Law4HireDbContext>();
+    var loggerFactory = services.GetRequiredService<ILoggerFactory>();
+    var logger = loggerFactory.CreateLogger("DataSeeder");
+    await context.Database.EnsureCreatedAsync();
+    await DataSeeder.SeedAsync(context, logger);
 }
 if (app.Environment.IsDevelopment())
 {

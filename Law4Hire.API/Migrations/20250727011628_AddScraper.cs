@@ -1,12 +1,13 @@
-using System;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
 namespace Law4Hire.API.Migrations
 {
-    public partial class RemoveVisaGroupAndCategory : Migration
+    /// <inheritdoc />
+    public partial class AddScraper : Migration
     {
+        /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             //Hijacking to fix Scraper issue.
