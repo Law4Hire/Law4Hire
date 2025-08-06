@@ -1,0 +1,452 @@
+PS C:\programming\Law4Hire\Law4Hire.GovScraper> dotnet run static-scraper
+Restore complete (1.2s)
+You are using a preview version of .NET. See: https://aka.ms/dotnet-support-policy
+  Law4Hire.Core succeeded (0.3s) → C:\programming\Law4Hire\Law4Hire.Core\bin\Debug\net9.0\Law4Hire.Core.dll
+  Law4Hire.Infrastructure succeeded (0.3s) → C:\programming\Law4Hire\Law4Hire.Infrastructure\bin\Debug\net9.0\Law4Hire.Infrastructure.dll
+  Law4Hire.GovScraper succeeded (0.3s) → bin\Debug\net10.0\Law4Hire.GovScraper.dll
+
+Build succeeded in 2.7s
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (26ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (34ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+
+      IF EXISTS
+          (SELECT *
+           FROM [sys].[objects] o
+           WHERE [o].[type] = 'U'
+           AND [o].[is_ms_shipped] = 0
+           AND NOT EXISTS (SELECT *
+               FROM [sys].[extended_properties] AS [ep]
+               WHERE [ep].[major_id] = [o].[object_id]
+                   AND [ep].[minor_id] = 0
+                   AND [ep].[class] = 1
+                   AND [ep].[name] = N'microsoft_database_tools_support'
+          )
+      )
+      SELECT 1 ELSE SELECT 0
+info: Law4Hire.GovScraper.Program[0]
+      Database connection verified
+info: Law4Hire.GovScraper.Program[0]
+      🚀 STARTING STATIC VISA WIZARD SCRAPER
+info: Law4Hire.GovScraper.Program[0]
+      🎯 DETERMINISTIC APPROACH - NO GUESSING
+info: Law4Hire.GovScraper.Program[0]
+      =============================================================
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT COUNT(*)
+      FROM [VisaWizards] AS [v]
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+      🗑️ Clearing 3 existing records...
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [v].[Id], [v].[Answer1], [v].[Answer2], [v].[Country], [v].[CreatedAt], [v].[HasFollowUp], [v].[IsCompleteSession], [v].[LearnMoreLinks], [v].[OutcomeDisplayContent], [v].[Purpose], [v].[RelatedVisaCategories], [v].[SessionId], [v].[StepNumber], [v].[VisaRecommendations]
+      FROM [VisaWizards] AS [v]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (16ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (DbType = Guid), @p2='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SET NOCOUNT ON;
+      DELETE FROM [VisaWizards]
+      OUTPUT 1
+      WHERE [Id] = @p0;
+      DELETE FROM [VisaWizards]
+      OUTPUT 1
+      WHERE [Id] = @p1;
+      DELETE FROM [VisaWizards]
+      OUTPUT 1
+      WHERE [Id] = @p2;
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+      ✅ Database cleared
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (5ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [c].[Name]
+      FROM [Countries] AS [c]
+      WHERE [c].[IsActive] = CAST(1 AS bit)
+      ORDER BY [c].[SortOrder]
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+      🚀 STARTING STATIC VISA WIZARD SCRAPING
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+      📊 Processing 214 countries
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+      🎯 Using deterministic static approach - NO GUESSING
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+      =============================================================
+Starting ChromeDriver 138.0.7204.183 (e90faf484ddbc033fc9bf337621761d3dd5c5289-refs/branch-heads/7204@{#2435}) on port 50957
+Only local connections are allowed.
+Please see https://chromedriver.chromium.org/security-considerations for suggestions on keeping ChromeDriver safe.
+ChromeDriver was started successfully on port 50957.
+
+DevTools listening on ws://127.0.0.1:50983/devtools/browser/29b75d46-6692-4c5d-bfb6-c53b3ca344aa
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+      Chrome WebDriver initialized for static scraping
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+      🌍 [1/214] Processing: Afghanistan
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+        🎯 Purpose: Tourism or Visit
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            🌍 Searching for country: Afghanistan
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            📋 Found 1 autocomplete options
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            ✅ Found and selecting: Afghanistan
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1754147606.803166   68424 voice_transcription.cc:58] Registering VoiceTranscriptionCapability
+[68000:50128:0802/111327.451:ERROR:google_apis\gcm\engine\registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+Created TensorFlow Lite XNNPACK delegate for CPU.
+Attempting to use a delegate that only supports static-sized tensors with a graph that has dynamic-sized tensors (tensor#-1 is a dynamic-sized tensor).
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (14ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (Size = 4000), @p2='?' (Size = 4000), @p3='?' (Size = 100), @p4='?' (DbType = DateTime2), @p5='?' (DbType = Boolean), @p6='?' (DbType = Boolean), @p7='?' (Size = 4000), @p8='?' (Size = 4000), @p9='?' (Size = 200), @p10='?' (Size = 4000), @p11='?' (DbType = Guid), @p12='?' (DbType = Int32), @p13='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+      SET IMPLICIT_TRANSACTIONS OFF;
+      SET NOCOUNT ON;
+      INSERT INTO [VisaWizards] ([Id], [Answer1], [Answer2], [Country], [CreatedAt], [HasFollowUp], [IsCompleteSession], [LearnMoreLinks], [OutcomeDisplayContent], [Purpose], [RelatedVisaCategories], [SessionId], [StepNumber], [VisaRecommendations])
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13);
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+          ✅ 1 combinations for Tourism or Visit
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+        🎯 Purpose: Business or Employment
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            🌍 Searching for country: Afghanistan
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            📋 Found 1 autocomplete options
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            ✅ Found and selecting: Afghanistan
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            🌍 Searching for country: Afghanistan
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            📋 Found 1 autocomplete options
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            ✅ Found and selecting: Afghanistan
+[68000:50128:0802/111348.783:ERROR:google_apis\gcm\engine\registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            🌍 Searching for country: Afghanistan
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            📋 Found 1 autocomplete options
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            ✅ Found and selecting: Afghanistan
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            🌍 Searching for country: Afghanistan
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            📋 Found 1 autocomplete options
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            ✅ Found and selecting: Afghanistan
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            🌍 Searching for country: Afghanistan
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            📋 Found 1 autocomplete options
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            ✅ Found and selecting: Afghanistan
+[68000:50128:0802/111431.032:ERROR:google_apis\gcm\engine\registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            🌍 Searching for country: Afghanistan
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            📋 Found 1 autocomplete options
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            ✅ Found and selecting: Afghanistan
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            🌍 Searching for country: Afghanistan
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            📋 Found 1 autocomplete options
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            ✅ Found and selecting: Afghanistan
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            🌍 Searching for country: Afghanistan
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            📋 Found 1 autocomplete options
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            ✅ Found and selecting: Afghanistan
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            🌍 Searching for country: Afghanistan
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            📋 Found 1 autocomplete options
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            ✅ Found and selecting: Afghanistan
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            🌍 Searching for country: Afghanistan
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            📋 Found 1 autocomplete options
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            ✅ Found and selecting: Afghanistan
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            🌍 Searching for country: Afghanistan
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            📋 Found 1 autocomplete options
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            ✅ Found and selecting: Afghanistan
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            🌍 Searching for country: Afghanistan
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            📋 Found 1 autocomplete options
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            ✅ Found and selecting: Afghanistan
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            🌍 Searching for country: Afghanistan
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            📋 Found 1 autocomplete options
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            ✅ Found and selecting: Afghanistan
+WARNING: All log messages before absl::InitializeLog() is called are written to STDERR
+I0000 00:00:1754147776.726401   61924 voice_transcription.cc:58] Registering VoiceTranscriptionCapability
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            🌍 Searching for country: Afghanistan
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            📋 Found 1 autocomplete options
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            ✅ Found and selecting: Afghanistan
+warn: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+      Could not select radio option investment_or_trade
+      OpenQA.Selenium.ElementNotInteractableException: element not interactable
+  (Session info: chrome=138.0.7204.169)
+         at OpenQA.Selenium.WebDriver.UnpackAndThrowOnError(Response errorResponse, String commandToExecute)
+         at OpenQA.Selenium.WebDriver.ExecuteAsync(String driverCommandToExecute, Dictionary`2 parameters)
+         at OpenQA.Selenium.WebDriver.Execute(String driverCommandToExecute, Dictionary`2 parameters)
+         at OpenQA.Selenium.WebElement.Click()
+         at Law4Hire.GovScraper.StaticVisaWizardScraper.SelectRadioOptionAsync(String value) in C:\programming\Law4Hire\Law4Hire.GovScraper\StaticVisaWizardScraper.cs:line 737
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (9ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (Size = 4000), @p2='?' (Size = 4000), @p3='?' (Size = 100), @p4='?' (DbType = DateTime2), @p5='?' (DbType = Boolean), @p6='?' (DbType = Boolean), @p7='?' (Size = 4000), @p8='?' (Size = 4000), @p9='?' (Size = 200), @p10='?' (Size = 4000), @p11='?' (DbType = Guid), @p12='?' (DbType = Int32), @p13='?' (Size = 4000), @p14='?' (DbType = Guid), @p15='?' (Size = 4000), @p16='?' (Size = 4000), @p17='?' (Size = 100), @p18='?' (DbType = DateTime2), @p19='?' (DbType = Boolean), @p20='?' (DbType = Boolean), @p21='?' (Size = 4000), @p22='?' (Size = 4000), @p23='?' (Size = 200), @p24='?' (Size = 4000), @p25='?' (DbType = Guid), @p26='?' (DbType = Int32), @p27='?' (Size = 4000), @p28='?' (DbType = Guid), @p29='?' (Size = 4000), @p30='?' (Size = 4000), @p31='?' (Size = 100), @p32='?' (DbType = DateTime2), @p33='?' (DbType = Boolean), @p34='?' (DbType = Boolean), @p35='?' (Size = 4000), @p36='?' (Size = 4000), @p37='?' (Size = 200), @p38='?' (Size = 4000), @p39='?' (DbType = Guid), @p40='?' (DbType = Int32), @p41='?' (Size = 4000), @p42='?' (DbType = Guid), @p43='?' (Size = 4000), @p44='?' (Size = 4000), @p45='?' (Size = 100), @p46='?' (DbType = DateTime2), @p47='?' (DbType = Boolean), @p48='?' (DbType = Boolean), @p49='?' (Size = 4000), @p50='?' (Size = 4000), @p51='?' (Size = 200), @p52='?' (Size = 4000), @p53='?' (DbType = Guid), @p54='?' (DbType = Int32), @p55='?' (Size = 4000), @p56='?' (DbType = Guid), @p57='?' (Size = 4000), @p58='?' (Size = 4000), @p59='?' (Size = 100), @p60='?' (DbType = DateTime2), @p61='?' (DbType = Boolean), @p62='?' (DbType = Boolean), @p63='?' (Size = 4000), @p64='?' (Size = 4000), @p65='?' (Size = 200), @p66='?' (Size = 4000), @p67='?' (DbType = Guid), @p68='?' (DbType = Int32), @p69='?' (Size = 4000), @p70='?' (DbType = Guid), @p71='?' (Size = 4000), @p72='?' (Size = 4000), @p73='?' (Size = 100), @p74='?' (DbType = DateTime2), @p75='?' (DbType = Boolean), @p76='?' (DbType = Boolean), @p77='?' (Size = 4000), @p78='?' (Size = 4000), @p79='?' (Size = 200), @p80='?' (Size = 4000), @p81='?' (DbType = Guid), @p82='?' (DbType = Int32), @p83='?' (Size = 4000), @p84='?' (DbType = Guid), @p85='?' (Size = 4000), @p86='?' (Size = 4000), @p87='?' (Size = 100), @p88='?' (DbType = DateTime2), @p89='?' (DbType = Boolean), @p90='?' (DbType = Boolean), @p91='?' (Size = 4000), @p92='?' (Size = 4000), @p93='?' (Size = 200), @p94='?' (Size = 4000), @p95='?' (DbType = Guid), @p96='?' (DbType = Int32), @p97='?' (Size = 4000), @p98='?' (DbType = Guid), @p99='?' (Size = 4000), @p100='?' (Size = 4000), @p101='?' (Size = 100), @p102='?' (DbType = DateTime2), @p103='?' (DbType = Boolean), @p104='?' (DbType = Boolean), @p105='?' (Size = 4000), @p106='?' (Size = 4000), @p107='?' (Size = 200), @p108='?' (Size = 4000), @p109='?' (DbType = Guid), @p110='?' (DbType = Int32), @p111='?' (Size = 4000), @p112='?' (DbType = Guid), @p113='?' (Size = 4000), @p114='?' (Size = 4000), @p115='?' (Size = 100), @p116='?' (DbType = DateTime2), @p117='?' (DbType = Boolean), @p118='?' (DbType = Boolean), @p119='?' (Size = 4000), @p120='?' (Size = 4000), @p121='?' (Size = 200), @p122='?' (Size = 4000), @p123='?' (DbType = Guid), @p124='?' (DbType = Int32), @p125='?' (Size = 4000), @p126='?' (DbType = Guid), @p127='?' (Size = 4000), @p128='?' (Size = 4000), @p129='?' (Size = 100), @p130='?' (DbType = DateTime2), @p131='?' (DbType = Boolean), @p132='?' (DbType = Boolean), @p133='?' (Size = 4000), @p134='?' (Size = 4000), @p135='?' (Size = 200), @p136='?' (Size = 4000), @p137='?' (DbType = Guid), @p138='?' (DbType = Int32), @p139='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+      SET IMPLICIT_TRANSACTIONS OFF;
+      SET NOCOUNT ON;
+      INSERT INTO [VisaWizards] ([Id], [Answer1], [Answer2], [Country], [CreatedAt], [HasFollowUp], [IsCompleteSession], [LearnMoreLinks], [OutcomeDisplayContent], [Purpose], [RelatedVisaCategories], [SessionId], [StepNumber], [VisaRecommendations])
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13),
+      (@p14, @p15, @p16, @p17, @p18, @p19, @p20, @p21, @p22, @p23, @p24, @p25, @p26, @p27),
+      (@p28, @p29, @p30, @p31, @p32, @p33, @p34, @p35, @p36, @p37, @p38, @p39, @p40, @p41),
+      (@p42, @p43, @p44, @p45, @p46, @p47, @p48, @p49, @p50, @p51, @p52, @p53, @p54, @p55),
+      (@p56, @p57, @p58, @p59, @p60, @p61, @p62, @p63, @p64, @p65, @p66, @p67, @p68, @p69),
+      (@p70, @p71, @p72, @p73, @p74, @p75, @p76, @p77, @p78, @p79, @p80, @p81, @p82, @p83),
+      (@p84, @p85, @p86, @p87, @p88, @p89, @p90, @p91, @p92, @p93, @p94, @p95, @p96, @p97),
+      (@p98, @p99, @p100, @p101, @p102, @p103, @p104, @p105, @p106, @p107, @p108, @p109, @p110, @p111),
+      (@p112, @p113, @p114, @p115, @p116, @p117, @p118, @p119, @p120, @p121, @p122, @p123, @p124, @p125),
+      (@p126, @p127, @p128, @p129, @p130, @p131, @p132, @p133, @p134, @p135, @p136, @p137, @p138, @p139);
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+          ✅ 10 combinations for Business or Employment
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+        🎯 Purpose: Study or Exchange
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            🌍 Searching for country: Afghanistan
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            📋 Found 1 autocomplete options
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            ✅ Found and selecting: Afghanistan
+[68000:50128:0802/111630.173:ERROR:google_apis\gcm\engine\registration_request.cc:291] Registration response error message: DEPRECATED_ENDPOINT
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            🌍 Searching for country: Afghanistan
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            📋 Found 1 autocomplete options
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            ✅ Found and selecting: Afghanistan
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            🌍 Searching for country: Afghanistan
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            📋 Found 1 autocomplete options
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            ✅ Found and selecting: Afghanistan
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            🌍 Searching for country: Afghanistan
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            📋 Found 1 autocomplete options
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            ✅ Found and selecting: Afghanistan
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            🌍 Searching for country: Afghanistan
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            📋 Found 1 autocomplete options
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            ✅ Found and selecting: Afghanistan
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            🌍 Searching for country: Afghanistan
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            📋 Found 1 autocomplete options
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            ✅ Found and selecting: Afghanistan
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            🌍 Searching for country: Afghanistan
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            📋 Found 1 autocomplete options
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            ✅ Found and selecting: Afghanistan
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            🌍 Searching for country: Afghanistan
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            📋 Found 1 autocomplete options
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            ✅ Found and selecting: Afghanistan
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            🌍 Searching for country: Afghanistan
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            📋 Found 1 autocomplete options
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            ✅ Found and selecting: Afghanistan
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (12ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (Size = 4000), @p2='?' (Size = 4000), @p3='?' (Size = 100), @p4='?' (DbType = DateTime2), @p5='?' (DbType = Boolean), @p6='?' (DbType = Boolean), @p7='?' (Size = 4000), @p8='?' (Size = 4000), @p9='?' (Size = 200), @p10='?' (Size = 4000), @p11='?' (DbType = Guid), @p12='?' (DbType = Int32), @p13='?' (Size = 4000), @p14='?' (DbType = Guid), @p15='?' (Size = 4000), @p16='?' (Size = 4000), @p17='?' (Size = 100), @p18='?' (DbType = DateTime2), @p19='?' (DbType = Boolean), @p20='?' (DbType = Boolean), @p21='?' (Size = 4000), @p22='?' (Size = 4000), @p23='?' (Size = 200), @p24='?' (Size = 4000), @p25='?' (DbType = Guid), @p26='?' (DbType = Int32), @p27='?' (Size = 4000), @p28='?' (DbType = Guid), @p29='?' (Size = 4000), @p30='?' (Size = 4000), @p31='?' (Size = 100), @p32='?' (DbType = DateTime2), @p33='?' (DbType = Boolean), @p34='?' (DbType = Boolean), @p35='?' (Size = 4000), @p36='?' (Size = 4000), @p37='?' (Size = 200), @p38='?' (Size = 4000), @p39='?' (DbType = Guid), @p40='?' (DbType = Int32), @p41='?' (Size = 4000), @p42='?' (DbType = Guid), @p43='?' (Size = 4000), @p44='?' (Size = 4000), @p45='?' (Size = 100), @p46='?' (DbType = DateTime2), @p47='?' (DbType = Boolean), @p48='?' (DbType = Boolean), @p49='?' (Size = 4000), @p50='?' (Size = 4000), @p51='?' (Size = 200), @p52='?' (Size = 4000), @p53='?' (DbType = Guid), @p54='?' (DbType = Int32), @p55='?' (Size = 4000), @p56='?' (DbType = Guid), @p57='?' (Size = 4000), @p58='?' (Size = 4000), @p59='?' (Size = 100), @p60='?' (DbType = DateTime2), @p61='?' (DbType = Boolean), @p62='?' (DbType = Boolean), @p63='?' (Size = 4000), @p64='?' (Size = 4000), @p65='?' (Size = 200), @p66='?' (Size = 4000), @p67='?' (DbType = Guid), @p68='?' (DbType = Int32), @p69='?' (Size = 4000), @p70='?' (DbType = Guid), @p71='?' (Size = 4000), @p72='?' (Size = 4000), @p73='?' (Size = 100), @p74='?' (DbType = DateTime2), @p75='?' (DbType = Boolean), @p76='?' (DbType = Boolean), @p77='?' (Size = 4000), @p78='?' (Size = 4000), @p79='?' (Size = 200), @p80='?' (Size = 4000), @p81='?' (DbType = Guid), @p82='?' (DbType = Int32), @p83='?' (Size = 4000), @p84='?' (DbType = Guid), @p85='?' (Size = 4000), @p86='?' (Size = 4000), @p87='?' (Size = 100), @p88='?' (DbType = DateTime2), @p89='?' (DbType = Boolean), @p90='?' (DbType = Boolean), @p91='?' (Size = 4000), @p92='?' (Size = 4000), @p93='?' (Size = 200), @p94='?' (Size = 4000), @p95='?' (DbType = Guid), @p96='?' (DbType = Int32), @p97='?' (Size = 4000), @p98='?' (DbType = Guid), @p99='?' (Size = 4000), @p100='?' (Size = 4000), @p101='?' (Size = 100), @p102='?' (DbType = DateTime2), @p103='?' (DbType = Boolean), @p104='?' (DbType = Boolean), @p105='?' (Size = 4000), @p106='?' (Size = 4000), @p107='?' (Size = 200), @p108='?' (Size = 4000), @p109='?' (DbType = Guid), @p110='?' (DbType = Int32), @p111='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+      SET IMPLICIT_TRANSACTIONS OFF;
+      SET NOCOUNT ON;
+      INSERT INTO [VisaWizards] ([Id], [Answer1], [Answer2], [Country], [CreatedAt], [HasFollowUp], [IsCompleteSession], [LearnMoreLinks], [OutcomeDisplayContent], [Purpose], [RelatedVisaCategories], [SessionId], [StepNumber], [VisaRecommendations])
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13),
+      (@p14, @p15, @p16, @p17, @p18, @p19, @p20, @p21, @p22, @p23, @p24, @p25, @p26, @p27),
+      (@p28, @p29, @p30, @p31, @p32, @p33, @p34, @p35, @p36, @p37, @p38, @p39, @p40, @p41),
+      (@p42, @p43, @p44, @p45, @p46, @p47, @p48, @p49, @p50, @p51, @p52, @p53, @p54, @p55),
+      (@p56, @p57, @p58, @p59, @p60, @p61, @p62, @p63, @p64, @p65, @p66, @p67, @p68, @p69),
+      (@p70, @p71, @p72, @p73, @p74, @p75, @p76, @p77, @p78, @p79, @p80, @p81, @p82, @p83),
+      (@p84, @p85, @p86, @p87, @p88, @p89, @p90, @p91, @p92, @p93, @p94, @p95, @p96, @p97),
+      (@p98, @p99, @p100, @p101, @p102, @p103, @p104, @p105, @p106, @p107, @p108, @p109, @p110, @p111);
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+          ✅ 8 combinations for Study or Exchange
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+        🎯 Purpose: Traveling through the U.S. to another country
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            🌍 Searching for country: Afghanistan
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            📋 Found 1 autocomplete options
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            ✅ Found and selecting: Afghanistan
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (12ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (Size = 4000), @p2='?' (Size = 4000), @p3='?' (Size = 100), @p4='?' (DbType = DateTime2), @p5='?' (DbType = Boolean), @p6='?' (DbType = Boolean), @p7='?' (Size = 4000), @p8='?' (Size = 4000), @p9='?' (Size = 200), @p10='?' (Size = 4000), @p11='?' (DbType = Guid), @p12='?' (DbType = Int32), @p13='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+      SET IMPLICIT_TRANSACTIONS OFF;
+      SET NOCOUNT ON;
+      INSERT INTO [VisaWizards] ([Id], [Answer1], [Answer2], [Country], [CreatedAt], [HasFollowUp], [IsCompleteSession], [LearnMoreLinks], [OutcomeDisplayContent], [Purpose], [RelatedVisaCategories], [SessionId], [StepNumber], [VisaRecommendations])
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13);
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+          ✅ 1 combinations for Traveling through the U.S. to another country
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+        🎯 Purpose: Immigrate
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            🌍 Searching for country: Afghanistan
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            📋 Found 1 autocomplete options
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            ✅ Found and selecting: Afghanistan
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            🌍 Searching for country: Afghanistan
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            📋 Found 1 autocomplete options
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            ✅ Found and selecting: Afghanistan
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            🌍 Searching for country: Afghanistan
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            📋 Found 1 autocomplete options
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            ✅ Found and selecting: Afghanistan
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            🌍 Searching for country: Afghanistan
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            📋 Found 1 autocomplete options
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            ✅ Found and selecting: Afghanistan
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            🌍 Searching for country: Afghanistan
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            📋 Found 1 autocomplete options
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            ✅ Found and selecting: Afghanistan
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (16ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (Size = 4000), @p2='?' (Size = 4000), @p3='?' (Size = 100), @p4='?' (DbType = DateTime2), @p5='?' (DbType = Boolean), @p6='?' (DbType = Boolean), @p7='?' (Size = 4000), @p8='?' (Size = 4000), @p9='?' (Size = 200), @p10='?' (Size = 4000), @p11='?' (DbType = Guid), @p12='?' (DbType = Int32), @p13='?' (Size = 4000), @p14='?' (DbType = Guid), @p15='?' (Size = 4000), @p16='?' (Size = 4000), @p17='?' (Size = 100), @p18='?' (DbType = DateTime2), @p19='?' (DbType = Boolean), @p20='?' (DbType = Boolean), @p21='?' (Size = 4000), @p22='?' (Size = 4000), @p23='?' (Size = 200), @p24='?' (Size = 4000), @p25='?' (DbType = Guid), @p26='?' (DbType = Int32), @p27='?' (Size = 4000), @p28='?' (DbType = Guid), @p29='?' (Size = 4000), @p30='?' (Size = 4000), @p31='?' (Size = 100), @p32='?' (DbType = DateTime2), @p33='?' (DbType = Boolean), @p34='?' (DbType = Boolean), @p35='?' (Size = 4000), @p36='?' (Size = 4000), @p37='?' (Size = 200), @p38='?' (Size = 4000), @p39='?' (DbType = Guid), @p40='?' (DbType = Int32), @p41='?' (Size = 4000), @p42='?' (DbType = Guid), @p43='?' (Size = 4000), @p44='?' (Size = 4000), @p45='?' (Size = 100), @p46='?' (DbType = DateTime2), @p47='?' (DbType = Boolean), @p48='?' (DbType = Boolean), @p49='?' (Size = 4000), @p50='?' (Size = 4000), @p51='?' (Size = 200), @p52='?' (Size = 4000), @p53='?' (DbType = Guid), @p54='?' (DbType = Int32), @p55='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+      SET IMPLICIT_TRANSACTIONS OFF;
+      SET NOCOUNT ON;
+      INSERT INTO [VisaWizards] ([Id], [Answer1], [Answer2], [Country], [CreatedAt], [HasFollowUp], [IsCompleteSession], [LearnMoreLinks], [OutcomeDisplayContent], [Purpose], [RelatedVisaCategories], [SessionId], [StepNumber], [VisaRecommendations])
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13),
+      (@p14, @p15, @p16, @p17, @p18, @p19, @p20, @p21, @p22, @p23, @p24, @p25, @p26, @p27),
+      (@p28, @p29, @p30, @p31, @p32, @p33, @p34, @p35, @p36, @p37, @p38, @p39, @p40, @p41),
+      (@p42, @p43, @p44, @p45, @p46, @p47, @p48, @p49, @p50, @p51, @p52, @p53, @p54, @p55);
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+          ✅ 4 combinations for Immigrate
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+      ✅ Afghanistan: 24 combinations captured
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+      🌍 [2/214] Processing: Albania
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+        🎯 Purpose: Tourism or Visit
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            🌍 Searching for country: Albania
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            📋 Found 1 autocomplete options
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            ✅ Found and selecting: Albania
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[@p0='?' (DbType = Guid), @p1='?' (Size = 4000), @p2='?' (Size = 4000), @p3='?' (Size = 100), @p4='?' (DbType = DateTime2), @p5='?' (DbType = Boolean), @p6='?' (DbType = Boolean), @p7='?' (Size = 4000), @p8='?' (Size = 4000), @p9='?' (Size = 200), @p10='?' (Size = 4000), @p11='?' (DbType = Guid), @p12='?' (DbType = Int32), @p13='?' (Size = 4000)], CommandType='Text', CommandTimeout='30']
+      SET IMPLICIT_TRANSACTIONS OFF;
+      SET NOCOUNT ON;
+      INSERT INTO [VisaWizards] ([Id], [Answer1], [Answer2], [Country], [CreatedAt], [HasFollowUp], [IsCompleteSession], [LearnMoreLinks], [OutcomeDisplayContent], [Purpose], [RelatedVisaCategories], [SessionId], [StepNumber], [VisaRecommendations])
+      VALUES (@p0, @p1, @p2, @p3, @p4, @p5, @p6, @p7, @p8, @p9, @p10, @p11, @p12, @p13);
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+          ✅ 1 combinations for Tourism or Visit
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+        🎯 Purpose: Business or Employment
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            🌍 Searching for country: Albania
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            📋 Found 1 autocomplete options
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            ✅ Found and selecting: Albania
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            🌍 Searching for country: Albania
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            📋 Found 1 autocomplete options
+info: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+            ✅ Found and selecting: Albania
+[68000:50128:0802/112029.455:ERROR:google_apis\gcm\engine\registration_request.cc:274] Registration URL fetching failed.
+warn: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+      Error navigating and selecting basics for Albania - Business or Employment
+      OpenQA.Selenium.WebDriverException: The HTTP request to the remote WebDriver server for URL http://localhost:50957/session/d473e7d49a83a479d05866839a9e6703/url timed out after 60 seconds.
+       ---> System.Threading.Tasks.TaskCanceledException: The request was canceled due to the configured HttpClient.Timeout of 60 seconds elapsing.
+       ---> System.TimeoutException: The operation was canceled.
+       ---> System.Threading.Tasks.TaskCanceledException: The operation was canceled.
+       ---> System.IO.IOException: Unable to read data from the transport connection: The I/O operation has been aborted because of either a thread exit or an application request..
+       ---> System.Net.Sockets.SocketException (995): The I/O operation has been aborted because of either a thread exit or an application request.
+         --- End of inner exception stack trace ---
+         at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.ThrowException(SocketError error, CancellationToken cancellationToken)
+         at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.System.Threading.Tasks.Sources.IValueTaskSource<System.Int32>.GetResult(Int16 token)
+         at System.Net.Http.HttpConnection.SendAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+         --- End of inner exception stack trace ---
+         at System.Net.Http.HttpConnection.SendAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+         at System.Net.Http.HttpConnectionPool.SendWithVersionDetectionAndRetryAsync(HttpRequestMessage request, Boolean async, Boolean doRequestAuth, CancellationToken cancellationToken)
+         at System.Net.Http.RedirectHandler.SendAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+         at System.Net.Http.HttpClient.<SendAsync>g__Core|83_0(HttpRequestMessage request, HttpCompletionOption completionOption, CancellationTokenSource cts, Boolean disposeCts, CancellationTokenSource pendingRequestsCts, CancellationToken originalCancellationToken)
+         --- End of inner exception stack trace ---
+         --- End of inner exception stack trace ---
+         at System.Net.Http.HttpClient.HandleFailure(Exception e, Boolean telemetryStarted, HttpResponseMessage response, CancellationTokenSource cts, CancellationToken cancellationToken, CancellationTokenSource pendingRequestsCts)
+         at System.Net.Http.HttpClient.<SendAsync>g__Core|83_0(HttpRequestMessage request, HttpCompletionOption completionOption, CancellationTokenSource cts, Boolean disposeCts, CancellationTokenSource pendingRequestsCts, CancellationToken originalCancellationToken)
+         at OpenQA.Selenium.Remote.HttpCommandExecutor.MakeHttpRequest(HttpRequestInfo requestInfo)
+         at OpenQA.Selenium.Remote.HttpCommandExecutor.ExecuteAsync(Command commandToExecute)
+         --- End of inner exception stack trace ---
+         at OpenQA.Selenium.Remote.HttpCommandExecutor.ExecuteAsync(Command commandToExecute)
+         at OpenQA.Selenium.Remote.DriverServiceCommandExecutor.ExecuteAsync(Command commandToExecute)
+         at OpenQA.Selenium.WebDriver.ExecuteAsync(String driverCommandToExecute, Dictionary`2 parameters)
+         at OpenQA.Selenium.Navigator.GoToUrlAsync(String url)
+         at OpenQA.Selenium.Navigator.<>c__DisplayClass6_0.<<GoToUrl>b__0>d.MoveNext()
+      --- End of stack trace from previous location ---
+         at OpenQA.Selenium.Navigator.GoToUrl(String url)
+         at Law4Hire.GovScraper.StaticVisaWizardScraper.NavigateAndSelectBasicsAsync(String country, String purpose) in C:\programming\Law4Hire\Law4Hire.GovScraper\StaticVisaWizardScraper.cs:line 634
+warn: Law4Hire.GovScraper.StaticVisaWizardScraper[0]
+      Error navigating and selecting basics for Albania - Business or Employment
+      OpenQA.Selenium.WebDriverException: The HTTP request to the remote WebDriver server for URL http://localhost:50957/session/d473e7d49a83a479d05866839a9e6703/url timed out after 60 seconds.
+       ---> System.Threading.Tasks.TaskCanceledException: The request was canceled due to the configured HttpClient.Timeout of 60 seconds elapsing.
+       ---> System.TimeoutException: The operation was canceled.
+       ---> System.Threading.Tasks.TaskCanceledException: The operation was canceled.
+       ---> System.IO.IOException: Unable to read data from the transport connection: The I/O operation has been aborted because of either a thread exit or an application request..
+       ---> System.Net.Sockets.SocketException (995): The I/O operation has been aborted because of either a thread exit or an application request.
+         --- End of inner exception stack trace ---
+         at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.ThrowException(SocketError error, CancellationToken cancellationToken)
+         at System.Net.Sockets.Socket.AwaitableSocketAsyncEventArgs.System.Threading.Tasks.Sources.IValueTaskSource<System.Int32>.GetResult(Int16 token)
+         at System.Net.Http.HttpConnection.InitialFillAsync(Boolean async)
+         at System.Net.Http.HttpConnection.SendAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+         --- End of inner exception stack trace ---
+         at System.Net.Http.HttpConnection.SendAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+         at System.Net.Http.HttpConnectionPool.SendWithVersionDetectionAndRetryAsync(HttpRequestMessage request, Boolean async, Boolean doRequestAuth, CancellationToken cancellationToken)
+         at System.Net.Http.RedirectHandler.SendAsync(HttpRequestMessage request, Boolean async, CancellationToken cancellationToken)
+         at System.Net.Http.HttpClient.<SendAsync>g__Core|83_0(HttpRequestMessage request, HttpCompletionOption completionOption, CancellationTokenSource cts, Boolean disposeCts, CancellationTokenSource pendingRequestsCts, CancellationToken originalCancellationToken)
+         --- End of inner exception stack trace ---
+         --- End of inner exception stack trace ---
+         at System.Net.Http.HttpClient.HandleFailure(Exception e, Boolean telemetryStarted, HttpResponseMessage response, CancellationTokenSource cts, CancellationToken cancellationToken, CancellationTokenSource pendingRequestsCts)
+         at System.Net.Http.HttpClient.<SendAsync>g__Core|83_0(HttpRequestMessage request, HttpCompletionOption completionOption, CancellationTokenSource cts, Boolean disposeCts, CancellationTokenSource pendingRequestsCts, CancellationToken originalCancellationToken)
+         at OpenQA.Selenium.Remote.HttpCommandExecutor.MakeHttpRequest(HttpRequestInfo requestInfo)
+         at OpenQA.Selenium.Remote.HttpCommandExecutor.ExecuteAsync(Command commandToExecute)
+         --- End of inner exception stack trace ---
+         at OpenQA.Selenium.Remote.HttpCommandExecutor.ExecuteAsync(Command commandToExecute)
+         at OpenQA.Selenium.Remote.DriverServiceCommandExecutor.ExecuteAsync(Command commandToExecute)
+         at OpenQA.Selenium.WebDriver.ExecuteAsync(String driverCommandToExecute, Dictionary`2 parameters)
+         at OpenQA.Selenium.Navigator.GoToUrlAsync(String url)
+         at OpenQA.Selenium.Navigator.<>c__DisplayClass6_0.<<GoToUrl>b__0>d.MoveNext()
+      --- End of stack trace from previous location ---
+         at OpenQA.Selenium.Navigator.GoToUrl(String url)
+         at Law4Hire.GovScraper.StaticVisaWizardScraper.NavigateAndSelectBasicsAsync(String country, String purpose) in C:\programming\Law4Hire\Law4Hire.GovScraper\StaticVisaWizardScraper.cs:line 634

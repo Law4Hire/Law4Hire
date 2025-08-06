@@ -56,6 +56,8 @@ public class AuthService : IAuthService
         public string Route { get; set; } = string.Empty;
     }
 
+    // NOTE: This method is disabled - authentication moved to Identity system
+    /*
     public async Task<LoginResultWithRoute> LoginWithRouteAsync(LoginDto loginDto)
     {
         var user = await _context.Users
@@ -79,5 +81,12 @@ public class AuthService : IAuthService
             route = $"/interview?category={user.Category}";
 
         return new LoginResultWithRoute { Token = token, Route = route };
+    }
+    */
+
+    // Stub implementation to satisfy interface
+    public Task<LoginResultWithRoute> LoginWithRouteAsync(LoginDto loginDto)
+    {
+        throw new NotImplementedException("Authentication moved to ASP.NET Identity system. Use AuthController endpoints instead.");
     }
 }

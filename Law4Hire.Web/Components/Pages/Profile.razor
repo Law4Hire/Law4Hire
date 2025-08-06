@@ -8,73 +8,361 @@
 
 @if (AuthState.CurrentUser is null)
 {
-    <p>Please log in to edit your profile.</p>
+    <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-8">
+        <MudAlert Severity="Severity.Warning" ShowCloseIcon="false">
+            <MudText>Please log in to edit your profile.</MudText>
+        </MudAlert>
+    </MudContainer>
 }
 else if (editModel is not null)
 {
-    <EditForm Model="editModel" OnValidSubmit="SaveUser">
-        <DataAnnotationsValidator />
-        <div class="mb-2">
-            <label class="form-label">First Name</label>
-            <InputText class="form-control" @bind-Value="editModel.FirstName" />
-        </div>
-        <div class="mb-2">
-            <label class="form-label">Middle Name</label>
-            <InputText class="form-control" @bind-Value="editModel.MiddleName" />
-        </div>
-        <div class="mb-2">
-            <label class="form-label">Last Name</label>
-            <InputText class="form-control" @bind-Value="editModel.LastName" />
-        </div>
-        <div class="mb-2">
-            <label class="form-label">Email</label>
-            <InputText class="form-control" @bind-Value="editModel.Email" />
-        </div>
-        <div class="mb-2">
-            <label class="form-label">Phone</label>
-            <InputText class="form-control" @bind-Value="editModel.PhoneNumber" />
-        </div>
-        <div class="mb-2">
-            <label class="form-label">Address 1</label>
-            <InputText class="form-control" @bind-Value="editModel.Address1" />
-        </div>
-        <div class="mb-2">
-            <label class="form-label">Address 2</label>
-            <InputText class="form-control" @bind-Value="editModel.Address2" />
-        </div>
-        <div class="mb-2">
-            <label class="form-label">City</label>
-            <InputText class="form-control" @bind-Value="editModel.City" />
-        </div>
-        <div class="mb-2">
-            <label class="form-label">State</label>
-            <InputText class="form-control" @bind-Value="editModel.State" />
-        </div>
-        <div class="mb-2">
-            <label class="form-label">Country</label>
-            <InputText class="form-control" @bind-Value="editModel.Country" />
-        </div>
-        <div class="mb-2">
-            <label class="form-label">Postal Code</label>
-            <InputText class="form-control" @bind-Value="editModel.PostalCode" />
-        </div>
-        <div class="mb-3">
-            <label class="form-label">Birthdate</label>
-            <InputDate class="form-control" @bind-Value="editModel.DateOfBirth" />
-        </div>
-        <button class="btn btn-primary btn-sm" type="submit">Save</button>
-    </EditForm>
+    <MudContainer MaxWidth="MaxWidth.Large" Class="mt-4">
+        <!-- Header -->
+        <MudPaper Elevation="3" Class="pa-6 mb-6" Style="background: linear-gradient(135deg, #6f42c1 0%, #007bff 100%); color: white;">
+            <MudStack Row AlignItems="AlignItems.Center" Spacing="3">
+                <MudIcon Icon="@Icons.Material.Filled.AccountCircle" Size="Size.Large" />
+                <MudStack Spacing="1">
+                    <MudText Typo="Typo.h4" Class="font-weight-bold">My Profile</MudText>
+                    <MudText Typo="Typo.subtitle1" Style="opacity: 0.9;">Manage your personal information and preferences</MudText>
+                </MudStack>
+            </MudStack>
+        </MudPaper>
+        
+        <EditForm Model="editModel" OnValidSubmit="SaveUser">
+            <DataAnnotationsValidator />
+            
+            <!-- Basic Information Section -->
+            <MudCard Elevation="4" Class="mb-6">
+                <MudCardHeader>
+                    <CardHeaderContent>
+                        <MudStack Row AlignItems="AlignItems.Center" Spacing="2">
+                            <MudIcon Icon="@Icons.Material.Filled.Person" Color="MudBlazor.Color.Primary" />
+                            <MudText Typo="Typo.h6" Class="font-weight-bold">Basic Information</MudText>
+                        </MudStack>
+                    </CardHeaderContent>
+                </MudCardHeader>
+                <MudCardContent>
+                    <MudGrid Spacing="3">
+                        <MudItem xs="12" sm="4">
+                            <MudTextField @bind-Value="editModel.FirstName" Label="First Name" Variant="Variant.Outlined" 
+                                          For="@(() => editModel.FirstName)" />
+                        </MudItem>
+                        <MudItem xs="12" sm="4">
+                            <MudTextField @bind-Value="editModel.MiddleName" Label="Middle Name" Variant="Variant.Outlined" 
+                                          For="@(() => editModel.MiddleName)" />
+                        </MudItem>
+                        <MudItem xs="12" sm="4">
+                            <MudTextField @bind-Value="editModel.LastName" Label="Last Name" Variant="Variant.Outlined" 
+                                          For="@(() => editModel.LastName)" />
+                        </MudItem>
+                        <MudItem xs="12" sm="6">
+                            <MudTextField @bind-Value="editModel.Email" Label="Email" Variant="Variant.Outlined" 
+                                          InputType="InputType.Email" For="@(() => editModel.Email)" />
+                        </MudItem>
+                        <MudItem xs="12" sm="6">
+                            <MudTextField @bind-Value="editModel.PhoneNumber" Label="Phone" Variant="Variant.Outlined" 
+                                          InputType="InputType.Telephone" For="@(() => editModel.PhoneNumber)" />
+                        </MudItem>
+                        <MudItem xs="12" sm="6">
+                            <MudDatePicker @bind-Date="editModel.DateOfBirth" Label="Birth Date" Variant="Variant.Outlined" 
+                                           For="@(() => editModel.DateOfBirth)" />
+                        </MudItem>
+                    </MudGrid>
+                </MudCardContent>
+            </MudCard>
+            <!-- Address Information Section -->
+            <MudCard Elevation="4" Class="mb-6">
+                <MudCardHeader>
+                    <CardHeaderContent>
+                        <MudStack Row AlignItems="AlignItems.Center" Spacing="2">
+                            <MudIcon Icon="@Icons.Material.Filled.LocationOn" Color="MudBlazor.Color.Primary" />
+                            <MudText Typo="Typo.h6" Class="font-weight-bold">Address Information</MudText>
+                        </MudStack>
+                    </CardHeaderContent>
+                </MudCardHeader>
+                <MudCardContent>
+                    <MudGrid Spacing="3">
+                        <MudItem xs="12">
+                            <MudTextField @bind-Value="editModel.Address1" Label="Address Line 1" Variant="Variant.Outlined" 
+                                          For="@(() => editModel.Address1)" />
+                        </MudItem>
+                        <MudItem xs="12">
+                            <MudTextField @bind-Value="editModel.Address2" Label="Address Line 2" Variant="Variant.Outlined" 
+                                          For="@(() => editModel.Address2)" />
+                        </MudItem>
+                        <MudItem xs="12" sm="6">
+                            <MudTextField @bind-Value="editModel.City" Label="City" Variant="Variant.Outlined" 
+                                          For="@(() => editModel.City)" />
+                        </MudItem>
+                        <MudItem xs="12" sm="6">
+                            <MudSelect T="string" Value="editModel.Country" ValueChanged="OnCountryChanged" 
+                                       Label="Country" Variant="Variant.Outlined">
+                                <MudSelectItem Value="@string.Empty">Select a country</MudSelectItem>
+                                @if (countries != null)
+                                {
+                                    @foreach (var country in countries.OrderBy(c => c.Name))
+                                    {
+                                        <MudSelectItem Value="@country.Name">@country.Name</MudSelectItem>
+                                    }
+                                }
+                            </MudSelect>
+                        </MudItem>
+                        
+                        @if (editModel?.Country == "United States" && usStates != null)
+                        {
+                            <MudItem xs="12" sm="6">
+                                <MudSelect T="string" @bind-Value="editModel.State" Label="State/Territory" 
+                                           Variant="Variant.Outlined">
+                                    <MudSelectItem Value="@string.Empty">Select a state/territory</MudSelectItem>
+                                    @foreach (var state in usStates.OrderBy(s => s.Name))
+                                    {
+                                        <MudSelectItem Value="@state.Name">@state.Name</MudSelectItem>
+                                    }
+                                </MudSelect>
+                            </MudItem>
+                        }
+                        else if (!string.IsNullOrEmpty(editModel?.Country) && editModel.Country != "United States")
+                        {
+                            <MudItem xs="12" sm="6">
+                                <MudTextField @bind-Value="editModel.State" Label="State/Province/Region" 
+                                              Variant="Variant.Outlined" Placeholder="Enter state/province/region" 
+                                              For="@(() => editModel.State)" />
+                            </MudItem>
+                        }
+                        
+                        <MudItem xs="12" sm="6">
+                            <MudTextField @bind-Value="editModel.PostalCode" Label="Postal Code" Variant="Variant.Outlined" 
+                                          For="@(() => editModel.PostalCode)" />
+                        </MudItem>
+                    </MudGrid>
+                </MudCardContent>
+            </MudCard>
+            
+            <!-- Extended Profile Section -->
+            <MudCard Elevation="4" Class="mb-6">
+                <MudCardHeader>
+                    <CardHeaderContent>
+                        <MudStack Row AlignItems="AlignItems.Center" Spacing="2">
+                            <MudIcon Icon="@Icons.Material.Filled.Info" Color="MudBlazor.Color.Primary" />
+                            <MudText Typo="Typo.h6" Class="font-weight-bold">Extended Profile Information</MudText>
+                        </MudStack>
+                    </CardHeaderContent>
+                </MudCardHeader>
+                <MudCardContent>
+                    <MudGrid Spacing="3">
+                        <MudItem xs="12" sm="6">
+                            <MudSelect T="Guid?" @bind-Value="editModel.CitizenshipCountryId" Label="Citizenship Country" 
+                                       Variant="Variant.Outlined">
+                                <MudSelectItem Value="@((Guid?)null)">Select a country</MudSelectItem>
+                                @if (countries != null)
+                                {
+                                    @foreach (var country in countries.OrderBy(c => c.Name))
+                                    {
+                                        <MudSelectItem Value="@((Guid?)country.Id)">@country.Name</MudSelectItem>
+                                    }
+                                }
+                            </MudSelect>
+                        </MudItem>
+                        
+                        <MudItem xs="12" sm="6">
+                            <MudSelect T="string" @bind-Value="editModel.MaritalStatus" Label="Marital Status" 
+                                       Variant="Variant.Outlined">
+                                <MudSelectItem Value="@string.Empty">Select marital status</MudSelectItem>
+                                @if (maritalStatusOptions != null)
+                                {
+                                    @foreach (var status in maritalStatusOptions)
+                                    {
+                                        <MudSelectItem Value="@status">@status</MudSelectItem>
+                                    }
+                                }
+                            </MudSelect>
+                        </MudItem>
+                        
+                        <MudItem xs="12" sm="6">
+                            <MudSelect T="string" @bind-Value="editModel.EducationLevel" Label="Education Level" 
+                                       Variant="Variant.Outlined">
+                                <MudSelectItem Value="@string.Empty">Select education level</MudSelectItem>
+                                @if (educationLevels != null)
+                                {
+                                    @foreach (var level in educationLevels)
+                                    {
+                                        <MudSelectItem Value="@level">@level</MudSelectItem>
+                                    }
+                                }
+                            </MudSelect>
+                        </MudItem>
+                    </MudGrid>
+                </MudCardContent>
+            </MudCard>
+            
+            <!-- Immigration Questions Section -->
+            <MudCard Elevation="4" Class="mb-6">
+                <MudCardHeader>
+                    <CardHeaderContent>
+                        <MudStack Row AlignItems="AlignItems.Center" Spacing="2">
+                            <MudIcon Icon="@Icons.Material.Filled.Quiz" Color="MudBlazor.Color.Primary" />
+                            <MudText Typo="Typo.h6" Class="font-weight-bold">Immigration Questions</MudText>
+                        </MudStack>
+                    </CardHeaderContent>
+                </MudCardHeader>
+                <MudCardContent>
+                    <MudGrid Spacing="4">
+                        <MudItem xs="12" sm="6">
+                            <MudStack Spacing="2">
+                                <MudText Typo="Typo.subtitle1" Class="font-weight-medium">Do you have relatives living in the US?</MudText>
+                                <MudRadioGroup T="bool?" @bind-Value="editModel.HasRelativesInUS">
+                                    <MudRadio T="bool?" Value="@((bool?)null)" Color="MudBlazor.Color.Primary">Not specified</MudRadio>
+                                    <MudRadio T="bool?" Value="@((bool?)true)" Color="MudBlazor.Color.Primary">Yes</MudRadio>
+                                    <MudRadio T="bool?" Value="@((bool?)false)" Color="MudBlazor.Color.Primary">No</MudRadio>
+                                </MudRadioGroup>
+                            </MudStack>
+                        </MudItem>
+                        
+                        <MudItem xs="12" sm="6">
+                            <MudStack Spacing="2">
+                                <MudText Typo="Typo.subtitle1" Class="font-weight-medium">Do you have a job offer in the US?</MudText>
+                                <MudRadioGroup T="bool?" @bind-Value="editModel.HasJobOffer">
+                                    <MudRadio T="bool?" Value="@((bool?)null)" Color="MudBlazor.Color.Primary">Not specified</MudRadio>
+                                    <MudRadio T="bool?" Value="@((bool?)true)" Color="MudBlazor.Color.Primary">Yes</MudRadio>
+                                    <MudRadio T="bool?" Value="@((bool?)false)" Color="MudBlazor.Color.Primary">No</MudRadio>
+                                </MudRadioGroup>
+                            </MudStack>
+                        </MudItem>
+                        
+                        <MudItem xs="12" sm="6">
+                            <MudStack Spacing="2">
+                                <MudText Typo="Typo.subtitle1" Class="font-weight-medium">Do you fear persecution in your home country?</MudText>
+                                <MudRadioGroup T="bool?" @bind-Value="editModel.FearOfPersecution">
+                                    <MudRadio T="bool?" Value="@((bool?)null)" Color="MudBlazor.Color.Primary">Not specified</MudRadio>
+                                    <MudRadio T="bool?" Value="@((bool?)true)" Color="MudBlazor.Color.Primary">Yes</MudRadio>
+                                    <MudRadio T="bool?" Value="@((bool?)false)" Color="MudBlazor.Color.Primary">No</MudRadio>
+                                </MudRadioGroup>
+                            </MudStack>
+                        </MudItem>
+                        
+                        <MudItem xs="12" sm="6">
+                            <MudStack Spacing="2">
+                                <MudText Typo="Typo.subtitle1" Class="font-weight-medium">Have you had past visa denials?</MudText>
+                                <MudRadioGroup T="bool?" @bind-Value="editModel.HasPastVisaDenials">
+                                    <MudRadio T="bool?" Value="@((bool?)null)" Color="MudBlazor.Color.Primary">Not specified</MudRadio>
+                                    <MudRadio T="bool?" Value="@((bool?)true)" Color="MudBlazor.Color.Primary">Yes</MudRadio>
+                                    <MudRadio T="bool?" Value="@((bool?)false)" Color="MudBlazor.Color.Primary">No</MudRadio>
+                                </MudRadioGroup>
+                            </MudStack>
+                        </MudItem>
+                        
+                        <MudItem xs="12">
+                            <MudStack Spacing="2">
+                                <MudText Typo="Typo.subtitle1" Class="font-weight-medium">Have you had status violations?</MudText>
+                                <MudRadioGroup T="bool?" @bind-Value="editModel.HasStatusViolations">
+                                    <MudRadio T="bool?" Value="@((bool?)null)" Color="MudBlazor.Color.Primary">Not specified</MudRadio>
+                                    <MudRadio T="bool?" Value="@((bool?)true)" Color="MudBlazor.Color.Primary">Yes</MudRadio>
+                                    <MudRadio T="bool?" Value="@((bool?)false)" Color="MudBlazor.Color.Primary">No</MudRadio>
+                                </MudRadioGroup>
+                            </MudStack>
+                        </MudItem>
+                    </MudGrid>
+                </MudCardContent>
+            </MudCard>
+            
+            <!-- Save Button -->
+            <MudStack Row Justify="Justify.Center" Class="mb-6">
+                <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" 
+                           Color="MudBlazor.Color.Primary" Size="Size.Large" 
+                           StartIcon="@Icons.Material.Filled.Save">
+                    Save Changes
+                </MudButton>
+            </MudStack>
+        </EditForm>
+    </MudContainer>
 }
 
 @code {
-    private UpdateUserDto? editModel;
+    private ExtendedUpdateUserDto? editModel;
+    private CountryDto[]? countries;
+    private USStateDto[]? usStates;
+    private string[]? maritalStatusOptions;
+    private string[]? educationLevels;
+    private UserProfileDto? userProfile;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadLookupData();
+        await LoadUserProfile();
+        InitializeEditModel();
+    }
+
+    private async Task LoadLookupData()
+    {
+        try
+        {
+            // Load countries
+            var countriesResponse = await Http.GetAsync("api/lookups/countries");
+            if (countriesResponse.IsSuccessStatusCode)
+            {
+                countries = await countriesResponse.Content.ReadFromJsonAsync<CountryDto[]>();
+                Console.WriteLine($"Loaded {countries?.Length ?? 0} countries");
+            }
+            else
+            {
+                Console.WriteLine($"Failed to load countries: {countriesResponse.StatusCode}");
+            }
+
+            // Load US states
+            var statesResponse = await Http.GetAsync("api/lookups/us-states");
+            if (statesResponse.IsSuccessStatusCode)
+            {
+                usStates = await statesResponse.Content.ReadFromJsonAsync<USStateDto[]>();
+            }
+
+            // Load marital status options
+            var maritalResponse = await Http.GetAsync("api/lookups/marital-status");
+            if (maritalResponse.IsSuccessStatusCode)
+            {
+                maritalStatusOptions = await maritalResponse.Content.ReadFromJsonAsync<string[]>();
+            }
+
+            // Load education levels
+            var educationResponse = await Http.GetAsync("api/lookups/education-levels");
+            if (educationResponse.IsSuccessStatusCode)
+            {
+                educationLevels = await educationResponse.Content.ReadFromJsonAsync<string[]>();
+            }
+            
+            // Force UI update after loading all lookup data
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading lookup data: {ex.Message}");
+        }
+    }
+
+    private async Task LoadUserProfile()
+    {
+        if (AuthState.CurrentUser != null)
+        {
+            try
+            {
+                var response = await Http.GetAsync($"api/userprofile/user/{AuthState.CurrentUser.Id}");
+                if (response.IsSuccessStatusCode)
+                {
+                    userProfile = await response.Content.ReadFromJsonAsync<UserProfileDto>();
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error loading user profile: {ex.Message}");
+            }
+        }
+    }
+
+    private void InitializeEditModel()
     {
         if (AuthState.CurrentUser != null)
         {
             var u = AuthState.CurrentUser;
-            editModel = new UpdateUserDto
+            editModel = new ExtendedUpdateUserDto
             {
                 Email = u.Email,
                 FirstName = u.FirstName,
@@ -88,7 +376,16 @@ else if (editModel is not null)
                 State = u.State,
                 Country = u.Country,
                 PostalCode = u.PostalCode,
-                DateOfBirth = u.DateOfBirth
+                DateOfBirth = u.DateOfBirth,
+                // Extended profile fields
+                CitizenshipCountryId = userProfile?.CitizenshipCountryId,
+                MaritalStatus = userProfile?.MaritalStatus,
+                HasRelativesInUS = userProfile?.HasRelativesInUS,
+                HasJobOffer = userProfile?.HasJobOffer,
+                EducationLevel = userProfile?.EducationLevel,
+                FearOfPersecution = userProfile?.FearOfPersecution,
+                HasPastVisaDenials = userProfile?.HasPastVisaDenials,
+                HasStatusViolations = userProfile?.HasStatusViolations
             };
         }
     }
@@ -97,15 +394,118 @@ else if (editModel is not null)
     {
         if (editModel is null || AuthState.CurrentUser is null) return;
 
-        var response = await Http.PutAsJsonAsync($"api/users/{AuthState.CurrentUser.Id}", editModel);
-        if (response.IsSuccessStatusCode)
+        try
         {
-            var updated = await response.Content.ReadFromJsonAsync<UserDto>();
-            if (updated != null)
+            // Update basic user information
+            var basicUpdate = new UpdateUserDto
             {
-                AuthState.SetUser(updated);
+                Email = editModel.Email,
+                FirstName = editModel.FirstName,
+                MiddleName = editModel.MiddleName,
+                LastName = editModel.LastName,
+                PhoneNumber = editModel.PhoneNumber,
+                PreferredLanguage = editModel.PreferredLanguage,
+                Address1 = editModel.Address1,
+                Address2 = editModel.Address2,
+                City = editModel.City,
+                State = editModel.State,
+                Country = editModel.Country,
+                PostalCode = editModel.PostalCode,
+                DateOfBirth = editModel.DateOfBirth
+            };
+
+            var userResponse = await Http.PutAsJsonAsync($"api/users/{AuthState.CurrentUser.Id}", basicUpdate);
+            if (userResponse.IsSuccessStatusCode)
+            {
+                var updated = await userResponse.Content.ReadFromJsonAsync<UserDto>();
+                if (updated != null)
+                {
+                    AuthState.SetUser(updated);
+                }
+            }
+
+            // Update extended profile information
+            var profileUpdate = new UpdateUserProfileDto
+            {
+                DateOfBirth = editModel.DateOfBirth,
+                CitizenshipCountryId = editModel.CitizenshipCountryId,
+                MaritalStatus = editModel.MaritalStatus,
+                HasRelativesInUS = editModel.HasRelativesInUS,
+                HasJobOffer = editModel.HasJobOffer,
+                EducationLevel = editModel.EducationLevel,
+                FearOfPersecution = editModel.FearOfPersecution,
+                HasPastVisaDenials = editModel.HasPastVisaDenials,
+                HasStatusViolations = editModel.HasStatusViolations
+            };
+
+            if (userProfile != null)
+            {
+                // Update existing profile
+                await Http.PutAsJsonAsync($"api/userprofile/user/{AuthState.CurrentUser.Id}", profileUpdate);
+            }
+            else
+            {
+                // Create new profile
+                var createProfile = new CreateUserProfileDto(
+                    AuthState.CurrentUser.Id,
+                    profileUpdate.DateOfBirth,
+                    profileUpdate.CitizenshipCountryId,
+                    profileUpdate.MaritalStatus,
+                    profileUpdate.HasRelativesInUS,
+                    profileUpdate.HasJobOffer,
+                    profileUpdate.EducationLevel,
+                    profileUpdate.FearOfPersecution,
+                    profileUpdate.HasPastVisaDenials,
+                    profileUpdate.HasStatusViolations,
+                    null
+                );
+                
+                await Http.PostAsJsonAsync("api/userprofile", createProfile);
             }
         }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error saving user: {ex.Message}");
+        }
+    }
+
+    private void OnCountryChanged(string country)
+    {
+        if (editModel != null)
+        {
+            editModel.Country = country;
+            // Clear state when country changes
+            if (country != "United States")
+            {
+                editModel.State = null;
+            }
+        }
+        StateHasChanged();
+    }
+
+    public class ExtendedUpdateUserDto
+    {
+        public string Email { get; set; } = string.Empty;
+        public string? FirstName { get; set; }
+        public string? MiddleName { get; set; }
+        public string? LastName { get; set; }
+        public string? PhoneNumber { get; set; }
+        public string PreferredLanguage { get; set; } = "en";
+        public string? Address1 { get; set; }
+        public string? Address2 { get; set; }
+        public string? City { get; set; }
+        public string? State { get; set; }
+        public string? Country { get; set; }
+        public string? PostalCode { get; set; }
+        public DateTime? DateOfBirth { get; set; }
+        public Guid? CitizenshipCountryId { get; set; }
+        public string? MaritalStatus { get; set; }
+        public bool? HasRelativesInUS { get; set; }
+        public bool? HasJobOffer { get; set; }
+        public string? EducationLevel { get; set; }
+        public bool? FearOfPersecution { get; set; }
+        public bool? HasPastVisaDenials { get; set; }
+        public bool? HasStatusViolations { get; set; }
     }
 }
 

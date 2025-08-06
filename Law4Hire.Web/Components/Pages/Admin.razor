@@ -1,0 +1,856 @@
+@page "/admin"
+@using System.Net.Http.Json
+@using Law4Hire.Core.DTOs
+@using Microsoft.AspNetCore.Identity
+@inject HttpClient Http
+@inject Law4Hire.Web.State.AuthState AuthState
+@inject NavigationManager NavigationManager
+
+<PageTitle>Admin Dashboard</PageTitle>
+
+@if (!isAdmin)
+{
+    <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-8">
+        <MudAlert Severity="Severity.Error" ShowCloseIcon="false">
+            <MudStack AlignItems="AlignItems.Center" Spacing="3">
+                <MudIcon Icon="@Icons.Material.Filled.Block" Size="Size.Large" />
+                <MudStack AlignItems="AlignItems.Center" Spacing="1">
+                    <MudText Typo="Typo.h4">Access Denied</MudText>
+                    <MudText Typo="Typo.body1">You do not have permission to access this page.</MudText>
+                </MudStack>
+                <MudButton Variant="Variant.Filled" Color="MudBlazor.Color.Primary" Href="/" StartIcon="@Icons.Material.Filled.Home">
+                    Return to Home
+                </MudButton>
+            </MudStack>
+        </MudAlert>
+    </MudContainer>
+}
+else
+{
+    <MudContainer MaxWidth="MaxWidth.ExtraExtraLarge" Class="mt-4">
+        <!-- Header -->
+        <MudPaper Elevation="3" Class="pa-6 mb-6" Style="background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%); color: white;">
+            <MudStack Row AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+                <MudStack Row AlignItems="AlignItems.Center" Spacing="2">
+                    <MudIcon Icon="@Icons.Material.Filled.AdminPanelSettings" Size="Size.Large" />
+                    <MudText Typo="Typo.h3" Class="font-weight-bold">Admin Dashboard</MudText>
+                </MudStack>
+                <MudIcon Icon="@Icons.Material.Filled.SupervisorAccount" Size="Size.Large" Style="opacity: 0.3;" />
+            </MudStack>
+        </MudPaper>
+
+        <!-- Navigation Tabs -->
+        <MudTabs Elevation="4" Color="MudBlazor.Color.Primary" ActivePanelIndex="@GetActiveTabIndex()" ActivePanelIndexChanged="OnTabChanged">
+            <MudTabPanel Text="User Management" Icon="@Icons.Material.Filled.People">
+
+                <MudCard Elevation="6">
+                    <MudCardHeader>
+                        <CardHeaderContent>
+                            <MudText Typo="Typo.h5" Class="font-weight-bold">User Management</MudText>
+                        </CardHeaderContent>
+                        <CardHeaderActions>
+                            <MudStack Row Spacing="2">
+                                <MudButton Variant="Variant.Filled" Color="MudBlazor.Color.Success" 
+                                           OnClick="OpenCreateUserModal" StartIcon="@Icons.Material.Filled.PersonAdd">
+                                    Create User
+                                </MudButton>
+                                <MudButton Variant="Variant.Filled" Color="MudBlazor.Color.Primary" 
+                                           OnClick="RefreshUsers" StartIcon="@Icons.Material.Filled.Refresh">
+                                    Refresh
+                                </MudButton>
+                            </MudStack>
+                        </CardHeaderActions>
+                    </MudCardHeader>
+                    <MudCardContent>
+                        @if (isLoadingUsers)
+                        {
+                            <MudStack AlignItems="AlignItems.Center" Spacing="3" Class="pa-6">
+                                <MudProgressCircular Indeterminate="true" Size="Size.Large" />
+                                <MudText Typo="Typo.h6">Loading users...</MudText>
+                            </MudStack>
+                        }
+                        else if (allUsers?.Any() == true)
+                        {
+                            <MudDataGrid Items="@allUsers" Filterable="true" SortMode="@SortMode.Single" Groupable="false">
+                                <Columns>
+                                    <TemplateColumn Title="Name">
+                                        <CellTemplate>
+                                            <MudText>@($"{context.Item.FirstName} {context.Item.LastName}")</MudText>
+                                        </CellTemplate>
+                                    </TemplateColumn>
+                                    <PropertyColumn Property="x => x.Email" Title="Email" />
+                                    <PropertyColumn Property="x => x.PhoneNumber" Title="Phone" />
+                                    <PropertyColumn Property="x => x.Category" Title="Category" />
+                                    <PropertyColumn Property="x => x.CreatedAt" Title="Created" Format="MM/dd/yyyy" />
+                                    <TemplateColumn Title="Admin" Sortable="false">
+                                        <CellTemplate>
+                                            <MudSwitch T="bool" Value="@IsUserAdmin(context.Item.Id)" 
+                                                       ValueChanged="@((bool isAdmin) => ToggleAdminRole(context.Item.Id, isAdmin))"
+                                                       Color="MudBlazor.Color.Primary" />
+                                        </CellTemplate>
+                                    </TemplateColumn>
+                                    <TemplateColumn Title="Actions" Sortable="false">
+                                        <CellTemplate>
+                                            <MudStack Row Spacing="1">
+                                                <MudIconButton Icon="@Icons.Material.Filled.Edit" 
+                                                               Color="MudBlazor.Color.Primary" 
+                                                               Size="Size.Small"
+                                                               OnClick="@(() => EditUser(context.Item))" />
+                                                <MudIconButton Icon="@Icons.Material.Filled.VpnKey" 
+                                                               Color="MudBlazor.Color.Warning" 
+                                                               Size="Size.Small"
+                                                               OnClick="@(() => ResetPassword(context.Item))" />
+                                            </MudStack>
+                                        </CellTemplate>
+                                    </TemplateColumn>
+                                </Columns>
+                            </MudDataGrid>
+                        }
+                        else
+                        {
+                            <MudStack AlignItems="AlignItems.Center" Spacing="3" Class="pa-6">
+                                <MudIcon Icon="@Icons.Material.Filled.PersonOff" Size="Size.Large" Color="MudBlazor.Color.Secondary" Style="opacity: 0.5;" />
+                                <MudText Typo="Typo.h6" Color="MudBlazor.Color.Secondary">No users found</MudText>
+                            </MudStack>
+                        }
+                    </MudCardContent>
+                </MudCard>
+            </MudTabPanel>
+            
+            <MudTabPanel Text="Visa Pricing" Icon="@Icons.Material.Filled.AttachMoney">
+                <MudCard Elevation="6">
+                    <MudCardHeader>
+                        <CardHeaderContent>
+                            <MudText Typo="Typo.h5" Class="font-weight-bold">Visa Pricing Management</MudText>
+                        </CardHeaderContent>
+                        <CardHeaderActions>
+                            <MudStack Row Spacing="2" AlignItems="AlignItems.Center">
+                                <MudSwitch T="bool" Value="showDeprecated" ValueChanged="OnShowDeprecatedChanged" 
+                                           Label="Show Deprecated" Color="MudBlazor.Color.Primary" />
+                                <MudButton Variant="Variant.Filled" Color="MudBlazor.Color.Primary" 
+                                           OnClick="RefreshPricing" StartIcon="@Icons.Material.Filled.Refresh">
+                                    Refresh
+                                </MudButton>
+                            </MudStack>
+                        </CardHeaderActions>
+                    </MudCardHeader>
+                    <MudCardContent>
+                        @if (isLoadingPricing)
+                        {
+                            <MudStack AlignItems="AlignItems.Center" Spacing="3" Class="pa-6">
+                                <MudProgressCircular Indeterminate="true" Size="Size.Large" />
+                                <MudText Typo="Typo.h6">Loading pricing...</MudText>
+                            </MudStack>
+                        }
+                        else if (allPricing?.Any() == true)
+                        {
+                            <MudDataGrid Items="@allPricing" Filterable="true" SortMode="@SortMode.Single" Groupable="false">
+                                <Columns>
+                                    <PropertyColumn Property="x => x.VisaTypeName" Title="Visa Type" />
+                                    <TemplateColumn Title="Packages Available" Sortable="false">
+                                        <CellTemplate>
+                                            <MudChip T="string" Color="MudBlazor.Color.Info" Size="Size.Small">
+                                                @context.Item.Packages.Count @(context.Item.Packages.Count == 1 ? "package" : "packages")
+                                            </MudChip>
+                                        </CellTemplate>
+                                    </TemplateColumn>
+                                    <TemplateColumn Title="Price Range" Sortable="false">
+                                        <CellTemplate>
+                                            @if (context.Item.Packages.Any())
+                                            {
+                                                var minPrice = context.Item.Packages.Min(p => p.BasePrice);
+                                                var maxPrice = context.Item.Packages.Max(p => p.BasePrice);
+                                                @if (minPrice == maxPrice)
+                                                {
+                                                    <MudText Class="font-weight-bold">${@minPrice:N2}</MudText>
+                                                }
+                                                else
+                                                {
+                                                    <MudText Class="font-weight-bold">${@minPrice:N2} - ${@maxPrice:N2}</MudText>
+                                                }
+                                            }
+                                        </CellTemplate>
+                                    </TemplateColumn>
+                                    @if (showDeprecated)
+                                    {
+                                        <TemplateColumn Title="Status">
+                                            <CellTemplate>
+                                                @if (context.Item.VisaTypeStatus == "Active")
+                                                {
+                                                    <MudChip T="string" Color="MudBlazor.Color.Success" Size="Size.Small" Icon="@Icons.Material.Filled.CheckCircle">Active</MudChip>
+                                                }
+                                                else
+                                                {
+                                                    <MudChip T="string" Color="MudBlazor.Color.Warning" Size="Size.Small" Icon="@Icons.Material.Filled.Warning">Deprecated</MudChip>
+                                                }
+                                            </CellTemplate>
+                                        </TemplateColumn>
+                                    }
+                                    <TemplateColumn Title="Actions" Sortable="false">
+                                        <CellTemplate>
+                                            <MudIconButton Icon="@Icons.Material.Filled.Edit" 
+                                                           Color="MudBlazor.Color.Primary" 
+                                                           Size="Size.Small"
+                                                           OnClick="@(() => EditVisaType(context.Item))" />
+                                        </CellTemplate>
+                                    </TemplateColumn>
+                                </Columns>
+                            </MudDataGrid>
+                        }
+                        else
+                        {
+                            <MudStack AlignItems="AlignItems.Center" Spacing="3" Class="pa-6">
+                                <MudIcon Icon="@Icons.Material.Filled.MoneyOff" Size="Size.Large" Color="MudBlazor.Color.Secondary" Style="opacity: 0.5;" />
+                                <MudText Typo="Typo.h6" Color="MudBlazor.Color.Secondary">No pricing packages found</MudText>
+                            </MudStack>
+                        }
+                    </MudCardContent>
+                </MudCard>
+            </MudTabPanel>
+        </MudTabs>
+    </MudContainer>
+
+}
+
+<!-- Edit User Dialog -->
+<MudDialog @bind-IsVisible="showEditUserModal" Options="@(new DialogOptions { MaxWidth = MaxWidth.Large, FullWidth = true })">
+    <TitleContent>
+        <MudStack Row AlignItems="AlignItems.Center" Spacing="2">
+            <MudIcon Icon="@Icons.Material.Filled.Edit" />
+            <MudText Typo="Typo.h6">Edit User: @(selectedUser?.Email)</MudText>
+        </MudStack>
+    </TitleContent>
+    <DialogContent>
+        @if (selectedUser != null)
+        {
+            <EditForm Model="selectedUser" OnValidSubmit="SaveUser">
+                <DataAnnotationsValidator />
+                <MudGrid Spacing="3">
+                    <MudItem xs="12" sm="6">
+                        <MudTextField @bind-Value="selectedUser.FirstName" Label="First Name" 
+                                      Variant="Variant.Outlined" For="@(() => selectedUser.FirstName)" />
+                    </MudItem>
+                    <MudItem xs="12" sm="6">
+                        <MudTextField @bind-Value="selectedUser.LastName" Label="Last Name" 
+                                      Variant="Variant.Outlined" For="@(() => selectedUser.LastName)" />
+                    </MudItem>
+                    <MudItem xs="12" sm="6">
+                        <MudTextField @bind-Value="selectedUser.Email" Label="Email" 
+                                      Variant="Variant.Outlined" InputType="InputType.Email" 
+                                      For="@(() => selectedUser.Email)" />
+                    </MudItem>
+                    <MudItem xs="12" sm="6">
+                        <MudTextField @bind-Value="selectedUser.PhoneNumber" Label="Phone" 
+                                      Variant="Variant.Outlined" InputType="InputType.Telephone" 
+                                      For="@(() => selectedUser.PhoneNumber)" />
+                    </MudItem>
+                    <MudItem xs="12" sm="6">
+                        <MudTextField @bind-Value="selectedUser.City" Label="City" 
+                                      Variant="Variant.Outlined" For="@(() => selectedUser.City)" />
+                    </MudItem>
+                    <MudItem xs="12" sm="6">
+                        <MudTextField @bind-Value="selectedUser.State" Label="State" 
+                                      Variant="Variant.Outlined" For="@(() => selectedUser.State)" />
+                    </MudItem>
+                </MudGrid>
+                
+                <MudStack Row Justify="Justify.FlexEnd" Spacing="2" Class="mt-4">
+                    <MudButton OnClick="CloseEditUserModal" Variant="Variant.Text">Cancel</MudButton>
+                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="MudBlazor.Color.Primary" 
+                               StartIcon="@Icons.Material.Filled.Save">Save Changes</MudButton>
+                </MudStack>
+            </EditForm>
+        }
+    </DialogContent>
+</MudDialog>
+
+<!-- Edit VisaType Dialog -->
+<MudDialog @bind-IsVisible="showEditPackageModal" Options="@(new DialogOptions { MaxWidth = MaxWidth.Large, FullWidth = true })">
+    <TitleContent>
+        <MudStack Row AlignItems="AlignItems.Center" Spacing="2">
+            <MudIcon Icon="@Icons.Material.Filled.Edit" />
+            <MudText Typo="Typo.h6">Edit Visa Type: @(selectedVisaType?.VisaTypeName)</MudText>
+        </MudStack>
+    </TitleContent>
+    <DialogContent>
+        @if (selectedVisaType != null)
+        {
+            <MudStack Spacing="4">
+                <!-- VisaType Active Status -->
+                <MudCard Elevation="2">
+                    <MudCardContent>
+                        <MudStack Spacing="2">
+                            <MudText Typo="Typo.h6">Visa Type Status</MudText>
+                            <MudSwitch T="bool" @bind-Value="isVisaTypeActive" Label="Visa Type Active" 
+                                       Color="MudBlazor.Color.Primary" />
+                            <MudText Typo="Typo.caption" Color="MudBlazor.Color.Secondary">
+                                Uncheck to deprecate this visa type and all its packages
+                            </MudText>
+                        </MudStack>
+                    </MudCardContent>
+                </MudCard>
+
+                <!-- All Packages for this Visa Type -->
+                <MudCard Elevation="2">
+                    <MudCardHeader>
+                        <CardHeaderContent>
+                            <MudText Typo="Typo.h6">All Packages for @selectedVisaType.VisaTypeName</MudText>
+                        </CardHeaderContent>
+                    </MudCardHeader>
+                    <MudCardContent>
+                        @if (selectedVisaType.Packages?.Any() == true)
+                        {
+                            <MudStack Spacing="3">
+                                @foreach (var package in selectedVisaType.Packages)
+                                {
+                                    <MudCard Elevation="1" Style="border-left: 4px solid var(--mud-palette-primary);">
+                                        <MudCardContent>
+                                            <EditForm Model="@GetPackageForEdit(package.Id)" OnValidSubmit="@(() => SaveIndividualPackage(package.Id))">
+                                                <DataAnnotationsValidator />
+                                                <MudGrid Spacing="3">
+                                                    <MudItem xs="12">
+                                                        <MudText Typo="Typo.subtitle1" Class="font-weight-bold">
+                                                            @package.Type.ToString() Package
+                                                        </MudText>
+                                                    </MudItem>
+                                                    <MudItem xs="12" md="6">
+                                                        <MudTextField @bind-Value="@GetPackageForEdit(package.Id).Name" 
+                                                                      Label="Package Name" Variant="Variant.Outlined" />
+                                                    </MudItem>
+                                                    <MudItem xs="12" md="6">
+                                                        <MudSwitch T="bool" @bind-Value="@GetPackageForEdit(package.Id).IsActive" 
+                                                                   Label="Package Active" Color="MudBlazor.Color.Primary" />
+                                                    </MudItem>
+                                                    <MudItem xs="12">
+                                                        <MudTextField @bind-Value="@GetPackageForEdit(package.Id).Description" 
+                                                                      Label="Description" Variant="Variant.Outlined" Lines="2" />
+                                                    </MudItem>
+                                                    <MudItem xs="6" md="3">
+                                                        <MudNumericField @bind-Value="@GetPackageForEdit(package.Id).BasePrice" 
+                                                                         Label="Base Price" Variant="Variant.Outlined" Format="C2" />
+                                                    </MudItem>
+                                                    <MudItem xs="6" md="3">
+                                                        <MudNumericField @bind-Value="@GetPackageForEdit(package.Id).L4HLLCFee" 
+                                                                         Label="L4HLLC Fee" Variant="Variant.Outlined" Format="C2" />
+                                                    </MudItem>
+                                                    <MudItem xs="6" md="3">
+                                                        <MudSwitch T="bool" @bind-Value="@GetPackageForEdit(package.Id).HasMoneyBackGuarantee" 
+                                                                   Label="Money Back Guarantee" Color="MudBlazor.Color.Success" />
+                                                    </MudItem>
+                                                    <MudItem xs="6" md="3">
+                                                        <MudButton ButtonType="ButtonType.Submit" 
+                                                                   Variant="Variant.Filled" 
+                                                                   Color="MudBlazor.Color.Primary" 
+                                                                   Size="Size.Small"
+                                                                   StartIcon="@Icons.Material.Filled.Save">
+                                                            Save Package
+                                                        </MudButton>
+                                                    </MudItem>
+                                                </MudGrid>
+                                            </EditForm>
+                                        </MudCardContent>
+                                    </MudCard>
+                                }
+                            </MudStack>
+                        }
+                        else
+                        {
+                            <MudAlert Severity="Severity.Info">No packages found for this visa type.</MudAlert>
+                        }
+                    </MudCardContent>
+                </MudCard>
+                
+                <MudStack Row Justify="Justify.FlexEnd" Spacing="2">
+                    <MudButton OnClick="CloseEditPackageModal" Variant="Variant.Text">Close</MudButton>
+                    <MudButton OnClick="SaveVisaTypeStatus" Variant="Variant.Filled" Color="MudBlazor.Color.Primary" 
+                               StartIcon="@Icons.Material.Filled.Save">Save Visa Type Status</MudButton>
+                </MudStack>
+            </MudStack>
+        }
+    </DialogContent>
+</MudDialog>
+
+<!-- Create User Dialog -->
+<MudDialog @bind-IsVisible="showCreateUserModal" Options="@(new DialogOptions { MaxWidth = MaxWidth.Medium, FullWidth = true })">
+    <TitleContent>
+        <MudStack Row AlignItems="AlignItems.Center" Spacing="2">
+            <MudIcon Icon="@Icons.Material.Filled.PersonAdd" />
+            <MudText Typo="Typo.h6">Create New User</MudText>
+        </MudStack>
+    </TitleContent>
+    <DialogContent>
+        @if (newUser != null)
+        {
+            <EditForm Model="newUser" OnValidSubmit="CreateUser">
+                <DataAnnotationsValidator />
+                <MudGrid Spacing="3">
+                    <MudItem xs="12" sm="6">
+                        <MudTextField @bind-Value="newUser.Email" Label="Email" 
+                                      Variant="Variant.Outlined" InputType="InputType.Email" 
+                                      For="@(() => newUser.Email)" Required="true" />
+                    </MudItem>
+                    <MudItem xs="12" sm="6">
+                        <MudTextField @bind-Value="newUser.PhoneNumber" Label="Phone" 
+                                      Variant="Variant.Outlined" InputType="InputType.Telephone" 
+                                      For="@(() => newUser.PhoneNumber)" />
+                    </MudItem>
+                    <MudItem xs="12" sm="6">
+                        <MudTextField @bind-Value="newUser.FirstName" Label="First Name" 
+                                      Variant="Variant.Outlined" For="@(() => newUser.FirstName)" Required="true" />
+                    </MudItem>
+                    <MudItem xs="12" sm="6">
+                        <MudTextField @bind-Value="newUser.LastName" Label="Last Name" 
+                                      Variant="Variant.Outlined" For="@(() => newUser.LastName)" Required="true" />
+                    </MudItem>
+                    <MudItem xs="12">
+                        <MudText Typo="Typo.subtitle1" Class="font-weight-medium mb-2">Role Assignment</MudText>
+                        <MudStack Spacing="2">
+                            <MudSwitch T="bool" @bind-Value="newUser.IsAdmin" 
+                                       Label="Admin Role" Color="MudBlazor.Color.Primary" />
+                            <MudSwitch T="bool" @bind-Value="newUser.IsLegalProfessional" 
+                                       Label="Legal Professionals Role" Color="MudBlazor.Color.Success" />
+                        </MudStack>
+                    </MudItem>
+                </MudGrid>
+                
+                <MudStack Row Justify="Justify.FlexEnd" Spacing="2" Class="mt-4">
+                    <MudButton OnClick="CloseCreateUserModal" Variant="Variant.Text">Cancel</MudButton>
+                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="MudBlazor.Color.Success" 
+                               StartIcon="@Icons.Material.Filled.PersonAdd">Create User</MudButton>
+                </MudStack>
+            </EditForm>
+        }
+    </DialogContent>
+</MudDialog>
+
+@code {
+    private bool isAdmin = false;
+    private string activeTab = "users";
+    
+    // User Management
+    private List<UserDto>? allUsers;
+    private HashSet<Guid> adminUsers = new();
+    private bool isLoadingUsers = true;
+    private bool showEditUserModal = false;
+    private UpdateUserDto? selectedUser;
+    
+    // Create User Modal
+    private bool showCreateUserModal = false;
+    private CreateUserModel? newUser;
+    
+    // Pricing Management
+    private List<VisaTypePackageDto>? allPricing;
+    private bool isLoadingPricing = false;
+    private bool showEditPackageModal = false;
+    private bool showDeprecated = false;
+    private VisaTypePackageDto? selectedVisaType;
+    private Dictionary<int, UpdateServicePackageDto> editingPackages = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Check if user is admin
+        if (AuthState.CurrentUser != null)
+        {
+            try
+            {
+                isAdmin = await Http.GetFromJsonAsync<bool>($"api/Users/{AuthState.CurrentUser.Id}/isAdmin");
+            }
+            catch
+            {
+                isAdmin = false;
+            }
+        }
+
+        if (!isAdmin)
+        {
+            return;
+        }
+
+        // Load initial data
+        await RefreshUsers();
+    }
+
+    private void SetActiveTab(string tab)
+    {
+        activeTab = tab;
+        if (tab == "pricing" && allPricing == null)
+        {
+            _ = RefreshPricing();
+        }
+    }
+
+    // User Management Methods
+    private async Task RefreshUsers()
+    {
+        isLoadingUsers = true;
+        try
+        {
+            allUsers = await Http.GetFromJsonAsync<List<UserDto>>("api/Admin/users");
+            
+            // Load admin users
+            if (allUsers != null)
+            {
+                adminUsers.Clear();
+                foreach (var user in allUsers)
+                {
+                    try
+                    {
+                        var isUserAdmin = await Http.GetFromJsonAsync<bool>($"api/Users/{user.Id}/isAdmin");
+                        if (isUserAdmin)
+                        {
+                            adminUsers.Add(user.Id);
+                        }
+                    }
+                    catch { }
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading users: {ex.Message}");
+        }
+        finally
+        {
+            isLoadingUsers = false;
+            StateHasChanged();
+        }
+    }
+
+
+    private async Task ToggleAdminRole(Guid userId, bool isAdmin)
+    {
+        try
+        {
+            var response = await Http.PostAsJsonAsync($"api/Admin/users/{userId}/admin", new { IsAdmin = isAdmin });
+            if (response.IsSuccessStatusCode)
+            {
+                if (isAdmin)
+                    adminUsers.Add(userId);
+                else
+                    adminUsers.Remove(userId);
+                
+                StateHasChanged();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error toggling admin role: {ex.Message}");
+        }
+    }
+
+    private void EditUser(UserDto user)
+    {
+        selectedUser = new UpdateUserDto
+        {
+            Email = user.Email ?? "",
+            FirstName = user.FirstName ?? "",
+            MiddleName = user.MiddleName ?? "",
+            LastName = user.LastName ?? "",
+            PhoneNumber = user.PhoneNumber ?? "",
+            PreferredLanguage = user.PreferredLanguage ?? "en",
+            Address1 = user.Address1 ?? "",
+            Address2 = user.Address2 ?? "",
+            City = user.City ?? "",
+            State = user.State ?? "",
+            Country = user.Country ?? "",
+            PostalCode = user.PostalCode ?? "",
+            DateOfBirth = user.DateOfBirth
+        };
+        showEditUserModal = true;
+    }
+
+    private async Task SaveUser()
+    {
+        if (selectedUser == null) return;
+        
+        try
+        {
+            var user = allUsers?.FirstOrDefault(u => u.Email == selectedUser.Email);
+            if (user != null)
+            {
+                var response = await Http.PutAsJsonAsync($"api/Users/{user.Id}", selectedUser);
+                if (response.IsSuccessStatusCode)
+                {
+                    await RefreshUsers();
+                    CloseEditUserModal();
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error saving user: {ex.Message}");
+        }
+    }
+
+    private async Task ResetPassword(UserDto user)
+    {
+        try
+        {
+            var response = await Http.PostAsJsonAsync($"api/Admin/users/{user.Id}/resetPassword", new { });
+            if (response.IsSuccessStatusCode)
+            {
+                // Show success message - could implement toast notifications here
+                Console.WriteLine($"Password reset for {user.Email}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error resetting password: {ex.Message}");
+        }
+    }
+
+    private void CloseEditUserModal()
+    {
+        showEditUserModal = false;
+        selectedUser = null;
+    }
+
+    // Create User Methods
+    private void OpenCreateUserModal()
+    {
+        newUser = new CreateUserModel
+        {
+            Email = "",
+            FirstName = "",
+            LastName = "",
+            PhoneNumber = "",
+            IsAdmin = false,
+            IsLegalProfessional = false
+        };
+        showCreateUserModal = true;
+    }
+
+    private async Task CreateUser()
+    {
+        if (newUser == null) return;
+
+        try
+        {
+            var createUserDto = new
+            {
+                Email = newUser.Email,
+                FirstName = newUser.FirstName,
+                LastName = newUser.LastName,
+                PhoneNumber = newUser.PhoneNumber,
+                IsAdmin = newUser.IsAdmin,
+                IsLegalProfessional = newUser.IsLegalProfessional
+            };
+
+            var response = await Http.PostAsJsonAsync("api/Admin/users", createUserDto);
+            if (response.IsSuccessStatusCode)
+            {
+                await RefreshUsers();
+                CloseCreateUserModal();
+                Console.WriteLine($"User created successfully: {newUser.Email}");
+            }
+            else
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"Error creating user: {error}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error creating user: {ex.Message}");
+        }
+    }
+
+    private void CloseCreateUserModal()
+    {
+        showCreateUserModal = false;
+        newUser = null;
+    }
+
+    // Pricing Management Methods
+    private async Task RefreshPricing()
+    {
+        isLoadingPricing = true;
+        try
+        {
+            var url = $"api/Admin/servicePackages?includeDeprecated={showDeprecated}";
+            allPricing = await Http.GetFromJsonAsync<List<VisaTypePackageDto>>(url);
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading pricing: {ex.Message}");
+        }
+        finally
+        {
+            isLoadingPricing = false;
+            StateHasChanged();
+        }
+    }
+
+    private void OnShowDeprecatedChanged()
+    {
+        _ = RefreshPricing();
+    }
+
+
+    // Modal functionality
+    private bool isVisaTypeActive;
+
+    private void EditVisaType(VisaTypePackageDto visaType)
+    {
+        selectedVisaType = visaType;
+        isVisaTypeActive = visaType.VisaTypeStatus == "Active";
+        
+        // Initialize editing packages for all packages in this visa type
+        editingPackages.Clear();
+        foreach (var package in visaType.Packages)
+        {
+            editingPackages[package.Id] = new UpdateServicePackageDto
+            {
+                Name = package.Name,
+                Description = package.Description,
+                Type = package.Type,
+                BasePrice = package.BasePrice,
+                L4HLLCFee = package.L4HLLCFee,
+                HasMoneyBackGuarantee = package.HasMoneyBackGuarantee,
+                IsActive = package.IsActive
+            };
+        }
+        
+        showEditPackageModal = true;
+    }
+
+
+    private void CloseEditPackageModal()
+    {
+        showEditPackageModal = false;
+        selectedVisaType = null;
+        isVisaTypeActive = false;
+        editingPackages.Clear();
+    }
+
+    private UpdateServicePackageDto GetPackageForEdit(int packageId)
+    {
+        if (!editingPackages.ContainsKey(packageId))
+        {
+            // Find the package in selectedVisaType and create an entry
+            var package = selectedVisaType?.Packages.FirstOrDefault(p => p.Id == packageId);
+            if (package != null)
+            {
+                editingPackages[packageId] = new UpdateServicePackageDto
+                {
+                    Name = package.Name,
+                    Description = package.Description,
+                    Type = package.Type,
+                    BasePrice = package.BasePrice,
+                    L4HLLCFee = package.L4HLLCFee,
+                    HasMoneyBackGuarantee = package.HasMoneyBackGuarantee,
+                    IsActive = package.IsActive
+                };
+            }
+        }
+        return editingPackages.GetValueOrDefault(packageId) ?? new UpdateServicePackageDto();
+    }
+
+    private async Task SaveIndividualPackage(int packageId)
+    {
+        if (!editingPackages.ContainsKey(packageId)) return;
+        
+        try
+        {
+            var packageToUpdate = editingPackages[packageId];
+            var response = await Http.PutAsJsonAsync($"api/Admin/servicePackages/{packageId}", packageToUpdate);
+            if (response.IsSuccessStatusCode)
+            {
+                Console.WriteLine($"Package {packageId} updated successfully");
+                // Optionally refresh the data or show a success message
+            }
+            else
+            {
+                Console.WriteLine($"Error updating package {packageId}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error saving package {packageId}: {ex.Message}");
+        }
+    }
+
+    private async Task SaveVisaTypeStatus()
+    {
+        if (selectedVisaType == null) return;
+        
+        try
+        {
+            // Check if VisaType status changed
+            bool originallyActive = selectedVisaType.VisaTypeStatus == "Active";
+            if (originallyActive != isVisaTypeActive)
+            {
+                var newStatus = isVisaTypeActive ? "Active" : "Deprecated";
+                var statusResponse = await Http.PutAsJsonAsync($"api/Admin/visaTypes/{selectedVisaType.VisaTypeId}/status", 
+                    new { Status = newStatus });
+                
+                if (statusResponse.IsSuccessStatusCode)
+                {
+                    Console.WriteLine($"Visa type status updated to {newStatus}");
+                    await RefreshPricing();
+                }
+                else
+                {
+                    Console.WriteLine("Error updating visa type status");
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error saving visa type status: {ex.Message}");
+        }
+    }
+
+    private MudBlazor.Color GetPackageTypeColor(Law4Hire.Core.Enums.PackageType type)
+    {
+        return type switch
+        {
+            Law4Hire.Core.Enums.PackageType.SelfRepresentationWithParalegal => MudBlazor.Color.Info,
+            Law4Hire.Core.Enums.PackageType.HybridWithAttorneyOverview => MudBlazor.Color.Warning,
+            Law4Hire.Core.Enums.PackageType.FullRepresentationStandard => MudBlazor.Color.Success,
+            Law4Hire.Core.Enums.PackageType.FullRepresentationGuaranteed => MudBlazor.Color.Error,
+            _ => MudBlazor.Color.Secondary
+        };
+    }
+    
+    private bool IsUserAdmin(Guid userId)
+    {
+        return adminUsers.Contains(userId);
+    }
+    
+    private int GetActiveTabIndex()
+    {
+        return activeTab switch
+        {
+            "users" => 0,
+            "pricing" => 1,
+            _ => 0
+        };
+    }
+    
+    private void OnTabChanged(int index)
+    {
+        activeTab = index switch
+        {
+            0 => "users",
+            1 => "pricing",
+            _ => "users"
+        };
+        
+        if (activeTab == "pricing" && allPricing == null)
+        {
+            _ = RefreshPricing();
+        }
+    }
+
+    // Helper classes
+    public class CreateUserModel
+    {
+        public string Email { get; set; } = string.Empty;
+        public string FirstName { get; set; } = string.Empty;
+        public string LastName { get; set; } = string.Empty;
+        public string PhoneNumber { get; set; } = string.Empty;
+        public bool IsAdmin { get; set; }
+        public bool IsLegalProfessional { get; set; }
+    }
+}

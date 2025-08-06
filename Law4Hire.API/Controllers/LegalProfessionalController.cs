@@ -1,4 +1,9 @@
-﻿using Law4Hire.Core.DTOs;
+﻿// DEPRECATED: This controller is no longer used. 
+// Legal professional functionality has been moved to the AdminController with role-based access.
+// Users with LegalProfessionals role are now managed through the AspNetRoles system.
+
+/*
+using Law4Hire.Core.DTOs;
 using Law4Hire.Core.Entities;
 using Law4Hire.Infrastructure.Data.Contexts;
 using Microsoft.AspNetCore.Authorization;
@@ -24,8 +29,8 @@ public class LegalProfessionalController(Law4HireDbContext context) : Controller
             PhoneNumber = dto.PhoneNumber,
             CreatedAt = DateTime.UtcNow,
             PreferredLanguage = dto.PreferredLanguage ?? "en",
-            PasswordHash = dto.PasswordHash,
-            PasswordSalt = dto.PasswordSalt
+            // TODO: Update to use Identity UserManager
+            // PasswordHash and PasswordSalt moved to Identity system
         };
 
         context.Users.Add(user);
@@ -43,3 +48,4 @@ public class LegalProfessionalController(Law4HireDbContext context) : Controller
         return Ok(new { Message = "Legal professional registered.", UserId = user.Id });
     }
 }
+*/

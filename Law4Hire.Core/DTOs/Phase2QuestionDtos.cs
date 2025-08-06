@@ -1,12 +1,17 @@
-﻿// Add these DTOs to your Law4Hire.Web project (create a DTOs folder if needed)
-
-namespace Law4Hire.Web.DTOs
+namespace Law4Hire.Core.DTOs
 {
     public class Phase2QuestionDto
     {
         public string Question { get; set; } = string.Empty;
         public int Step { get; set; }
         public bool IsComplete { get; set; }
+        public List<QuestionOptionDto> Options { get; set; } = new();
+    }
+
+    public class QuestionOptionDto
+    {
+        public string Key { get; set; } = string.Empty;
+        public string Text { get; set; } = string.Empty;
     }
 
     public class Phase2StepDto

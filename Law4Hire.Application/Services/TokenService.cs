@@ -21,12 +21,12 @@ public class TokenService : ITokenService
         var claims = new List<Claim>
         {
             new(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new(ClaimTypes.Email, user.Email),
+            new(ClaimTypes.Email, user.Email ?? ""),
             new(ClaimTypes.Name, $"{user.FirstName} {user.LastName}".Trim())
         };
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
-            _config["TokenKey"] ?? "your-super-secret-key-that-is-at-least-32-characters-long"));
+            _config["TokenKey"] ?? "your-super-secret-key-that-is-at-least-64-characters-long-for-hmac-sha512-algorithm"));
 
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha512Signature);
 

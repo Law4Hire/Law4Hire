@@ -10,6 +10,9 @@ namespace Law4Hire.Infrastructure.Configurations
         {
             builder.Property(p => p.BasePrice)
                    .HasPrecision(18, 2);
+                   
+            builder.Property(p => p.L4HLLCFee)
+                   .HasPrecision(18, 2);
         }
     }
 }

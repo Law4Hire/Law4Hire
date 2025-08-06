@@ -1,0 +1,45 @@
+Country: United Kingdom, Purpose: Work, Step 1: Do you have a job offer from a US employer? -> Yes, I have an approved petition
+Country: United Kingdom, Purpose: Work, Step 2: What type of work will you be performing? -> Specialty occupation requiring bachelor's degree
+Country: United Kingdom, Purpose: Work, Step 3: Final recommendation -> You should apply for an H-1B visa
+Country: United Kingdom, Purpose: Study, Step 1: Have you been accepted to a US educational institution? -> Yes, I have an I-20 form
+Country: United Kingdom, Purpose: Study, Step 2: What level of study will you be pursuing? -> Bachelor's degree program
+Country: United Kingdom, Purpose: Study, Step 3: Final recommendation -> You should apply for an F-1 student visa
+Country: India, Purpose: Business, Step 1: What is the primary purpose of your business trip? -> Attending meetings and conferences
+Country: India, Purpose: Business, Step 2: How long do you plan to stay in the United States? -> Less than 90 days
+Country: India, Purpose: Business, Step 3: Will you be receiving payment from a US source? -> No, payment comes from my home country employer
+Country: India, Purpose: Business, Step 4: Final recommendation -> You may be eligible for B-1 business visitor status
+Country: India, Purpose: Tourism, Step 1: What is the primary purpose of your visit? -> Vacation and sightseeing
+Country: India, Purpose: Tourism, Step 2: How long do you plan to stay? -> 2 weeks
+Country: India, Purpose: Tourism, Step 3: Final recommendation -> You may be eligible for tourist authorization
+Country: India, Purpose: Work, Step 1: Do you have a job offer from a US employer? -> Yes, I have an approved petition
+Country: India, Purpose: Work, Step 2: What type of work will you be performing? -> Specialty occupation requiring bachelor's degree
+Country: India, Purpose: Work, Step 3: Final recommendation -> You should apply for an H-1B visa
+Country: India, Purpose: Study, Step 1: Have you been accepted to a US educational institution? -> Yes, I have an I-20 form
+Country: India, Purpose: Study, Step 2: What level of study will you be pursuing? -> Bachelor's degree program
+Country: India, Purpose: Study, Step 3: Final recommendation -> You should apply for an F-1 student visa
+Country: Mexico, Purpose: Business, Step 1: What is the primary purpose of your business trip? -> Attending meetings and conferences
+Country: Mexico, Purpose: Business, Step 2: How long do you plan to stay in the United States? -> Less than 90 days
+Country: Mexico, Purpose: Business, Step 3: Will you be receiving payment from a US source? -> No, payment comes from my home country employer
+Country: Mexico, Purpose: Business, Step 4: Final recommendation -> You may be eligible for B-1 business visitor status
+Country: Mexico, Purpose: Tourism, Step 1: What is the primary purpose of your visit? -> Vacation and sightseeing
+Country: Mexico, Purpose: Tourism, Step 2: How long do you plan to stay? -> 2 weeks
+Country: Mexico, Purpose: Tourism, Step 3: Final recommendation -> You may be eligible for tourist authorization
+Country: Mexico, Purpose: Work, Step 1: Do you have a job offer from a US employer? -> Yes, I have an approved petition
+Country: Mexico, Purpose: Work, Step 2: What type of work will you be performing? -> Specialty occupation requiring bachelor's degree
+Country: Mexico, Purpose: Work, Step 3: Final recommendation -> You should apply for an H-1B visa
+Country: Mexico, Purpose: Study, Step 1: Have you been accepted to a US educational institution? -> Yes, I have an I-20 form
+Country: Mexico, Purpose: Study, Step 2: What level of study will you be pursuing? -> Bachelor's degree program
+Country: Mexico, Purpose: Study, Step 3: Final recommendation -> You should apply for an F-1 student visa
+Country: Germany, Purpose: Business, Step 1: What is the primary purpose of your business trip? -> Attending meetings and conferences
+Country: Germany, Purpose: Business, Step 2: How long do you plan to stay in the United States? -> Less than 90 days
+Country: Germany, Purpose: Business, Step 3: Will you be receiving payment from a US source? -> No, payment comes from my home country employer
+Country: Germany, Purpose: Business, Step 4: Final recommendation -> You may be eligible for B-1 business visitor status
+Country: Germany, Purpose: Tourism, Step 1: What is the primary purpose of your visit? -> Vacation and sightseeing
+Country: Germany, Purpose: Tourism, Step 2: How long do you plan to stay? -> 2 weeks
+Country: Germany, Purpose: Tourism, Step 3: Final recommendation -> You may be eligible for tourist authorization
+Country: Germany, Purpose: Work, Step 1: Do you have a job offer from a US employer? -> Yes, I have an approved petition
+Country: Germany, Purpose: Work, Step 2: What type of work will you be performing? -> Specialty occupation requiring bachelor's degree
+Country: Germany, Purpose: Work, Step 3: Final recommendation -> You should apply for an H-1B visa
+Country: Germany, Purpose: Study, Step 1: Have you been accepted to a US educational institution? -> Yes, I have an I-20 form
+Country: Germany, Purpose: Study, Step 2: What level of study will you be pursuing? -> Bachelor's degree program
+Country: Germany, Purpose: Study, Step 3: Final recommendation -> You should apply for an F-1 student visa

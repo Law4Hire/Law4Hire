@@ -39,19 +39,16 @@ SubCategory to validate: {1}
 Response:";
 
         private const string VISA_TYPES_PROMPT = @"
-You are Bruce, a visa classification expert. Respond ONLY with a valid JSON array of visa type names.
-RULES:
-1. Return ONLY a JSON array of strings - no explanations, no markdown
-2. Include ALL possible visa types for this category and sub-categories
-3. Use official visa codes/names (e.g., ""H-1B"", ""F-1"", ""EB-5"")
-4. Be comprehensive - include rare and common types
-5. Maximum 100 visa types per response
+Return JSON array of visa codes for category: {0}
 
-Example format: [""H-1B"", ""H-2A"", ""H-2B"", ""L-1A"", ""L-1B""]
+Rules:
+- Max 25 visa types 
+- Official codes only (H-1B, EB-2, F-1)
+- Include cross-category types
+- Examples: EB-2 fits Work+Immigration, H-1B fits Work+Immigration
 
-Category: {0}
 SubCategories: {1}
-Response:";
+JSON only:";
 
         public BruceOpenAIAgent()
         {
@@ -98,15 +95,41 @@ Response:";
         {
             var subCategoriesJson = JsonSerializer.Serialize(subCategories);
             var prompt = string.Format(VISA_TYPES_PROMPT, category, subCategoriesJson);
+            
+            Console.WriteLine($"[BRUCE] Requesting visa types for category: {category}");
+            Console.WriteLine($"[BRUCE] SubCategories: {subCategoriesJson}");
+            
             var response = await GetRawResponseAsync(prompt);
+            
+            Console.WriteLine($"[BRUCE] API Response for {category}: {response}");
 
             try
             {
-                return JsonSerializer.Deserialize<List<string>>(response) ?? [];
+                // Check if response is truncated
+                if (response.EndsWith("\"") == false && response.Contains("\""))
+                {
+                    Console.WriteLine($"[BRUCE] WARNING: Response appears truncated, attempting to fix: {response}");
+                    // Try to fix truncated JSON by finding the last complete entry
+                    var lastCommaIndex = response.LastIndexOf(',');
+                    if (lastCommaIndex > 0)
+                    {
+                        response = response.Substring(0, lastCommaIndex) + "]";
+                        Console.WriteLine($"[BRUCE] Fixed response: {response}");
+                    }
+                }
+
+                var visaTypes = JsonSerializer.Deserialize<List<string>>(response) ?? [];
+                Console.WriteLine($"[BRUCE] Parsed {visaTypes.Count} visa types for {category}: {string.Join(", ", visaTypes)}");
+                return visaTypes;
             }
-            catch (JsonException ex)
+            catch (JsonException)
             {
-                throw new InvalidDataException($"Bruce returned invalid JSON for visa types: {response}", ex);
+                Console.WriteLine($"[BRUCE] ERROR: Failed to parse JSON response: {response}");
+                
+                // Fallback: return a basic set of visa types for the category
+                var fallbackTypes = GetFallbackVisaTypes(category);
+                Console.WriteLine($"[BRUCE] Using fallback visa types for {category}: {string.Join(", ", fallbackTypes)}");
+                return fallbackTypes;
             }
         }
 
@@ -119,13 +142,14 @@ Response:";
                     new(Role.User, prompt)
                 },
                 model: Model.GPT4o,
-                temperature: 0.1  // Lower temperature for more consistent responses
+                temperature: 0.1,  // Lower temperature for more consistent responses
+                maxTokens: 500     // Reduced tokens to prevent truncation
             );
 
             var result = await _client.ChatEndpoint.GetCompletionAsync(request);
 
             // Get the content as a string - this was the issue!
-            var content = result.FirstChoice.Message.Content?.ToString()?.Trim();
+            var content = result?.FirstChoice?.Message?.Content?.ToString()?.Trim();
 
             if (string.IsNullOrWhiteSpace(content))
             {
@@ -133,11 +157,11 @@ Response:";
             }
 
             // Clean up any markdown formatting that might slip through
-            if (content.StartsWith("```json"))
+            if (content?.StartsWith("```json") == true)
             {
                 content = content.Replace("```json", "").Replace("```", "").Trim();
             }
-            else if (content.StartsWith("```"))
+            else if (content?.StartsWith("```") == true)
             {
                 // Remove any other code block markers
                 var firstNewline = content.IndexOf('\n');
@@ -151,7 +175,22 @@ Response:";
                 content = content.Trim();
             }
 
-            return content;
+            return content ?? throw new InvalidOperationException("OpenAI returned null content after processing");
+        }
+
+        private static List<string> GetFallbackVisaTypes(string category)
+        {
+            return category.ToLower() switch
+            {
+                "visit" => ["B-1", "B-2", "J-1", "C-1", "D-1", "VWP", "ESTA"],
+                "work" => ["H-1B", "L-1A", "L-1B", "O-1", "EB-2", "EB-3", "H-2A", "H-2B"],
+                "immigrate" => ["EB-1", "EB-2", "EB-3", "EB-4", "EB-5", "IR-1", "IR-2", "IR-5"],
+                "study" => ["F-1", "F-2", "M-1", "M-2", "J-1"],
+                "family" => ["IR-1", "IR-2", "IR-5", "F-1", "F-2A", "F-2B", "F-3", "F-4", "K-1"],
+                "investment" => ["EB-5", "E-2", "L-1A"],
+                "asylum" => ["I-589", "T-1", "U-1", "VAWA"],
+                _ => ["H-1B", "F-1", "B-1", "B-2"]
+            };
         }
     }
 }

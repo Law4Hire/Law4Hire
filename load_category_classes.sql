@@ -1,0 +1,37 @@
+-- Load CategoryClass data
+INSERT INTO [CategoryClasses] ([Id], [ClassCode], [ClassName], [Description], [GeneralCategory], [CreatedAt], [UpdatedAt], [IsActive])
+VALUES 
+(NEWID(), 'A', 'Diplomat/Official', 'Visa class for A category visas', 'Other', GETUTCDATE(), GETUTCDATE(), 1),
+(NEWID(), 'B', 'Visitor', 'Visa class for B category visas', 'Tourism & Visit, Business', GETUTCDATE(), GETUTCDATE(), 1),
+(NEWID(), 'C', 'Transit', 'Visa class for C category visas', 'Tourism & Visit', GETUTCDATE(), GETUTCDATE(), 1),
+(NEWID(), 'CW', 'CW Visa Class', 'Visa class for CW category visas', 'Other', GETUTCDATE(), GETUTCDATE(), 1),
+(NEWID(), 'D', 'Crewmember', 'Visa class for D category visas', 'Other', GETUTCDATE(), GETUTCDATE(), 1),
+(NEWID(), 'E', 'Treaty Trader/Investor', 'Visa class for E category visas', 'Business, Employment', GETUTCDATE(), GETUTCDATE(), 1),
+(NEWID(), 'EB', 'Employment-Based Immigrant', 'Visa class for EB category visas', 'Employment, Immigrate', GETUTCDATE(), GETUTCDATE(), 1),
+(NEWID(), 'F', 'Student', 'Visa class for F category visas', 'Study & Exchange', GETUTCDATE(), GETUTCDATE(), 1),
+(NEWID(), 'G', 'International Organization', 'Visa class for G category visas', 'Other', GETUTCDATE(), GETUTCDATE(), 1),
+(NEWID(), 'H', 'Temporary Worker', 'Visa class for H category visas', 'Business, Employment', GETUTCDATE(), GETUTCDATE(), 1),
+(NEWID(), 'I', 'Media', 'Visa class for I category visas', 'Other', GETUTCDATE(), GETUTCDATE(), 1),
+(NEWID(), 'IR', 'Immediate Relative', 'Visa class for IR category visas', 'Immigrate', GETUTCDATE(), GETUTCDATE(), 1),
+(NEWID(), 'CR', 'Conditional Resident', 'Visa class for CR category visas', 'Immigrate', GETUTCDATE(), GETUTCDATE(), 1),
+(NEWID(), 'J', 'Exchange Visitor', 'Visa class for J category visas', 'Study & Exchange', GETUTCDATE(), GETUTCDATE(), 1),
+(NEWID(), 'K', 'Fiancé(e)/Spouse', 'Visa class for K category visas', 'Immigrate', GETUTCDATE(), GETUTCDATE(), 1),
+(NEWID(), 'L', 'Intracompany Transferee', 'Visa class for L category visas', 'Business, Employment', GETUTCDATE(), GETUTCDATE(), 1),
+(NEWID(), 'M', 'Vocational Student', 'Visa class for M category visas', 'Study & Exchange', GETUTCDATE(), GETUTCDATE(), 1),
+(NEWID(), 'N', 'N Visa Class', 'Visa class for N category visas', 'Other', GETUTCDATE(), GETUTCDATE(), 1),
+(NEWID(), 'NATO', 'NATO', 'Visa class for NATO category visas', 'Other', GETUTCDATE(), GETUTCDATE(), 1),
+(NEWID(), 'O', 'Extraordinary Ability', 'Visa class for O category visas', 'Business, Employment', GETUTCDATE(), GETUTCDATE(), 1),
+(NEWID(), 'P', 'Artist/Athlete', 'Visa class for P category visas', 'Business, Employment', GETUTCDATE(), GETUTCDATE(), 1),
+(NEWID(), 'Q', 'Cultural Exchange', 'Visa class for Q category visas', 'Study & Exchange', GETUTCDATE(), GETUTCDATE(), 1),
+(NEWID(), 'R', 'Religious Worker', 'Visa class for R category visas', 'Other', GETUTCDATE(), GETUTCDATE(), 1),
+(NEWID(), 'S', 'Informant', 'Visa class for S category visas', 'Other', GETUTCDATE(), GETUTCDATE(), 1),
+(NEWID(), 'SIJS', 'SIJS Visa Class', 'Visa class for SIJS category visas', 'Immigrate', GETUTCDATE(), GETUTCDATE(), 1),
+(NEWID(), 'SIV', 'SIV Visa Class', 'Visa class for SIV category visas', 'Immigrate', GETUTCDATE(), GETUTCDATE(), 1),
+(NEWID(), 'T', 'T Visa Class', 'Visa class for T category visas', 'Other', GETUTCDATE(), GETUTCDATE(), 1),
+(NEWID(), 'TPS', 'TPS Visa Class', 'Visa class for TPS category visas', 'Other', GETUTCDATE(), GETUTCDATE(), 1),
+(NEWID(), 'TN', 'NAFTA Professional', 'Visa class for TN category visas', 'Business, Employment', GETUTCDATE(), GETUTCDATE(), 1),
+(NEWID(), 'U', 'U Visa Class', 'Visa class for U category visas', 'Other', GETUTCDATE(), GETUTCDATE(), 1),
+(NEWID(), 'V', 'V Visa Class', 'Visa class for V category visas', 'Immigrate', GETUTCDATE(), GETUTCDATE(), 1),
+(NEWID(), 'VAWA', 'VAWA Visa Class', 'Visa class for VAWA category visas', 'Immigrate', GETUTCDATE(), GETUTCDATE(), 1);
+
+PRINT 'CategoryClass data loaded successfully';

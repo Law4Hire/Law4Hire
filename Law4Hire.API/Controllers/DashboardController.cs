@@ -17,6 +17,85 @@ public class DashboardController : ControllerBase
         _logger = logger;
     }
 
+    [HttpGet("visa-type/{userId:guid}")]
+    public async Task<ActionResult<string>> GetUserSelectedVisaType(Guid userId)
+    {
+        // Get the user's completed interview state
+        var interviewState = await _context.VisaInterviewStates
+            .FirstOrDefaultAsync(vis => vis.UserId == userId && vis.IsCompleted);
+
+        if (interviewState == null || string.IsNullOrEmpty(interviewState.SelectedVisaType))
+        {
+            return Ok(""); // Return empty string if no visa type selected
+        }
+
+        return Ok(interviewState.SelectedVisaType);
+    }
+
+    [HttpGet("documents/{userId:guid}")]
+    public async Task<ActionResult<List<DocumentInfo>>> GetUserDocuments(Guid userId)
+    {
+        // Get the user's completed interview state
+        var interviewState = await _context.VisaInterviewStates
+            .FirstOrDefaultAsync(vis => vis.UserId == userId && vis.IsCompleted);
+
+        if (interviewState == null || string.IsNullOrEmpty(interviewState.VisaWorkflowJson))
+        {
+            return Ok(new List<DocumentInfo>());
+        }
+
+        var documents = new List<DocumentInfo>();
+
+        // Parse the workflow JSON to extract documents
+        using var doc = JsonDocument.Parse(interviewState.VisaWorkflowJson);
+        var root = doc.RootElement;
+
+        if (root.TryGetProperty("Workflow", out var workflowElement) && 
+            workflowElement.TryGetProperty("Steps", out var steps))
+        {
+            foreach (var step in steps.EnumerateArray())
+            {
+                // Process government document
+                if (step.TryGetProperty("GovernmentDocument", out var govDoc) && 
+                    govDoc.ValueKind != JsonValueKind.Null)
+                {
+                    var documentName = govDoc.GetString();
+                    if (!string.IsNullOrWhiteSpace(documentName))
+                    {
+                        documents.Add(new DocumentInfo
+                        {
+                            DocumentTypeId = Guid.NewGuid(),
+                            DocumentName = documentName,
+                            Status = "NotStarted", // Default status - will be updated by real status tracking
+                            VisaType = interviewState.SelectedVisaType ?? "Unknown",
+                            IsGovernmentProvided = true
+                        });
+                    }
+                }
+
+                // Process user-generated documents
+                if (step.TryGetProperty("UserGeneratedDocuments", out var userDoc) && 
+                    userDoc.ValueKind != JsonValueKind.Null)
+                {
+                    var documentName = userDoc.GetString();
+                    if (!string.IsNullOrWhiteSpace(documentName))
+                    {
+                        documents.Add(new DocumentInfo
+                        {
+                            DocumentTypeId = Guid.NewGuid(),
+                            DocumentName = documentName,
+                            Status = "NotStarted", // Default status - will be updated by real status tracking
+                            VisaType = interviewState.SelectedVisaType ?? "Unknown",
+                            IsGovernmentProvided = false
+                        });
+                    }
+                }
+            }
+        }
+
+        return Ok(documents);
+    }
+
     [HttpGet("workflow/{userId:guid}")]
     public async Task<ActionResult<DashboardWorkflowDto>> GetUserWorkflow(Guid userId)
     {
@@ -35,11 +114,7 @@ public class DashboardController : ControllerBase
 
         var workflow = new DashboardWorkflowDto
         {
-            VisaType = interviewState.SelectedVisaType ?? "Unknown",
-            EstimatedTotalCost = root.TryGetProperty("estimatedTotalCost", out var totalCost)
-                ? totalCost.GetDecimal() : 0,
-            EstimatedTotalTimeDays = root.TryGetProperty("estimatedTotalTimeDays", out var totalTime)
-                ? totalTime.GetInt32() : 0
+            VisaType = interviewState.SelectedVisaType ?? "Unknown"
         };
 
         // Get all document statuses for this user
@@ -48,47 +123,92 @@ public class DashboardController : ControllerBase
             .Where(uds => uds.UserId == userId)
             .ToListAsync();
 
-        if (root.TryGetProperty("steps", out var steps))
+        // Parse workflow data according to prompt.txt format
+        if (root.TryGetProperty("Workflow", out var workflowElement))
         {
+            // Get totals from Workflow.Totals
+            if (workflowElement.TryGetProperty("Totals", out var totals))
+            {
+                workflow.EstimatedTotalCost = totals.TryGetProperty("TotalEstimatedCost", out var totalCost)
+                    ? totalCost.GetDecimal() : 0;
+                workflow.EstimatedTotalTimeDays = totals.TryGetProperty("TotalEstimatedTime", out var totalTime)
+                    ? (int)Math.Ceiling(totalTime.GetDecimal() / 1440) : 0; // Convert minutes to days
+            }
+
+            // Parse steps from Workflow.Steps
+            if (workflowElement.TryGetProperty("Steps", out var steps))
+            {
             foreach (var step in steps.EnumerateArray())
             {
                 var stepDto = new WorkflowStepDto
                 {
-                    Name = step.TryGetProperty("name", out var name) ? (name.GetString() ?? "") : "",
-                    Description = step.TryGetProperty("description", out var desc) ? (desc.GetString() ?? "") : "",
-                    EstimatedCost = step.TryGetProperty("estimatedCost", out var cost) ? cost.GetDecimal() : 0,
-                    EstimatedTimeDays = step.TryGetProperty("estimatedTimeDays", out var time) ? time.GetInt32() : 0
+                    Name = step.TryGetProperty("StepName", out var name) ? (name.GetString() ?? "") : "",
+                    Description = step.TryGetProperty("StepDescription", out var desc) ? (desc.GetString() ?? "") : "",
+                    EstimatedCost = step.TryGetProperty("EstimatedCost", out var cost) ? cost.GetDecimal() : 0,
+                    EstimatedTimeDays = step.TryGetProperty("EstimatedTime", out var time) 
+                        ? (int)Math.Ceiling(time.GetDecimal() / 1440) : 0 // Convert minutes to days
                 };
 
                 // Add government link if this step has one
-                if (step.TryGetProperty("link", out var link))
+                if (step.TryGetProperty("GovernmentDocumentLink", out var govLink))
                 {
-                    stepDto.GovernmentLink = link.GetString();
+                    stepDto.GovernmentLink = govLink.GetString();
                 }
 
-                // Process documents for this step
-                if (step.TryGetProperty("documents", out var documents))
+                // Add website link if this step has one
+                if (step.TryGetProperty("WebsiteLink", out var webLink))
                 {
-                    foreach (var document in documents.EnumerateArray())
-                    {
-                        var documentName = document.GetString();
-                        if (string.IsNullOrWhiteSpace(documentName)) continue;
+                    stepDto.WebsiteLink = webLink.GetString();
+                }
 
+                // Process government document
+                if (step.TryGetProperty("GovernmentDocument", out var govDoc) && 
+                    govDoc.ValueKind != JsonValueKind.Null)
+                {
+                    var documentName = govDoc.GetString();
+                    if (!string.IsNullOrWhiteSpace(documentName))
+                    {
                         // Find corresponding document status
                         var docStatus = documentStatuses.FirstOrDefault(ds =>
                             ds.DocumentType.Name.Equals(documentName, StringComparison.OrdinalIgnoreCase));
 
-                        // Create WorkflowDocumentDto (not WorkflowStepDocumentDto)
                         stepDto.Documents.Add(new WorkflowDocumentDto
                         {
                             Id = Guid.NewGuid(),
                             Name = documentName,
                             DocumentName = documentName,
                             Status = docStatus?.Status ?? DocumentStatusEnum.NotStarted,
-                            IsGovernmentProvided = docStatus?.DocumentType.IsGovernmentProvided ?? false,
-                            GovernmentLink = docStatus?.DocumentType.GovernmentLink,
-                            DownloadLink = docStatus?.DocumentType.GovernmentLink,
-                            IsRequired = docStatus?.DocumentType.IsRequired ?? true,
+                            IsGovernmentProvided = true,
+                            GovernmentLink = step.TryGetProperty("GovernmentDocumentLink", out var gdl) ? gdl.GetString() : null,
+                            DownloadLink = step.TryGetProperty("GovernmentDocumentLink", out var gdl2) ? gdl2.GetString() : null,
+                            IsRequired = true,
+                            SubmittedAt = docStatus?.SubmittedAt,
+                            FilePath = docStatus?.FilePath
+                        });
+                    }
+                }
+
+                // Process user-generated documents
+                if (step.TryGetProperty("UserGeneratedDocuments", out var userDoc) && 
+                    userDoc.ValueKind != JsonValueKind.Null)
+                {
+                    var documentName = userDoc.GetString();
+                    if (!string.IsNullOrWhiteSpace(documentName))
+                    {
+                        // Find corresponding document status
+                        var docStatus = documentStatuses.FirstOrDefault(ds =>
+                            ds.DocumentType.Name.Equals(documentName, StringComparison.OrdinalIgnoreCase));
+
+                        stepDto.Documents.Add(new WorkflowDocumentDto
+                        {
+                            Id = Guid.NewGuid(),
+                            Name = documentName,
+                            DocumentName = documentName,
+                            Status = docStatus?.Status ?? DocumentStatusEnum.NotStarted,
+                            IsGovernmentProvided = false,
+                            GovernmentLink = null,
+                            DownloadLink = null,
+                            IsRequired = true,
                             SubmittedAt = docStatus?.SubmittedAt,
                             FilePath = docStatus?.FilePath
                         });
@@ -97,6 +217,7 @@ public class DashboardController : ControllerBase
 
                 workflow.Steps.Add(stepDto);
             }
+        }
         }
 
         return Ok(workflow);

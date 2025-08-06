@@ -23,7 +23,9 @@ public class BruceVisaBot(
 
         try
         {
+            _logger.LogInformation("🤖 Bruce Visa Bot is starting...");
             await syncService.SyncCategoriesAndTypesAsync(stoppingToken);
+            _logger.LogInformation("🏁 Bruce Visa Bot has finished successfully. All data synchronization is complete!");
         }
         catch (Exception ex)
         {
@@ -36,7 +38,7 @@ public class BruceVisaBot(
                 EntityAffected = "BruceVisaBot",
                 Notes = ex.ToString()
             });
-            _logger.LogError(ex, "BruceVisaBot failed");
+            _logger.LogError(ex, "💥 Bruce Visa Bot failed to complete synchronization");
         }
     }
 }

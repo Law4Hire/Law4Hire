@@ -18,11 +18,26 @@ public static async Task SeedAsync(Law4HireDbContext context, ILogger? logger = 
             await context.Database.EnsureCreatedAsync();
             logger?.LogInformation("Database ensured created");
 
-            // Seed Service Packages
+            // Use the comprehensive seeder for Countries, US States, and Visa Types
+            var comprehensiveSeeder = new SeedData.DataSeeder(context, 
+                logger as ILogger<SeedData.DataSeeder> ?? 
+                Microsoft.Extensions.Logging.Abstractions.NullLogger<SeedData.DataSeeder>.Instance);
+            
+            await comprehensiveSeeder.SeedAllDataAsync();
+
+            // Seed Service Packages AFTER visa types exist
             if (!await context.ServicePackages.AnyAsync())
             {
                 logger?.LogInformation("Seeding service packages");
                 
+                // Get a sample visa type to use as default
+                var defaultVisaType = await context.BaseVisaTypes.FirstOrDefaultAsync();
+                if (defaultVisaType == null)
+                {
+                    logger?.LogWarning("No visa types found, cannot seed service packages");
+                    return;
+                }
+
                 var packages = new[]
                 {
                     new ServicePackage
@@ -33,7 +48,8 @@ public static async Task SeedAsync(Law4HireDbContext context, ILogger? logger = 
                         BasePrice = 299.00m,
                         HasMoneyBackGuarantee = false,
                         IsActive = true,
-                        CreatedAt = DateTime.UtcNow
+                        CreatedAt = DateTime.UtcNow,
+                        VisaTypeId = defaultVisaType.Id
                     },
                     new ServicePackage
                     {
@@ -43,7 +59,8 @@ public static async Task SeedAsync(Law4HireDbContext context, ILogger? logger = 
                         BasePrice = 599.00m,
                         HasMoneyBackGuarantee = false,
                         IsActive = true,
-                        CreatedAt = DateTime.UtcNow
+                        CreatedAt = DateTime.UtcNow,
+                        VisaTypeId = defaultVisaType.Id
                     },
                     new ServicePackage
                     {
@@ -53,7 +70,8 @@ public static async Task SeedAsync(Law4HireDbContext context, ILogger? logger = 
                         BasePrice = 1299.00m,
                         HasMoneyBackGuarantee = false,
                         IsActive = true,
-                        CreatedAt = DateTime.UtcNow
+                        CreatedAt = DateTime.UtcNow,
+                        VisaTypeId = defaultVisaType.Id
                     },
                     new ServicePackage
                     {
@@ -63,7 +81,8 @@ public static async Task SeedAsync(Law4HireDbContext context, ILogger? logger = 
                         BasePrice = 1799.00m,
                         HasMoneyBackGuarantee = true,
                         IsActive = true,
-                        CreatedAt = DateTime.UtcNow
+                        CreatedAt = DateTime.UtcNow,
+                        VisaTypeId = defaultVisaType.Id
                     }
                 };
 

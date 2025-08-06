@@ -78,3 +78,22 @@ public enum WorkflowStepStatus
     InProgress = 1,
     Completed = 2
 }
+
+public class DocumentInfo
+{
+    public Guid DocumentTypeId { get; set; }
+    public string DocumentName { get; set; } = string.Empty;
+    public string Status { get; set; } = string.Empty;
+    public string VisaType { get; set; } = string.Empty;
+    public bool IsGovernmentProvided { get; set; } = false;
+    
+    public string StatusText => Status switch
+    {
+        "NotStarted" => "Not Started",
+        "InProgress" => "In Progress", 
+        "Submitted" => "Submitted",
+        "Approved" => "Approved",
+        "Rejected" => "Rejected",
+        _ => Status
+    };
+}

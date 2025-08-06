@@ -1,0 +1,10 @@
+{
+  "id": "0a825cb5-2174-4f8b-e8fc-08ddcc8c307f",
+  "email": "dcann@cannlaw.com",
+  "userName": "dcannlaw",
+  "userNameLength": 8,
+  "normalizedEmail": "DCANN@CANNLAW.COM",
+  "normalizedUserName": "DCANNLAW",
+  "emailConfirmed": true,
+  "lockoutEnabled": true
+}

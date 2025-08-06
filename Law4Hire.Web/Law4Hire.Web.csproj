@@ -10,11 +10,14 @@
 		<PackageReference Include="Blazor.LocalStorage" Version="9.0.1" />
 		<PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="9.0.6" />
 		<PackageReference Include="Microsoft.AspNetCore.SignalR.Common" Version="9.0.6" />
+		<PackageReference Include="Microsoft.FluentUI.AspNetCore.Components" Version="4.12.1" />
+		<PackageReference Include="MudBlazor" Version="8.10.0" />
 	</ItemGroup>
 
 	<ItemGroup>
 		<ProjectReference Include="..\Law4Hire.Application\Law4Hire.Application.csproj" />
 		<ProjectReference Include="..\Law4Hire.Core\Law4Hire.Core.csproj" />
+		<ProjectReference Include="..\Law4Hire.Infrastructure\Law4Hire.Infrastructure.csproj" />
 	</ItemGroup>
 
 	<ItemGroup>

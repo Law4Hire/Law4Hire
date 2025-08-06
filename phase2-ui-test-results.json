@@ -1,0 +1,179 @@
+{
+  "summary": {
+    "total": 24,
+    "passed": 0,
+    "failed": 24,
+    "successRate": "0.00%"
+  },
+  "results": [
+    {
+      "testName": "Test1: Immigrate - Pattern [0]",
+      "passed": false,
+      "details": "Failed to setup test user",
+      "error": null,
+      "timestamp": "2025-08-05T22:12:04.127Z"
+    },
+    {
+      "testName": "Test2: Immigrate - Pattern [1]",
+      "passed": false,
+      "details": "Failed to setup test user",
+      "error": null,
+      "timestamp": "2025-08-05T22:12:23.888Z"
+    },
+    {
+      "testName": "Test3: Immigrate - Pattern [2]",
+      "passed": false,
+      "details": "Failed to setup test user",
+      "error": null,
+      "timestamp": "2025-08-05T22:12:43.709Z"
+    },
+    {
+      "testName": "Test4: Immigrate - Pattern [0,0]",
+      "passed": false,
+      "details": "Failed to setup test user",
+      "error": null,
+      "timestamp": "2025-08-05T22:13:03.187Z"
+    },
+    {
+      "testName": "Test5: Immigrate - Pattern [0,1]",
+      "passed": false,
+      "details": "Failed to setup test user",
+      "error": null,
+      "timestamp": "2025-08-05T22:13:22.965Z"
+    },
+    {
+      "testName": "Test6: Immigrate - Pattern [0,2]",
+      "passed": false,
+      "details": "Failed to setup test user",
+      "error": null,
+      "timestamp": "2025-08-05T22:13:42.441Z"
+    },
+    {
+      "testName": "Test7: Immigrate - Pattern [1,0]",
+      "passed": false,
+      "details": "Failed to setup test user",
+      "error": null,
+      "timestamp": "2025-08-05T22:14:02.263Z"
+    },
+    {
+      "testName": "Test8: Immigrate - Pattern [1,1]",
+      "passed": false,
+      "details": "Failed to setup test user",
+      "error": null,
+      "timestamp": "2025-08-05T22:14:21.687Z"
+    },
+    {
+      "testName": "Test9: Work - Pattern [0]",
+      "passed": false,
+      "details": "Failed to setup test user",
+      "error": null,
+      "timestamp": "2025-08-05T22:14:41.486Z"
+    },
+    {
+      "testName": "Test10: Work - Pattern [1]",
+      "passed": false,
+      "details": "Failed to setup test user",
+      "error": null,
+      "timestamp": "2025-08-05T22:15:01.510Z"
+    },
+    {
+      "testName": "Test11: Work - Pattern [2]",
+      "passed": false,
+      "details": "Failed to setup test user",
+      "error": null,
+      "timestamp": "2025-08-05T22:15:21.058Z"
+    },
+    {
+      "testName": "Test12: Work - Pattern [0,0]",
+      "passed": false,
+      "details": "Failed to setup test user",
+      "error": null,
+      "timestamp": "2025-08-05T22:15:41.102Z"
+    },
+    {
+      "testName": "Test13: Work - Pattern [0,1]",
+      "passed": false,
+      "details": "Failed to setup test user",
+      "error": null,
+      "timestamp": "2025-08-05T22:16:01.120Z"
+    },
+    {
+      "testName": "Test14: Work - Pattern [0,2]",
+      "passed": false,
+      "details": "Failed to setup test user",
+      "error": null,
+      "timestamp": "2025-08-05T22:16:21.146Z"
+    },
+    {
+      "testName": "Test15: Work - Pattern [1,0]",
+      "passed": false,
+      "details": "Failed to setup test user",
+      "error": null,
+      "timestamp": "2025-08-05T22:16:41.204Z"
+    },
+    {
+      "testName": "Test16: Work - Pattern [1,1]",
+      "passed": false,
+      "details": "Failed to setup test user",
+      "error": null,
+      "timestamp": "2025-08-05T22:17:01.208Z"
+    },
+    {
+      "testName": "Test17: Family - Pattern [0]",
+      "passed": false,
+      "details": "Failed to setup test user",
+      "error": null,
+      "timestamp": "2025-08-05T22:17:21.237Z"
+    },
+    {
+      "testName": "Test18: Family - Pattern [1]",
+      "passed": false,
+      "details": "Failed to setup test user",
+      "error": null,
+      "timestamp": "2025-08-05T22:17:41.256Z"
+    },
+    {
+      "testName": "Test19: Family - Pattern [2]",
+      "passed": false,
+      "details": "Failed to setup test user",
+      "error": null,
+      "timestamp": "2025-08-05T22:18:00.849Z"
+    },
+    {
+      "testName": "Test20: Family - Pattern [0,0]",
+      "passed": false,
+      "details": "Failed to setup test user",
+      "error": null,
+      "timestamp": "2025-08-05T22:18:20.880Z"
+    },
+    {
+      "testName": "Test21: Family - Pattern [0,1]",
+      "passed": false,
+      "details": "Failed to setup test user",
+      "error": null,
+      "timestamp": "2025-08-05T22:18:40.923Z"
+    },
+    {
+      "testName": "Test22: Family - Pattern [0,2]",
+      "passed": false,
+      "details": "Failed to setup test user",
+      "error": null,
+      "timestamp": "2025-08-05T22:19:01.038Z"
+    },
+    {
+      "testName": "Test23: Family - Pattern [1,0]",
+      "passed": false,
+      "details": "Failed to setup test user",
+      "error": null,
+      "timestamp": "2025-08-05T22:19:21.070Z"
+    },
+    {
+      "testName": "Test24: Family - Pattern [1,1]",
+      "passed": false,
+      "details": "Failed to setup test user",
+      "error": null,
+      "timestamp": "2025-08-05T22:19:41.242Z"
+    }
+  ],
+  "generatedAt": "2025-08-05T22:19:41.243Z"
+}

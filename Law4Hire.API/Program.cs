@@ -81,7 +81,23 @@ builder.Services.AddScoped<VisaInterviewBot>(sp =>
     return new VisaInterviewBot(factory.CreateClient(), apiKey, config, dbContext);
 });
 builder.Services.AddScoped<WorkflowProcessingService>();
-builder.Services.AddIdentity<User, IdentityRole<Guid>>()
+builder.Services.AddScoped<VisaEligibilityService>();
+builder.Services.AddScoped<VisaNarrowingService>();
+builder.Services.AddScoped<StaticVisaInterviewService>();
+builder.Services.AddScoped<EnhancedVisaInterviewService>();
+builder.Services.AddIdentity<User, IdentityRole<Guid>>(options =>
+{
+    // Configure password requirements
+    options.Password.RequireDigit = true;
+    options.Password.RequireLowercase = true;
+    options.Password.RequireUppercase = true;
+    options.Password.RequireNonAlphanumeric = true;
+    options.Password.RequiredLength = 8;
+    
+    // Configure username requirements  
+    options.User.RequireUniqueEmail = true;
+    options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
+})
     .AddEntityFrameworkStores<Law4HireDbContext>()
     .AddDefaultTokenProviders();
 builder.Services.AddScoped<ITokenService, TokenService>();
@@ -92,7 +108,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         {
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
-                builder.Configuration["TokenKey"] ?? "your-super-secret-key-that-is-at-least-32-characters-long")),
+                builder.Configuration["TokenKey"] ?? "your-super-secret-key-that-is-at-least-64-characters-long-for-hmac-sha512-algorithm")),
             ValidateIssuer = false,
             ValidateAudience = false
         };
@@ -206,16 +222,21 @@ builder.Services.AddHttpLogging(logging =>
 });
 var app = builder.Build();
 
+// Database initialization and seeding
 using (var scope = app.Services.CreateScope())
 {
     var services = scope.ServiceProvider;
+    
+    // Initialize roles and admin users first
     await DbInitializer.SeedAsync(services);
 
+    // Then seed other data
     var context = services.GetRequiredService<Law4HireDbContext>();
     var loggerFactory = services.GetRequiredService<ILoggerFactory>();
     var logger = loggerFactory.CreateLogger("DataSeeder");
     await context.Database.EnsureCreatedAsync();
-    await DataSeeder.SeedAsync(context, logger);
+    // Temporarily disable data seeding due to schema issues
+    // await DataSeeder.SeedAsync(context, logger);
 }
 if (app.Environment.IsDevelopment())
 {
@@ -240,7 +261,8 @@ var context = services.GetRequiredService<Law4HireDbContext>();
 var loggerFactory = services.GetRequiredService<ILoggerFactory>();
 var logger = loggerFactory.CreateLogger("DataSeeder");
 await context.Database.EnsureCreatedAsync();
-await DataSeeder.SeedAsync(context, logger);
+// Temporarily disable data seeding due to schema issues
+// await DataSeeder.SeedAsync(context, logger);
 }
 
 app.UseHttpsRedirection();
@@ -268,3 +290,9 @@ app.UseAntiforgery();
 app.MapRazorComponents<App>()
 .AddInteractiveServerRenderMode();
 app.Run();
+
+// Make Program accessible for testing
+namespace Law4Hire.API
+{
+    public partial class Program { }
+}

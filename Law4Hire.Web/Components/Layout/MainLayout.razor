@@ -1,18 +1,56 @@
 ﻿@inherits LayoutComponentBase
-@using System.Globalization
+@using Microsoft.AspNetCore.Components.Web
 
-<div class="page">
-    <main>
-        <NavMenu />
+<MudThemeProvider @bind-IsDarkMode="@_isDarkMode" Theme="_theme" />
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
 
-        <article class="content px-4">
+<MudLayout>
+    <MudAppBar Elevation="1" Color="MudBlazor.Color.Primary" Fixed="true">
+        <NavMenu IsDarkMode="@_isDarkMode" OnToggleTheme="@ToggleTheme" />
+    </MudAppBar>
+    
+    <MudMainContent>
+        <MudContainer MaxWidth="MaxWidth.ExtraExtraLarge" Class="my-16 pt-16">
             @Body
-        </article>
-    </main>
-</div>
+        </MudContainer>
+    </MudMainContent>
+</MudLayout>
+
+@code {
+    private bool _isDarkMode = false;
+    private MudTheme _theme = new()
+    {
+        PaletteLight = new PaletteLight()
+        {
+            Primary = Colors.Blue.Default,
+            AppbarBackground = Colors.Blue.Default,
+            AppbarText = Colors.Shades.White,
+            DrawerBackground = Colors.Gray.Lighten4,
+            DrawerText = Colors.Gray.Darken3,
+            Surface = Colors.Shades.White
+        },
+        PaletteDark = new PaletteDark()
+        {
+            Primary = Colors.Blue.Lighten1,
+            AppbarBackground = Colors.Gray.Darken4,
+            AppbarText = Colors.Shades.White,
+            DrawerBackground = Colors.Gray.Darken4,
+            DrawerText = Colors.Shades.White,
+            Surface = Colors.Gray.Darken3
+        }
+    };
+
+    private void ToggleTheme()
+    {
+        _isDarkMode = !_isDarkMode;
+        StateHasChanged();
+    }
+}
 
 <div id="blazor-error-ui">
-    An unhandled error has occurred.
+    Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development" ? "An error has occurred. This application may no longer respond until reloaded." : "An error has occurred."
     <a href="" class="reload">Reload</a>
     <a class="dismiss">🗙</a>
 </div>

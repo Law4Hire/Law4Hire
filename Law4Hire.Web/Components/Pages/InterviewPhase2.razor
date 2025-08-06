@@ -1,9 +1,19 @@
 @page "/interview/phase2"
-@using Law4Hire.Web.DTOs
+@using Law4Hire.Core.DTOs
 @inject HttpClient Http
 @inject Law4Hire.Web.State.AuthState AuthState
+@inject Law4Hire.Web.State.CultureState CultureState
+@inject NavigationManager Navigation
 
-<h3>Visa Interview - Phase 2</h3>
+<div class="mb-4">
+    <h3>Visa Interview - Phase 2</h3>
+    @if (!string.IsNullOrEmpty(GetUserCategory()))
+    {
+        <div class="badge bg-primary fs-6 mt-2">
+            Category: @GetUserCategory()
+        </div>
+    }
+</div>
 
 @if (isLoading)
 {
@@ -36,24 +46,69 @@ else if (question != null)
                 <h5>Step @question.Step</h5>
             </div>
             <div class="card-body">
-                <p class="card-text">@question.Question</p>
-                <EditForm Model="@answerModel" OnValidSubmit="SubmitAnswer">
-                    <div class="mb-3">
-                        <label for="answer" class="form-label">Your Answer:</label>
-                        <InputText id="answer" @bind-Value="answerModel.Answer" class="form-control" placeholder="Enter your answer here..." />
+                <p class="card-text mb-4">@GetQuestionText()</p>
+                
+                @if (GetQuestionOptions().Any())
+                {
+                    <!-- Multiple Choice Options -->
+                    <div class="mb-4 phase2-options-container">
+                        @foreach (var option in GetQuestionOptions())
+                        {
+                            <div class="mb-2">
+                                <button type="button" 
+                                        class="btn phase2-option-button text-start @GetButtonClass(option.Key)"
+                                        @onclick="() => SelectOption(option.Key)"
+                                        disabled="@isSubmitting">
+                                    <div class="d-flex align-items-center h-100">
+                                        <span class="badge bg-primary me-3 flex-shrink-0" style="font-size: 0.9rem;">@option.Key</span>
+                                        <span class="flex-grow-1">@option.Value</span>
+                                    </div>
+                                </button>
+                            </div>
+                        }
                     </div>
-                    <button type="submit" class="btn btn-primary" disabled="@isSubmitting">
-                        @if (isSubmitting)
-                        {
-                            <span class="spinner-border spinner-border-sm" role="status"></span>
-                            <span>Processing...</span>
-                        }
-                        else
-                        {
-                            <span>Next</span>
-                        }
-                    </button>
-                </EditForm>
+                    
+                    <!-- Next Button (only show when option is selected) -->
+                    @if (!string.IsNullOrEmpty(selectedOption))
+                    {
+                        <div class="d-flex justify-content-end">
+                            <button type="button" class="btn btn-success btn-lg px-4" 
+                                    @onclick="SubmitSelectedAnswer" 
+                                    disabled="@isSubmitting">
+                                @if (isSubmitting)
+                                {
+                                    <span class="spinner-border spinner-border-sm me-2" role="status"></span>
+                                    <span>Processing...</span>
+                                }
+                                else
+                                {
+                                    <span>Next <i class="fas fa-arrow-right ms-2"></i></span>
+                                }
+                            </button>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <!-- Fallback to text input for non-multiple choice questions -->
+                    <EditForm Model="@answerModel" OnValidSubmit="SubmitAnswer">
+                        <div class="mb-3">
+                            <label for="answer" class="form-label">Your Answer:</label>
+                            <InputText id="answer" @bind-Value="answerModel.Answer" class="form-control" placeholder="Enter your answer here..." />
+                        </div>
+                        <button type="submit" class="btn btn-primary" disabled="@isSubmitting">
+                            @if (isSubmitting)
+                            {
+                                <span class="spinner-border spinner-border-sm" role="status"></span>
+                                <span>Processing...</span>
+                            }
+                            else
+                            {
+                                <span>Next</span>
+                            }
+                        </button>
+                    </EditForm>
+                }
             </div>
         </div>
     }
@@ -70,6 +125,7 @@ else
     private bool isLoading = true;
     private bool isSubmitting = false;
     private string errorMessage = string.Empty;
+    private string selectedOption = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
@@ -107,6 +163,10 @@ else
                 Instructions = "Please help me find the right visa type based on my specific situation."
             };
 
+            // Set language header for localization
+            Http.DefaultRequestHeaders.Remove("Accept-Language");
+            Http.DefaultRequestHeaders.Add("Accept-Language", CultureState.CurrentUICulture.Name);
+
             var response = await Http.PostAsJsonAsync("api/VisaInterview/phase2/step", payload);
 
             if (response.IsSuccessStatusCode)
@@ -134,6 +194,7 @@ else
     {
         if (string.IsNullOrWhiteSpace(answerModel.Answer))
         {
+            errorMessage = "Please provide an answer before submitting.";
             return;
         }
 
@@ -152,12 +213,29 @@ else
                 Answer = answerModel.Answer.Trim()
             };
 
+            // Set language header for localization
+            Http.DefaultRequestHeaders.Remove("Accept-Language");
+            Http.DefaultRequestHeaders.Add("Accept-Language", CultureState.CurrentUICulture.Name);
+
             var response = await Http.PostAsJsonAsync("api/VisaInterview/phase2/step", payload);
 
             if (response.IsSuccessStatusCode)
             {
-                question = await response.Content.ReadFromJsonAsync<Phase2QuestionDto>();
-                answerModel.Answer = string.Empty; // Clear the answer for next question
+                var newQuestion = await response.Content.ReadFromJsonAsync<Phase2QuestionDto>();
+                
+                // If interview is complete, redirect to dashboard
+                if (newQuestion?.IsComplete == true)
+                {
+                    question = newQuestion;
+                    await Task.Delay(2000); // Give user time to read completion message
+                    Navigation.NavigateTo("/dashboard");
+                }
+                else
+                {
+                    // Update question and clear selection for next step
+                    question = newQuestion;
+                    ClearSelection();
+                }
             }
             else
             {
@@ -183,26 +261,73 @@ else
 
     private string? GetUserCategory()
     {
-        // TODO: Implement this method to get the category from wherever it's stored
-        // This might be from:
-        // 1. AuthState.CurrentUser if UserDto has a Category property
-        // 2. Local storage
-        // 3. A previous interview step
-        // 4. Query parameter
-        // 5. Session state
+        // Get category from authenticated user
+        return AuthState.CurrentUser?.Category;
+    }
 
-        // For now, you might need to add this property to your UserDto or get it from elsewhere
-        // Example implementations:
-
-        // Option 1: If Category is added to UserDto
-        // return AuthState.CurrentUser?.Category;
-
-        // Option 2: From query parameter (add @page "/interview/phase2/{category?}" at top)
-        // [Parameter] public string? Category { get; set; }
-        // return Category;
-
-        // Option 3: Hard-coded for testing (remove this in production)
-        return "Permanent residency and green card options";
+    // Get clean question text from DTO
+    private string GetQuestionText()
+    {
+        if (question?.Question == null) return "";
+        
+        // The question text should now be clean without A) B) C) options
+        return question.Question;
+    }
+    
+    // Get question options from the DTO
+    private Dictionary<string, string> GetQuestionOptions()
+    {
+        var options = new Dictionary<string, string>();
+        
+        if (question?.Options == null) return options;
+        
+        foreach (var option in question.Options)
+        {
+            options[option.Key] = option.Text;
+        }
+        
+        Console.WriteLine($"[DEBUG] Found {options.Count} options from question DTO");
+        foreach (var option in options)
+        {
+            Console.WriteLine($"[DEBUG] Option {option.Key}: {option.Value}");
+        }
+        
+        return options;
+    }
+    
+    // Get CSS class for button based on selection state
+    private string GetButtonClass(string optionKey)
+    {
+        if (selectedOption == optionKey)
+        {
+            return "btn-primary"; // Selected state - filled
+        }
+        return "btn-outline-primary"; // Unselected state - outline only
+    }
+    
+    // Handle option selection
+    private void SelectOption(string optionKey)
+    {
+        selectedOption = optionKey;
+        answerModel.Answer = optionKey;
+        StateHasChanged();
+    }
+    
+    // Submit the selected answer
+    private async Task SubmitSelectedAnswer()
+    {
+        if (!string.IsNullOrEmpty(selectedOption))
+        {
+            answerModel.Answer = selectedOption;
+            await SubmitAnswer();
+        }
+    }
+    
+    // Clear selection when loading new question
+    private void ClearSelection() 
+    {
+        selectedOption = string.Empty;
+        answerModel.Answer = string.Empty;
     }
 
     public class AnswerModel
@@ -210,3 +335,81 @@ else
         public string Answer { get; set; } = string.Empty;
     }
 }
+
+<style>
+    .phase2-options-container {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .phase2-option-button {
+        width: 100% !important;
+        min-height: 60px;
+        padding: 12px 16px;
+        border: 2px solid #007bff;
+        border-radius: 8px;
+        white-space: normal;
+        word-wrap: break-word;
+        text-align: left;
+        display: flex;
+        align-items: center;
+        transition: all 0.2s ease;
+        position: relative;
+    }
+    
+    .phase2-option-button:hover {
+        background-color: rgba(0, 123, 255, 0.1);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 8px rgba(0, 123, 255, 0.2);
+    }
+    
+    .phase2-option-button.btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+        color: white;
+    }
+    
+    .phase2-option-button.btn-outline-primary {
+        background-color: white;
+        border-color: #007bff;
+        color: #007bff;
+    }
+    
+    .phase2-option-button:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+    }
+    
+    /* Responsive design for different screen sizes */
+    @@media (max-width: 768px) {
+        .phase2-option-button {
+            min-height: 70px;
+            padding: 16px 12px;
+            font-size: 0.95rem;
+        }
+    }
+    
+    @@media (max-width: 576px) {
+        .phase2-option-button {
+            min-height: 80px;
+            padding: 16px 12px;
+            font-size: 0.9rem;
+        }
+        
+        .phase2-option-button .badge {
+            font-size: 0.8rem !important;
+        }
+    }
+    
+    /* Ensure all buttons have the same width regardless of content length */
+    .phase2-option-button > div {
+        width: 100%;
+        min-height: 36px;
+        align-items: center;
+    }
+    
+    .phase2-option-button span {
+        line-height: 1.4;
+    }
+</style>

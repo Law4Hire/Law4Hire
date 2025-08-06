@@ -18,7 +18,6 @@ public class Law4HireDbContext : IdentityDbContext<User, IdentityRole<Guid>, Gui
     public DbSet<IntakeQuestion> IntakeQuestions { get; set; }
     public DbSet<ServiceRequest> ServiceRequests { get; set; }
     public DbSet<LocalizedContent> LocalizedContents { get; set; }
-    public DbSet<LegalProfessional> LegalProfessionals { get; set; }
     public DbSet<UserDocumentStatus> UserDocumentStatuses { get; set; }
     public DbSet<VisaDocumentRequirement> VisaDocumentRequirements { get; set; }
     public DbSet<VisaType> VisaTypes { get; set; }
@@ -32,6 +31,14 @@ public class Law4HireDbContext : IdentityDbContext<User, IdentityRole<Guid>, Gui
     public DbSet<VisaCategory> VisaCategories { get; set; }
     public DbSet<VisaSubCategory> VisaSubCategories { get; set; }
     public DbSet<BaseVisaType> BaseVisaTypes { get; set; }
+    public DbSet<UserServicePackage> UserServicePackages { get; set; }
+    public DbSet<CategoryVisaType> CategoryVisaTypes { get; set; }
+    public DbSet<CategoryClass> CategoryClasses { get; set; }
+    public DbSet<Country> Countries { get; set; }
+    public DbSet<USState> USStates { get; set; }
+    public DbSet<UserProfile> UserProfiles { get; set; }
+    public DbSet<VisaWizard> VisaWizards { get; set; }
+    public DbSet<VisaWorkflow> VisaWorkflows { get; set; }
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -54,19 +61,103 @@ public class Law4HireDbContext : IdentityDbContext<User, IdentityRole<Guid>, Gui
         modelBuilder.Entity<BaseVisaType>(entity =>
         {
             entity.HasKey(e => e.Id);
-            entity.Property(e => e.Name).HasMaxLength(100).IsRequired();
+            entity.Property(e => e.Code).HasMaxLength(50).IsRequired();
+            entity.Property(e => e.Name).HasMaxLength(200).IsRequired();
+            entity.Property(e => e.Description).IsRequired();
+            entity.Property(e => e.Question1);
+            entity.Property(e => e.Question2);
+            entity.Property(e => e.Question3);
             entity.Property(e => e.Status).HasMaxLength(20).HasDefaultValue("Active");
             entity.Property(e => e.ConfidenceScore).HasColumnType("decimal(3,2)");
 
+            // Index for performance
+            entity.HasIndex(e => e.Code).IsUnique();
+            entity.HasIndex(e => e.Status);
+        });
+
+        // CategoryClass configuration
+        modelBuilder.Entity<CategoryClass>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.ClassCode).HasMaxLength(10).IsRequired();
+            entity.Property(e => e.ClassName).HasMaxLength(100).IsRequired();
+            entity.Property(e => e.GeneralCategory).HasMaxLength(50);
+            
+            // Index for performance
+            entity.HasIndex(e => e.ClassCode).IsUnique();
+        });
+
+        // CategoryVisaType configuration
+        modelBuilder.Entity<CategoryVisaType>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            
             entity.HasOne(e => e.Category)
                   .WithMany()
                   .HasForeignKey(e => e.CategoryId)
                   .OnDelete(DeleteBehavior.Cascade);
 
-            // Index for performance
-            entity.HasIndex(e => new { e.CategoryId, e.Name }).IsUnique();
-            entity.HasIndex(e => e.Status);
+            entity.HasOne(e => e.VisaType)
+                  .WithMany(vt => vt.CategoryVisaTypes)
+                  .HasForeignKey(e => e.VisaTypeId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            // Unique constraint to prevent duplicate associations
+            entity.HasIndex(e => new { e.CategoryId, e.VisaTypeId }).IsUnique();
         });
+
+        // Country configuration
+        modelBuilder.Entity<Country>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Name).HasMaxLength(100).IsRequired();
+            entity.Property(e => e.CountryCode).HasMaxLength(3).IsRequired();
+            entity.Property(e => e.CountryCode2).HasMaxLength(2).IsRequired();
+            
+            entity.HasIndex(e => e.Name).IsUnique();
+            entity.HasIndex(e => e.CountryCode).IsUnique();
+            entity.HasIndex(e => e.CountryCode2).IsUnique();
+        });
+
+        // USState configuration
+        modelBuilder.Entity<USState>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            entity.Property(e => e.Name).HasMaxLength(100).IsRequired();
+            entity.Property(e => e.StateCode).HasMaxLength(2).IsRequired();
+            
+            entity.HasIndex(e => e.Name).IsUnique();
+            entity.HasIndex(e => e.StateCode).IsUnique();
+        });
+
+        // UserProfile configuration
+        modelBuilder.Entity<UserProfile>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            
+            entity.HasOne(e => e.User)
+                  .WithOne(u => u.Profile)
+                  .HasForeignKey<UserProfile>(e => e.UserId)
+                  .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(e => e.CitizenshipCountry)
+                  .WithMany()
+                  .HasForeignKey(e => e.CitizenshipCountryId)
+                  .OnDelete(DeleteBehavior.SetNull);
+
+            entity.Property(e => e.MaritalStatus).HasMaxLength(20);
+            entity.Property(e => e.EducationLevel).HasMaxLength(50);
+        });
+
+        // User citizenship country configuration
+        modelBuilder.Entity<User>(entity =>
+        {
+            entity.HasOne(e => e.CitizenshipCountry)
+                  .WithMany()
+                  .HasForeignKey(e => e.CitizenshipCountryId)
+                  .OnDelete(DeleteBehavior.SetNull);
+        });
+
         // ✅ Fix UserDocumentStatus relationships with NO ACTION to prevent cascade cycles
         modelBuilder.Entity<UserDocumentStatus>()
             .HasOne(uds => uds.DocumentType)
@@ -128,16 +219,6 @@ public class Law4HireDbContext : IdentityDbContext<User, IdentityRole<Guid>, Gui
             .HasForeignKey<VisaInterviewState>(vis => vis.UserId)
             .OnDelete(DeleteBehavior.NoAction); // Use NoAction to prevent cascade cycles
 
-
-        // LegalProfessional relationships
-        modelBuilder.Entity<LegalProfessional>()
-            .HasKey(x => x.Id);
-
-        modelBuilder.Entity<LegalProfessional>()
-            .HasOne(x => x.User)
-            .WithOne()
-            .HasForeignKey<LegalProfessional>(x => x.Id)
-            .OnDelete(DeleteBehavior.NoAction); // Use NoAction to prevent cascade cycles
 
         modelBuilder.Entity<WorkflowStep>(entity =>
         {

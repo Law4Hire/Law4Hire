@@ -7,115 +7,196 @@
 @using Law4Hire.Core.Entities
 @using System.Linq
 @using Microsoft.Extensions.Localization
+@using Law4Hire.Web.Components.Shared
+@using Microsoft.FluentUI.AspNetCore.Components
 @rendermode InteractiveServer
 @* @inject HttpClient Http *@
 @inject NavigationManager NavigationManager
 @inject IStringLocalizer<Home> Localizer
 @inject Law4Hire.Web.State.CultureState CultureState
 @inject Law4Hire.Web.State.AuthState AuthState
+@inject Law4Hire.Application.Services.VisaNarrowingService VisaNarrowingService
+@inject ILogger<Home> Logger
 @implements IDisposable
 
 <PageTitle>@Localizer["PageTitle"] - Law4Hire</PageTitle>
 
-<div class="container mt-5">
+<MudContainer MaxWidth="MaxWidth.Large" Class="py-8">
     @if (!showInterview)
     {
-        <div class="row justify-content-center mb-3">
-            <div class="col-lg-8 text-center">
-                <h1 class="display-4 mb-4">@Localizer["WelcomeTitle"]</h1>
-                <p class="lead text-muted mb-0">@Localizer["WelcomeSubtitle"]</p>
-            </div>
-        </div>
+        <!-- Centered Welcome Section -->
+        <MudStack AlignItems="AlignItems.Center" Spacing="4" Class="mb-8">
+            <MudText Typo="Typo.h2" Align="MudBlazor.Align.Center" Color="MudBlazor.Color.Primary" Class="font-weight-bold">
+                @Localizer["WelcomeTitle"]
+            </MudText>
+            <MudText Typo="Typo.h5" Align="MudBlazor.Align.Center" Color="MudBlazor.Color.Secondary" Class="text-center">
+                @Localizer["WelcomeSubtitle"]
+            </MudText>
+        </MudStack>
         
-        <div class="row justify-content-center">
-            <div class="col-lg-10">
-                <div class="immigration-options-grid">
-                    <div class="immigration-option" @onclick="() => StartInterview(ImmigrationGoal.Visit)">
-                        <div class="option-icon">
-                            <img src="/images/visit_usa_icon.png" alt="@Localizer["VisitUSA"]" />
-                        </div>
-                        <h5>@Localizer["VisitUSA"]</h5>
-                    </div>
+        <!-- Responsive Immigration Options Grid -->
+        <MudGrid Justify="Justify.Center" Spacing="3">
+            <!-- Visit USA -->
+            <MudItem xs="12" sm="6" md="4" lg="3">
+                <MudCard Class="immigration-card mud-height-full" Style="cursor: pointer; transition: all 0.3s ease;" 
+                         @onclick="() => StartInterview(ImmigrationGoal.Visit)">
+                    <MudCardContent Class="d-flex flex-column align-center justify-center pa-6" Style="min-height: 180px;">
+                        <MudText Typo="Typo.h1" Class="mb-4">✈️</MudText>
+                        <MudText Typo="Typo.h6" Align="MudBlazor.Align.Center" Color="MudBlazor.Color.Primary">
+                            @Localizer["VisitUSA"]
+                        </MudText>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
 
-                    <div class="immigration-option" @onclick="() => StartInterview(ImmigrationGoal.Immigrate)">
-                        <div class="option-icon">
-                            <img src="/images/greencard.png" alt="@Localizer["ImmigrateGreenCard"]" />
-                        </div>
-                        <h5>@Localizer["ImmigrateGreenCard"]</h5>
-                    </div>
+            <!-- Immigrate -->
+            <MudItem xs="12" sm="6" md="4" lg="3">
+                <MudCard Class="immigration-card mud-height-full" Style="cursor: pointer; transition: all 0.3s ease;" 
+                         @onclick="() => StartInterview(ImmigrationGoal.Immigrate)">
+                    <MudCardContent Class="d-flex flex-column align-center justify-center pa-6" Style="min-height: 180px;">
+                        <MudText Typo="Typo.h1" Class="mb-4">🏠</MudText>
+                        <MudText Typo="Typo.h6" Align="MudBlazor.Align.Center" Color="MudBlazor.Color.Primary">
+                            @Localizer["ImmigrateGreenCard"]
+                        </MudText>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
 
-                    <div class="immigration-option" @onclick="() => StartInterview(ImmigrationGoal.Investment)">
-                        <div class="option-icon">
-                            <img src="/images/invest_icon.png" alt="@Localizer["InvestUSA"]" />
-                        </div>
-                        <h5>@Localizer["InvestUSA"]</h5>
-                    </div>
+            <!-- Investment -->
+            <MudItem xs="12" sm="6" md="4" lg="3">
+                <MudCard Class="immigration-card mud-height-full" Style="cursor: pointer; transition: all 0.3s ease;" 
+                         @onclick="() => StartInterview(ImmigrationGoal.Investment)">
+                    <MudCardContent Class="d-flex flex-column align-center justify-center pa-6" Style="min-height: 180px;">
+                        <MudText Typo="Typo.h1" Class="mb-4">💰</MudText>
+                        <MudText Typo="Typo.h6" Align="MudBlazor.Align.Center" Color="MudBlazor.Color.Primary">
+                            @Localizer["InvestUSA"]
+                        </MudText>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
 
-                    <div class="immigration-option" @onclick="() => StartInterview(ImmigrationGoal.Work)">
-                        <div class="option-icon">
-                            <img src="/images/work_icon.png" alt="@Localizer["WorkUSA"]" />
-                        </div>
-                        <h5>@Localizer["WorkUSA"]</h5>
-                    </div>
+            <!-- Work -->
+            <MudItem xs="12" sm="6" md="4" lg="3">
+                <MudCard Class="immigration-card mud-height-full" Style="cursor: pointer; transition: all 0.3s ease;" 
+                         @onclick="() => StartInterview(ImmigrationGoal.Work)">
+                    <MudCardContent Class="d-flex flex-column align-center justify-center pa-6" Style="min-height: 180px;">
+                        <MudText Typo="Typo.h1" Class="mb-4">💼</MudText>
+                        <MudText Typo="Typo.h6" Align="MudBlazor.Align.Center" Color="MudBlazor.Color.Primary">
+                            @Localizer["WorkUSA"]
+                        </MudText>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
 
-                    <div class="immigration-option" @onclick="() => StartInterview(ImmigrationGoal.Asylum)">
-                        <div class="option-icon">
-                            <img src="/images/asylum_icon.png" alt="@Localizer["ApplyAsylum"]" />
-                        </div>
-                        <h5>@Localizer["ApplyAsylum"]</h5>
-                    </div>
+            <!-- Asylum -->
+            <MudItem xs="12" sm="6" md="4" lg="3">
+                <MudCard Class="immigration-card mud-height-full" Style="cursor: pointer; transition: all 0.3s ease;" 
+                         @onclick="() => StartInterview(ImmigrationGoal.Asylum)">
+                    <MudCardContent Class="d-flex flex-column align-center justify-center pa-6" Style="min-height: 180px;">
+                        <MudText Typo="Typo.h1" Class="mb-4">🛡️</MudText>
+                        <MudText Typo="Typo.h6" Align="MudBlazor.Align.Center" Color="MudBlazor.Color.Primary">
+                            @Localizer["ApplyAsylum"]
+                        </MudText>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
 
-                    <div class="immigration-option" @onclick="() => StartInterview(ImmigrationGoal.Study)">
-                        <div class="option-icon">
-                            <img src="/images/study_icon.png" alt="@Localizer["StudyUSA"]" />
-                        </div>
-                        <h5>@Localizer["StudyUSA"]</h5>
-                    </div>
+            <!-- Study -->
+            <MudItem xs="12" sm="6" md="4" lg="3">
+                <MudCard Class="immigration-card mud-height-full" Style="cursor: pointer; transition: all 0.3s ease;" 
+                         @onclick="() => StartInterview(ImmigrationGoal.Study)">
+                    <MudCardContent Class="d-flex flex-column align-center justify-center pa-6" Style="min-height: 180px;">
+                        <MudText Typo="Typo.h1" Class="mb-4">📚</MudText>
+                        <MudText Typo="Typo.h6" Align="MudBlazor.Align.Center" Color="MudBlazor.Color.Primary">
+                            @Localizer["StudyUSA"]
+                        </MudText>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
 
-                    <div class="immigration-option" @onclick="() => StartInterview(ImmigrationGoal.Family)">
-                        <div class="option-icon">
-                            <img src="/images/family_icon.png" alt="@Localizer["JoinFamily"]" />
-                        </div>
-                        <h5>@Localizer["JoinFamily"]</h5>
-                    </div>
-                    
-                    <div class="immigration-option login-option" @onclick="GoToLogin">
-                        <div class="option-icon">
-                            <span class="login-icon">👤</span>
-                        </div>
-                        <h5>@Localizer["LoginAccount"]</h5>
-                    </div>
-                </div>
-            </div>
-        </div>
+            <!-- Family -->
+            <MudItem xs="12" sm="6" md="4" lg="3">
+                <MudCard Class="immigration-card mud-height-full" Style="cursor: pointer; transition: all 0.3s ease;" 
+                         @onclick="() => StartInterview(ImmigrationGoal.Family)">
+                    <MudCardContent Class="d-flex flex-column align-center justify-center pa-6" Style="min-height: 180px;">
+                        <MudText Typo="Typo.h1" Class="mb-4">👨‍👩‍👧‍👦</MudText>
+                        <MudText Typo="Typo.h6" Align="MudBlazor.Align.Center" Color="MudBlazor.Color.Primary">
+                            @Localizer["JoinFamily"]
+                        </MudText>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+            
+            <!-- Citizenship/Naturalization and Adoption -->
+            <MudItem xs="12" sm="6" md="4" lg="3">
+                <MudCard Class="immigration-card special-card mud-height-full" Style="cursor: pointer; transition: all 0.3s ease; border: 2px solid var(--mud-palette-warning);" 
+                         @onclick="() => StartInterview(ImmigrationGoal.Special)">
+                    <MudCardContent Class="d-flex flex-column align-center justify-center pa-6" Style="min-height: 180px;">
+                        <MudText Typo="Typo.h1" Class="mb-4">🏛️</MudText>
+                        <MudText Typo="Typo.h6" Align="MudBlazor.Align.Center" Color="MudBlazor.Color.Warning">
+                            Citizenship/Naturalization and Adoption
+                        </MudText>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+        </MudGrid>
+        
+        <!-- Login Section for Existing Users -->
+        @if (!AuthState.IsLoggedIn)
+        {
+            <MudDivider Class="my-8" />
+            <MudStack AlignItems="AlignItems.Center" Spacing="2" Class="mb-4">
+                <MudText Typo="Typo.h6" Color="MudBlazor.Color.Primary">Already have an account?</MudText>
+                <MudButton Variant="Variant.Outlined" Color="MudBlazor.Color.Primary" Size="Size.Large"
+                           OnClick="GoToLogin" StartIcon="Icons.Material.Filled.Login">
+                    Login to Your Account
+                </MudButton>
+            </MudStack>
+        }
     }
     else
     {
-        <div class="row justify-content-center">
-            <div class="col-lg-8">
-                <div class="interview-widget">
-                    <div class="interview-header">
-                        <button class="btn btn-outline-secondary btn-sm mb-3" @onclick="BackToOptions">
-                            ← @Localizer["BackToOptions"]
-                        </button>
-                        @if (AuthState.IsLoggedIn)
-                        {
-                            <button class="btn btn-outline-danger btn-sm mb-3 ms-2" @onclick="ResetInterview">
-                                🔄 Reset Interview
-                            </button>
-                        }
-                        <h2 class="mb-4">@Localizer["StartYourJourney"]</h2>
-                        <p class="text-muted mb-4">@GetGoalDescription(selectedGoal)</p>
+        <MudGrid Justify="Justify.Center">
+            <MudItem xs="12" lg="8">
+                <MudCard Class="interview-card pa-6">
+                    <MudCardContent>
+                        <div class="interview-header mb-6">
+                            <MudStack Row Spacing="2" Class="mb-4">
+                                <MudButton Variant="Variant.Outlined" Size="Size.Small" OnClick="BackToOptions">
+                                    ← @Localizer["BackToOptions"]
+                                </MudButton>
+                                @if (AuthState.IsLoggedIn)
+                                {
+                                    <MudButton Variant="Variant.Outlined" Size="Size.Small" OnClick="ResetInterview">
+                                        🔄 Reset Interview
+                                    </MudButton>
+                                }
+                            </MudStack>
+                            <MudText Typo="Typo.h3" Color="MudBlazor.Color.Primary" Class="mb-4">
+                                @Localizer["StartYourJourney"]
+                            </MudText>
+                            <MudText Typo="Typo.body1" Color="MudBlazor.Color.Secondary">
+                                @GetGoalDescription(selectedGoal)
+                            </MudText>
                     </div>
                     
-                    <div class="interview-content">
-                        @if (!isCompleted)
+                        <div class="interview-content">
+                            @if (isRedirecting)
+                            {
+                                <MudStack AlignItems="AlignItems.Center" Spacing="4">
+                                    <MudProgressCircular Color="MudBlazor.Color.Primary" Indeterminate="true" />
+                                    <MudText Typo="Typo.body1">Taking you to your interview...</MudText>
+                                </MudStack>
+                            }
+                        else if (!isCompleted)
                         {
                             <EditForm Model="@userInput" OnValidSubmit="HandleNextStep">
                                 <DataAnnotationsValidator />
                                 
-                                <div class="mb-4">
-                                    <label class="form-label fw-bold">@currentStep.Question</label>
+                                <Microsoft.FluentUI.AspNetCore.Components.FluentStack Orientation="Microsoft.FluentUI.AspNetCore.Components.Orientation.Vertical" VerticalGap="10" Style="margin-bottom: 2rem;">
+                                    <Microsoft.FluentUI.AspNetCore.Components.FluentLabel Typo="Microsoft.FluentUI.AspNetCore.Components.Typography.Body" Style="font-weight: 600;">
+                                        @currentStep.Question
+                                    </Microsoft.FluentUI.AspNetCore.Components.FluentLabel>
                                     
                                     @if (currentStep.Type == "select")
                                     {
@@ -146,6 +227,43 @@
                                                     <label class="form-check-label">@option</label>
                                                 </div>
                                             }
+                                        }
+                                    }
+                                    else if (currentStep.Type == "searchableselect-country")
+                                    {
+                                        @if (countries != null)
+                                        {
+                                            <SearchableSelect TItem="CountryDto" 
+                                                            TValue="string"
+                                                            Items="countries"
+                                                            Value="@userInput.CurrentValue" 
+                                                            ValueChanged="@((string value) => userInput.CurrentValue = value)"
+                                                            ValueSelector="@(c => c.Name)"
+                                                            DisplaySelector="@(c => c.Name)"
+                                                            Placeholder="@currentStep.Placeholder"
+                                                            OnSelectionChanged="@HandleCountryChanged" />
+                                        } 
+                                    }
+                                    else if (currentStep.Type == "searchableselect-state")
+                                    {
+                                        @if (ShouldShowStateField() && usStates != null)
+                                        {
+                                            <SearchableSelect TItem="USStateDto" 
+                                                            TValue="string"
+                                                            Items="usStates"
+                                                            Value="@userInput.CurrentValue" 
+                                                            ValueChanged="@((string value) => userInput.CurrentValue = value)"
+                                                            ValueSelector="@(s => s.Name)"
+                                                            DisplaySelector="@(s => s.Name)"
+                                                            Placeholder="@currentStep.Placeholder" />
+                                        }
+                                        else if (!ShouldShowStateField())
+                                        {
+                                            <input type="text" 
+                                                   @bind-value="userInput.CurrentValue" 
+                                                   class="form-control" 
+                                                   placeholder="Enter state/province/region" 
+                                                   required="@currentStep.Required" />
                                         }
                                     }
                                     else if (currentStep.Type == "password")
@@ -182,10 +300,10 @@
                                     {
                                         <div class="alert alert-danger mt-2">@errorMessage</div>
                                     }
-                                </div>
+                                </Microsoft.FluentUI.AspNetCore.Components.FluentStack>
                                 
-                                <div class="d-flex gap-2">
-                                    <button type="submit" class="btn btn-primary">
+                                <MudStack Row Spacing="2" Class="mt-6">
+                                    <MudButton ButtonType="MudBlazor.ButtonType.Submit" Variant="Variant.Filled" Color="MudBlazor.Color.Primary">
                                         @if (currentStepIndex < steps.Count - 1)
                                         {
                                             @Localizer["Next"] <span>→</span>
@@ -194,23 +312,24 @@
                                         {
                                             @Localizer["Complete"]
                                         }
-                                    </button>
+                                    </MudButton>
                                     
                                     @if (currentStepIndex > 0)
                                     {
-                                        <button type="button" class="btn btn-outline-secondary" @onclick="PreviousStep">
-                                            ← @Localizer["Previous"]
-                                        </button>
+                                        <MudButton ButtonType="MudBlazor.ButtonType.Button" Variant="Variant.Outlined" OnClick="PreviousStep">
+                                            <span>←</span> @Localizer["Previous"]
+                                        </MudButton>
                                     }
-                                </div>
+                                </MudStack>
                             </EditForm>
                         }
-                    </div>
-                </div>
-            </div>
-        </div>
+                        </div>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+        </MudGrid>
     }
-</div>
+</MudContainer>
 
 @code {
 [Inject] private HttpClient Http { get; set; } = default!;
@@ -231,14 +350,15 @@
         Work,
         Asylum,
         Study,
-        Family
+        Family,
+        Special
     }
 
     private bool showInterview = false;
     private bool isCompleted = false;
     private bool emailExists = false;
-    private bool accountCreated = false;
     private bool askState = false;
+    private bool isRedirecting = false;
     private ImmigrationGoal selectedGoal;
     private List<InterviewStep> steps = new();
     private int currentStepIndex = 0;
@@ -252,6 +372,12 @@
     private Dictionary<string, string> savedAnswers = new();
     private int goalStartIndex;
     private string? errorMessage;
+    
+    // Lookup data for dropdowns
+    private CountryDto[]? countries;
+    private USStateDto[]? usStates;
+    private string[]? maritalStatusOptions;
+    private string[]? educationLevels;
 
     protected override async Task OnInitializedAsync()
     {
@@ -277,6 +403,9 @@
 
     private async Task InitializeStepsAsync()
     {
+        // Load lookup data for dropdowns
+        await LoadLookupData();
+        
         var registrationSteps = new List<InterviewStep>
         {
             new InterviewStep
@@ -300,6 +429,76 @@
                 PropertyName = "MiddleName",
                 Type = "text",
                 Required = false
+            },
+            new InterviewStep
+            {
+                Question = "What is your date of birth?",
+                Placeholder = "Select date of birth",
+                PropertyName = "DateOfBirth",
+                Type = "date"
+            },
+            new InterviewStep
+            {
+                Question = "What is your marital status?",
+                Placeholder = "Select marital status",
+                PropertyName = "MaritalStatus",
+                Type = "select",
+                Options = maritalStatusOptions?.ToList() ?? new List<string> { "Single", "Married", "Divorced", "Widowed", "Separated" }
+            },
+            new InterviewStep
+            {
+                Question = "What is your country of citizenship?",
+                Placeholder = "Select your citizenship country",
+                PropertyName = "CitizenshipCountryId",
+                Type = "searchableselect-country"
+            },
+            new InterviewStep
+            {
+                Question = "Do you have relatives living in the US?",
+                Placeholder = "Select an option",
+                PropertyName = "HasRelativesInUS",
+                Type = "radio",
+                Options = new List<string> { "Yes", "No" }
+            },
+            new InterviewStep
+            {
+                Question = "Do you have a job offer in the US?",
+                Placeholder = "Select an option",
+                PropertyName = "HasJobOffer",
+                Type = "radio",
+                Options = new List<string> { "Yes", "No" }
+            },
+            new InterviewStep
+            {
+                Question = "What is your education level?",
+                Placeholder = "Select education level",
+                PropertyName = "EducationLevel",
+                Type = "select",
+                Options = educationLevels?.ToList() ?? new List<string> { "Less than High School", "High School", "Some College", "Associate's Degree", "Bachelor's Degree", "Master's Degree", "Doctorate", "Professional Degree" }
+            },
+            new InterviewStep
+            {
+                Question = "Do you fear persecution in your home country?",
+                Placeholder = "Select an option",
+                PropertyName = "FearOfPersecution",
+                Type = "radio",
+                Options = new List<string> { "Yes", "No" }
+            },
+            new InterviewStep
+            {
+                Question = "Have you had previous visa denials?",
+                Placeholder = "Select an option",
+                PropertyName = "HasPastVisaDenials",
+                Type = "radio",
+                Options = new List<string> { "Yes", "No" }
+            },
+            new InterviewStep
+            {
+                Question = "Have you had any US immigration status violations?",
+                Placeholder = "Select an option",
+                PropertyName = "HasStatusViolations",
+                Type = "radio",
+                Options = new List<string> { "Yes", "No" }
             },
             new InterviewStep
             {
@@ -328,14 +527,14 @@
                 Question = Localizer["CountryQuestion"],
                 Placeholder = Localizer["CountryPlaceholder"],
                 PropertyName = "Country",
-                Type = "text"
+                Type = "searchableselect-country"
             },
             new InterviewStep
             {
                 Question = Localizer["StateQuestion"],
                 Placeholder = Localizer["StatePlaceholder"],
                 PropertyName = "State",
-                Type = "text",
+                Type = "searchableselect-state",
                 Required = false
             },
             new InterviewStep
@@ -365,12 +564,9 @@
                 PropertyName = "Email",
                 Type = "email"
             });
-        }
 
-        steps.AddRange(registrationSteps);
+            steps.AddRange(registrationSteps);
 
-        if (!AuthState.IsLoggedIn)
-        {
             steps.Add(new InterviewStep
             {
                 Question = Localizer["PasswordQuestion"],
@@ -390,8 +586,18 @@
     private async Task StartInterview(ImmigrationGoal goal)
     {
         selectedGoal = goal;
+        registrationModel.ImmigrationGoal = goal.ToString();
+
+        // If user is logged in, update their category and go directly to Phase 2
+        if (AuthState.IsLoggedIn)
+        {
+            await UpdateUserCategory(goal);
+            NavigationManager.NavigateTo("/interview/phase2");
+            return;
+        }
+
+        // If not logged in, show interview form
         showInterview = true;
-        accountCreated = false;
         currentStepIndex = 0;
         userInput = new UserInputModel();
         registrationModel = new UserRegistrationDto();
@@ -399,13 +605,8 @@
         isCompleted = false;
         emailExists = false;
         intakeSessionId = null;
-        registrationModel.ImmigrationGoal = goal.ToString();
+        isRedirecting = false;
         await InitializeStepsAsync();
-
-        if (AuthState.IsLoggedIn)
-        {
-            await LoadExistingSession();
-        }
     }
 
     private async Task LoadExistingSession()
@@ -495,6 +696,7 @@
             ImmigrationGoal.Asylum => Localizer["AsylumDescription"],
             ImmigrationGoal.Study => Localizer["StudyDescription"],
             ImmigrationGoal.Family => Localizer["FamilyDescription"],
+            ImmigrationGoal.Special => "Citizenship, Naturalization, and Adoption services to help with your special immigration needs.",
             _ => ""
         };
     }
@@ -542,9 +744,40 @@
             case "PhoneNumber":
                 registrationModel.PhoneNumber = userInput.CurrentValue ?? "";
                 break;
+            case "DateOfBirth":
+                if (DateTime.TryParse(userInput.CurrentValue, out var dateOfBirth))
+                {
+                    registrationModel.DateOfBirth = dateOfBirth;
+                }
+                break;
+            case "MaritalStatus":
+                registrationModel.MaritalStatus = userInput.CurrentValue ?? "";
+                break;
+            case "CitizenshipCountryId":
+                var citizenshipCountry = countries?.FirstOrDefault(c => c.Name == userInput.CurrentValue);
+                registrationModel.CitizenshipCountryId = citizenshipCountry?.Id;
+                break;
+            case "HasRelativesInUS":
+                registrationModel.HasRelativesInUS = userInput.CurrentValue?.Equals("Yes", StringComparison.OrdinalIgnoreCase);
+                break;
+            case "HasJobOffer":
+                registrationModel.HasJobOffer = userInput.CurrentValue?.Equals("Yes", StringComparison.OrdinalIgnoreCase);
+                break;
+            case "EducationLevel":
+                registrationModel.EducationLevel = userInput.CurrentValue ?? "";
+                break;
+            case "FearOfPersecution":
+                registrationModel.FearOfPersecution = userInput.CurrentValue?.Equals("Yes", StringComparison.OrdinalIgnoreCase);
+                break;
+            case "HasPastVisaDenials":
+                registrationModel.HasPastVisaDenials = userInput.CurrentValue?.Equals("Yes", StringComparison.OrdinalIgnoreCase);
+                break;
+            case "HasStatusViolations":
+                registrationModel.HasStatusViolations = userInput.CurrentValue?.Equals("Yes", StringComparison.OrdinalIgnoreCase);
+                break;
             case "Email":
                 registrationModel.Email = userInput.CurrentValue ?? "";
-                emailExists = await CheckEmailExists(registrationModel.Email);
+                emailExists = !string.IsNullOrWhiteSpace(registrationModel.Email) && await CheckEmailExists(registrationModel.Email);
                 if (!AuthState.IsLoggedIn)
                 {
                     var pwdIndex = steps.FindIndex(s => s.PropertyName == "Password");
@@ -578,21 +811,13 @@
                     var success = await CompleteRegistration();
                     if (success)
                     {
-                        accountCreated = false;
-                        await LoadExistingSession();
-                        currentStepIndex = goalStartIndex;
-                        if (currentStepIndex >= steps.Count)
-                        {
-                            await StartVisaInterviewAsync();
-                            NavigationManager.NavigateTo("/interview/phase2");
-                            return;
-                        }
-
-                        if (savedAnswers.TryGetValue(currentStep.PropertyName, out var val))
-                        {
-                            userInput.CurrentValue = val;
-                        }
+                        // Set redirecting flag to hide form
+                        isRedirecting = true;
                         StateHasChanged();
+                        
+                        // For existing users, go directly to Phase 2 without showing the form
+                        await StartVisaInterviewAsync();
+                        NavigationManager.NavigateTo("/interview/phase2");
                         return;
                     }
                     else
@@ -623,8 +848,14 @@
             var success = await CompleteRegistration();
             if (success)
             {
-                accountCreated = true;
-                await LoadExistingSession();
+                // Set redirecting flag to hide form
+                isRedirecting = true;
+                StateHasChanged();
+                
+                // For new users, go directly to Phase 2 after registration
+                await StartVisaInterviewAsync();
+                NavigationManager.NavigateTo("/interview/phase2");
+                return;
             }
             else
             {
@@ -664,6 +895,11 @@
     }
     private async Task<bool> CheckEmailExists(string email)
     {
+        if (string.IsNullOrWhiteSpace(email))
+        {
+            return false;
+        }
+        
         try 
         { 
             var response = await Http.GetAsync($"api/auth/check-email?email={Uri.EscapeDataString(email)}"); 
@@ -676,6 +912,12 @@
     }
     private async Task<bool> CompleteRegistration()
     {
+        if (string.IsNullOrWhiteSpace(registrationModel.Email) || string.IsNullOrWhiteSpace(registrationModel.Password))
+        {
+            errorMessage = "Email and password are required.";
+            return false;
+        }
+        
         try
         {
             HttpResponseMessage response;
@@ -712,6 +954,12 @@
                     if (user != null)
                     {
                         AuthState.SetUser(user);
+                        
+                        // Apply visa narrowing logic
+                        await ApplyVisaNarrowingLogic();
+                        
+                        // Update the user's category after login/registration
+                        await UpdateUserCategoryAfterAuth(selectedGoal);
                     }
                 }
                 return true;
@@ -726,16 +974,104 @@
         return false;
     }
 
+    private async Task UpdateUserCategory(ImmigrationGoal goal)
+    {
+        if (AuthState.CurrentUser == null)
+            return;
+
+        try
+        {
+            var categoryName = goal switch
+            {
+                ImmigrationGoal.Visit => "Visit",
+                ImmigrationGoal.Immigrate => "Immigrate",
+                ImmigrationGoal.Investment => "Investment",
+                ImmigrationGoal.Work => "Work",
+                ImmigrationGoal.Asylum => "Asylum",
+                ImmigrationGoal.Study => "Study",
+                ImmigrationGoal.Family => "Family",
+                _ => "Immigrate"
+            };
+
+            var updateDto = new
+            {
+                Category = categoryName
+            };
+            
+            var response = await Http.PutAsJsonAsync($"api/users/{AuthState.CurrentUser.Id}/category", updateDto);
+            if (response.IsSuccessStatusCode)
+            {
+                // Update the current user in AuthState
+                var updatedUser = AuthState.CurrentUser with { Category = categoryName };
+                AuthState.SetUser(updatedUser);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Failed to update user category: {ex.Message}");
+        }
+    }
+
+    private async Task UpdateUserCategoryAfterAuth(ImmigrationGoal goal)
+    {
+        if (AuthState.CurrentUser == null)
+            return;
+
+        try
+        {
+            var categoryName = goal switch
+            {
+                ImmigrationGoal.Visit => "Visit",
+                ImmigrationGoal.Immigrate => "Immigrate",
+                ImmigrationGoal.Investment => "Investment",
+                ImmigrationGoal.Work => "Work",
+                ImmigrationGoal.Asylum => "Asylum",
+                ImmigrationGoal.Study => "Study",
+                ImmigrationGoal.Family => "Family",
+                _ => "Immigrate"
+            };
+
+            var updateDto = new UpdateCategoryDto
+            {
+                Category = categoryName
+            };
+            
+            var response = await Http.PutAsJsonAsync($"api/users/{AuthState.CurrentUser.Id}/category", updateDto);
+            if (response.IsSuccessStatusCode)
+            {
+                // Update the current user in AuthState
+                var updatedUser = AuthState.CurrentUser with { Category = categoryName };
+                AuthState.SetUser(updatedUser);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Failed to update user category: {ex.Message}");
+        }
+    }
+
     private async Task StartVisaInterviewAsync()
     {
         if (AuthState.CurrentUser == null)
             return;
 
+        var categoryName = selectedGoal switch
+        {
+            ImmigrationGoal.Visit => "Visit",
+            ImmigrationGoal.Immigrate => "Immigrate",
+            ImmigrationGoal.Investment => "Investment", 
+            ImmigrationGoal.Work => "Work",
+            ImmigrationGoal.Asylum => "Asylum",
+            ImmigrationGoal.Study => "Study",
+            ImmigrationGoal.Family => "Family",
+            _ => "Immigrate"
+        };
+
         var initPayload = new
         {
             userId = AuthState.CurrentUser.Id,
             role = "client",
-            category = GetGoalDescription(selectedGoal),
+            category = categoryName,
             language = CultureState.CurrentCulture.Name,
             firstName = registrationModel.FirstName,
             lastName = registrationModel.LastName
@@ -748,6 +1084,44 @@
         catch { }
     }
 
+    private async Task LoadLookupData()
+    {
+        try
+        {
+            // Load countries
+            var countriesResponse = await Http.GetAsync("api/lookups/countries");
+            if (countriesResponse.IsSuccessStatusCode)
+            {
+                countries = await countriesResponse.Content.ReadFromJsonAsync<CountryDto[]>();
+            }
+
+            // Load US states
+            var statesResponse = await Http.GetAsync("api/lookups/us-states");
+            if (statesResponse.IsSuccessStatusCode)
+            {
+                usStates = await statesResponse.Content.ReadFromJsonAsync<USStateDto[]>();
+            }
+
+            // Load marital status options
+            var maritalResponse = await Http.GetAsync("api/lookups/marital-status");
+            if (maritalResponse.IsSuccessStatusCode)
+            {
+                maritalStatusOptions = await maritalResponse.Content.ReadFromJsonAsync<string[]>();
+            }
+
+            // Load education levels
+            var educationResponse = await Http.GetAsync("api/lookups/education-levels");
+            if (educationResponse.IsSuccessStatusCode)
+            {
+                educationLevels = await educationResponse.Content.ReadFromJsonAsync<string[]>();
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading lookup data: {ex.Message}");
+        }
+    }
+
     private async Task SaveProgress()
     {
         if (!intakeSessionId.HasValue)
@@ -755,6 +1129,52 @@
 
         var progress = new UpdateSessionProgressDto(currentStepIndex, savedAnswers);
         await Http.PatchAsJsonAsync($"api/intake/sessions/{intakeSessionId}/progress", progress);
+    }
+
+    private void HandleCountryChanged(string countryName)
+    {
+        userInput.CurrentValue = countryName;
+        StateHasChanged();
+    }
+
+    private bool ShouldShowStateField()
+    {
+        var country = savedAnswers.ContainsKey("Country") ? savedAnswers["Country"] : userInput.CurrentValue;
+        return country?.Equals("United States", StringComparison.OrdinalIgnoreCase) == true;
+    }
+
+    private async Task ApplyVisaNarrowingLogic()
+    {
+        try
+        {
+            // Get eligible visa categories based on user responses
+            var eligibleCategories = VisaNarrowingService.GetEligibleVisaCategories(registrationModel, selectedGoal.ToString());
+            var ineligibleVisas = VisaNarrowingService.GetIneligibleVisaTypes(registrationModel);
+            var summary = VisaNarrowingService.GetVisaRecommendationSummary(registrationModel, selectedGoal.ToString());
+            
+            Logger.LogInformation("Visa narrowing applied for user. Eligible categories: {Categories}, Ineligible visas: {IneligibleVisas}", 
+                string.Join(", ", eligibleCategories), 
+                string.Join(", ", ineligibleVisas));
+            
+            Console.WriteLine($"Visa Recommendation: {summary}");
+            
+            // Store the narrowing results in session or user preferences
+            // This could be saved to database or session storage for later use
+            savedAnswers["EligibleCategories"] = string.Join(",", eligibleCategories);
+            savedAnswers["IneligibleVisas"] = string.Join(",", ineligibleVisas);
+            savedAnswers["RecommendationSummary"] = summary;
+            
+            // Save progress to include the narrowing results
+            if (intakeSessionId.HasValue)
+            {
+                await SaveProgress();
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error applying visa narrowing logic");
+            Console.WriteLine($"Error in visa narrowing: {ex.Message}");
+        }
     }
 
 

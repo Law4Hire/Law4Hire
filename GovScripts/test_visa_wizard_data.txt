@@ -1,0 +1,68 @@
+=== Test Visa Wizard Data ===
+Generated: 2025-07-29 19:24:51
+
+Country: Canada
+Purpose: Business
+Step 1: What is the nature of your business activities?
+Answer: Attending meetings and conferences
+Learn More: https://travel.state.gov/content/travel/en/us-visas/business.html
+Related Visas: B-1 Business Visitor
+Complete Session: False
+---
+Country: Canada
+Purpose: Business
+Step 2: How long do you plan to stay in the United States?
+Answer: Less than 90 days
+Complete Session: False
+---
+Country: Canada
+Purpose: Business
+Step 3: Final recommendation
+Answer: You may be eligible for B-1 business visitor visa
+Learn More: https://travel.state.gov/content/travel/en/us-visas/business.html
+Related Visas: B-1 Business Visitor, ESTA
+Outcome: Based on your responses, you may be eligible for a B-1 business visitor visa. This allows temporary business activities in the US.
+Complete Session: True
+---
+Country: United Kingdom
+Purpose: Tourism
+Step 1: What is the primary purpose of your visit?
+Answer: Vacation and sightseeing
+Complete Session: False
+---
+Country: United Kingdom
+Purpose: Tourism
+Step 2: How long do you plan to stay?
+Answer: 2 weeks
+Complete Session: False
+---
+Country: United Kingdom
+Purpose: Tourism
+Step 3: Final recommendation
+Answer: You may be eligible for ESTA authorization
+Learn More: https://esta.cbp.dhs.gov/
+Related Visas: ESTA, B-2 Tourist
+Outcome: UK citizens can travel to the US for tourism under the Visa Waiver Program using ESTA authorization.
+Complete Session: True
+---
+Country: India
+Purpose: Work
+Step 1: Do you have a job offer from a US employer?
+Answer: Yes, I have an approved H-1B petition
+Complete Session: False
+---
+Country: India
+Purpose: Work
+Step 2: What type of work will you be performing?
+Answer: Specialty occupation in technology
+Complete Session: False
+---
+Country: India
+Purpose: Work
+Step 3: Final recommendation
+Answer: You should apply for an H-1B visa
+Learn More: https://travel.state.gov/content/travel/en/us-visas/employment/temporary-worker-visas.html
+Related Visas: H-1B, L-1, O-1
+Outcome: Based on your approved petition, you can apply for an H-1B visa to work temporarily in the US in a specialty occupation.
+Complete Session: True
+---

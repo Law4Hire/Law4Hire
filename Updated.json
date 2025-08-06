@@ -1,0 +1,723 @@
+[
+  {
+    "code": "A-1",
+    "name": "A-1 Diplomat / Official",
+    "description": "For heads of state, government ministers or career diplomats traveling on official government business.",
+    "question1": "Are you traveling on behalf of a foreign government in an official capacity?",
+    "question2": "Are you a head of state, accredited diplomat, or minister?",
+    "question3": null
+  },
+  {
+    "code": "A-2",
+    "name": "A-2 Foreign Government Official/Employee",
+    "description": "For other foreign government officials and employees, and immediate family.",
+    "question1": "Are you employed by a foreign government in an official capacity?",
+    "question2": "Are you accompanied by immediate family eligible under A-2 classification?",
+    "question3": null
+  },
+  {
+    "code": "A-3",
+    "name": "A-3 Attendant/Personal Employee",
+    "description": "For attendants or personal employees of A-1/A-2 principals and their immediate family.",
+    "question1": "Are you employed directly as a servant, attendant, or employee by an A-1/A-2 visa holder?",
+    "question2": "Does your employer provide room, board, and prevailing wage as required?",
+    "question3": null
+  },
+  {
+    "code": "B-1/B-2",
+    "name": "Visitor Visa (Business & Tourism)",
+    "description": "Temporary visitor for business (B-1) or pleasure/medical treatment (B-2), must overcome INA 214(b) presumption of immigrant intent.",
+    "question1": "Can you demonstrate intent to return (e.g., strong ties to home country)?",
+    "question2": "Do you plan to remain only temporarily and have funds to cover your expenses?",
+    "question3": null
+  },
+  {
+    "code": "C-1",
+    "name": "C-1 Transit Visa",
+    "description": "For immediate and continuous transit through the U.S. to another country.",
+    "question1": "Are you simply transiting through the U.S. to another destination without staying?",
+    "question2": null,
+    "question3": null
+  },
+  {
+    "code": "C-1/D",
+    "name": "C-1/D Transit & Crew",
+    "description": "Combined transit and crewmember visa for sea or air crew traveling to join or rejoin vessel or aircraft.",
+    "question1": "Are you a crew member of a ship or aircraft transiting or working in U.S. waters?",
+    "question2": null,
+    "question3": null
+  },
+  {
+    "code": "C-2",
+    "name": "C-2 UN Transit Visa",
+    "description": "For transit through the U.S. to the UN Headquarters district under the Headquarters Agreement.",
+    "question1": "Are you traveling to the U.S. only to transit to the United Nations Headquarters District?",
+    "question2": null,
+    "question3": null
+  },
+  {
+    "code": "C-3",
+    "name": "C-3 Government Official Transit",
+    "description": "For foreign government officials, immediate family, attendants or servants in transit.",
+    "question1": "Are you a foreign official or attendant transiting the U.S. en route elsewhere?",
+    "question2": null,
+    "question3": null
+  },
+  {
+    "code": "D",
+    "name": "D Crewmember Visa",
+    "description": "For crew members serving aboard sea vessel or international airline in the U.S.",
+    "question1": "Are you part of crew on a ship or aircraft operating in or out of the U.S.?",
+    "question2": null,
+    "question3": null
+  },
+  {
+    "code": "E-1",
+    "name": "E-1 Treaty Trader",
+    "description": "For nationals of treaty countries engaging in substantial trade between their country and U.S.",
+    "question1": "Are you a national of a treaty country and engaged in substantial trade primarily between that country and the U.S.?",
+    "question2": "Is at least 50% of your company's ownership held by treaty-country nationals?",
+    "question3": null
+  },
+  {
+    "code": "E-2",
+    "name": "E-2 Treaty Investor",
+    "description": "For nationals of treaty countries investing substantial capital in a U.S. enterprise.",
+    "question1": "Are you a citizen of a treaty country making a substantial investment in a U.S. enterprise?",
+    "question2": "Is your investment sufficient to ensure control of the enterprise?",
+    "question3": null
+  },
+  {
+    "code": "E-3",
+    "name": "E-3 Australian Professional (AUSFTA)",
+    "description": "Specialty occupation workers from Australia under the U.S.–Australia Free Trade Agreement.",
+    "question1": "Are you an Australian citizen with a job offer in a specialty occupation?",
+    "question2": "Does your role require a bachelor’s degree or equivalent experience?",
+    "question3": null
+  },
+  {
+    "code": "F-1",
+    "name": "F-1 Academic Student",
+    "description": "For academic or language students at an accredited U.S. institution.",
+    "question1": "Do you have an approved Form I-20 from a SEVP-certified school?",
+    "question2": "Is your intent solely for full-time academic study and temporary stay?",
+    "question3": null
+  },
+  {
+    "code": "F-2",
+    "name": "F-2 Dependent",
+    "description": "For spouse or child of an F-1 student.",
+    "question1": "Are you the spouse or child of someone holding a valid F-1 visa?",
+    "question2": "Do you intend to join and stay only while the primary F-1 accompanies you?",
+    "question3": null
+  },
+  {
+    "code": "G-1",
+    "name": "G-1 Int’l Organization / UN Rep",
+    "description": "For principal resident representative of recognized foreign governments to international organizations and families.",
+    "question1": "Are you assigned by a foreign government to an international organization in the U.S.?",
+    "question2": null,
+    "question3": null
+  },
+  {
+    "code": "G-2",
+    "name": "G-2 Int’l Organization Representative",
+    "description": "For other representatives of member governments to international organizations and families.",
+    "question1": "Are you a representative of a foreign government accredited to an international organization?",
+    "question2": null,
+    "question3": null
+  },
+  {
+    "code": "G-3",
+    "name": "G-3 Non-member Gov’t Rep",
+    "description": "For representatives of non-recognized foreign governments to international organizations and families.",
+    "question1": "Are you accredited by a non-recognized foreign government to an international organization?",
+    "question2": null,
+    "question3": null
+  },
+  {
+    "code": "G-4",
+    "name": "G-4 Int’l Org Officer or Employee",
+    "description": "For officers or employees of international organizations and immediate family.",
+    "question1": "Are you an official of an international organization in the U.S.?",
+    "question2": null,
+    "question3": null
+  },
+  {
+    "code": "G-5",
+    "name": "G-5 Attendant / Servant",
+    "description": "For attendants, servants, and personal employees of G-1 through G-4 visa holders.",
+    "question1": "Are you employed by someone holding a G-category visa as attendant or servant?",
+    "question2": null,
+    "question3": null
+  },
+  {
+    "code": "H-1B",
+    "name": "H-1B Specialty Occupation",
+    "description": "For specialty occupation workers requiring a bachelor’s degree or equivalent, employer-sponsored.",
+    "question1": "Do you have a job offer in a specialty occupation and at least a bachelor’s degree or equivalent?",
+    "question2": "Has your employer filed a certified Labor Condition Application (LCA)?",
+    "question3": null
+  },
+  {
+    "code": "H-1B1",
+    "name": "H-1B1 Chile/Singapore",
+    "description": "Similar to H-1B but specifically for Chilean and Singaporean nationals under trade agreements.",
+    "question1": "Are you a citizen of Chile or Singapore with a specialty occupation job offer?",
+    "question2": "Does your job require a degree or equivalent qualification?",
+    "question3": null
+  },
+  {
+    "code": "H-2A",
+    "name": "H-2A Temporary Agricultural",
+    "description": "For temporary or seasonal agricultural workers; employer must obtain Department of Labor certification.",
+    "question1": "Is your job seasonal or temporary in agriculture with a certified labor permit?",
+    "question2": null,
+    "question3": null
+  },
+  {
+    "code": "H-2B",
+    "name": "H-2B Temporary Non-Agricultural",
+    "description": "For temporary non-agricultural workers in seasonal or peak-load roles.",
+    "question1": "Is your employment temporary non-agricultural and seasonal or peak-load?",
+    "question2": "Has your employer received DOL certification showing no U.S. workers are available?",
+    "question3": null
+  },
+  {
+    "code": "H-3",
+    "name": "H-3 Trainee",
+    "description": "For trainees entering to receive training not available in their home country; cannot be for employment.",
+    "question1": "Is this training not available in your home country and not productive employment?",
+    "question2": null,
+    "question3": null
+  },
+  {
+    "code": "H-4",
+    "name": "H-4 Dependent",
+    "description": "For spouse/child of H-1B, H-1B1, H-2A, H-2B or H-3 holders.",
+    "question1": "Are you spouse or unmarried child under 21 of a primary H-category visa holder?",
+    "question2": null,
+    "question3": null
+  },
+  {
+    "code": "I",
+    "name": "I Media Visa",
+    "description": "For representatives of foreign media, press, radio, film or other information media.",
+    "question1": "Are you a representative of foreign media traveling to work in press, radio, film or media?",
+    "question2": null,
+    "question3": null
+  },
+  {
+    "code": "J-1",
+    "name": "J-1 Exchange Visitor",
+    "description": "For individuals accepted into exchange visitor programs (students, researchers, trainees, etc.).",
+    "question1": "Do you have program sponsorship approved by a designated sponsor?",
+    "question2": "Is your intent exchange and temporary, not immigrant intent?",
+    "question3": null
+  },
+  {
+    "code": "J-2",
+    "name": "J-2 Dependent",
+    "description": "For spouse or child of J-1 exchange visitor.",
+    "question1": "Are you spouse or child of a J-1 visa holder in valid status?",
+    "question2": null,
+    "question3": null
+  },
+  {
+    "code": "K-1",
+    "name": "K-1 Fiancé(e)",
+    "description": "For fiancé(e) of U.S. citizen travelling to marry within 90 days.",
+    "question1": "Are you engaged to marry a U.S. citizen within 90 days of entry?",
+    "question2": null,
+    "question3": null
+  },
+  {
+    "code": "K-2",
+    "name": "K-2 Child of Fiancé(e)",
+    "description": "For unmarried child under 21 of a K-1 visa holder.",
+    "question1": "Are you the child under 21 of a K-1 visa applicant?",
+    "question2": null,
+    "question3": null
+  },
+  {
+    "code": "K-3",
+    "name": "K-3 Spouse of U.S. Citizen",
+    "description": "For spouse of U.S. citizen awaiting availability of immigrant visa.",
+    "question1": "Are you married to a U.S. citizen with a pending immigrant petition (I-130)?",
+    "question2": null,
+    "question3": null
+  },
+  {
+    "code": "K-4",
+    "name": "K-4 Child of K-3",
+    "description": "For unmarried child under 21 of a K-3 visa holder.",
+    "question1": "Are you the child under 21 of someone with a pending K-3 visa?",
+    "question2": null,
+    "question3": null
+  },
+  {
+    "code": "L-1",
+    "name": "L-1 Intracompany Transferee",
+    "description": "For intracompany transferees in executive, managerial or specialized knowledge roles.",
+    "question1": "Have you been employed abroad by the same employer in the past 12 months?",
+    "question2": "Is your position managerial/executive or specialized knowledge?",
+    "question3": null
+  },
+  {
+    "code": "L-2",
+    "name": "L-2 Dependent",
+    "description": "For spouse or child of L-1 intracompany transferee.",
+    "question1": "Are you spouse or child of someone holding L-1 status?",
+    "question2": null,
+    "question3": null
+  },
+  {
+    "code": "M-1",
+    "name": "M-1 Vocational Student",
+    "description": "For vocational or other nonacademic students enrolled in recognized institutions.",
+    "question1": "Do you have an approved Form I-20 for vocational study at a certified institution?",
+    "question2": null,
+    "question3": null
+  },
+  {
+    "code": "M-2",
+    "name": "M-2 Dependent",
+    "description": "For spouse or child of M-1 vocational student.",
+    "question1": "Are you spouse or unmarried child under 21 of an M-1 visa holder?",
+    "question2": null,
+    "question3": null
+  },
+  {
+    "code": "NATO-1",
+    "name": "NATO-1 Representative",
+    "description": "For principal permanent representative of member state to NATO.",
+    "question1": "Are you a permanent representative of a NATO member state in the U.S.?",
+    "question2": null,
+    "question3": null
+  },
+  {
+    "code": "NATO-2",
+    "name": "NATO-2 Official Representative",
+    "description": "For other representatives of NATO member states.",
+    "question1": "Are you an official from a NATO member state accredited to NATO in the U.S.?",
+    "question2": null,
+    "question3": null
+  },
+  {
+    "code": "NATO-3",
+    "name": "NATO-3 Clerical Staff",
+    "description": "For clerical staff accompanying NATO-1/2 representatives.",
+    "question1": "Are you clerical support accompanying a NATO representative in the U.S.?",
+    "question2": null,
+    "question3": null
+  },
+  {
+    "code": "NATO-4",
+    "name": "NATO-4 Official of NATO",
+    "description": "For other officials of NATO not in NATO-1 classification.",
+    "question1": "Are you an official of NATO (not classified as NATO-1) present in the U.S.?",
+    "question2": null,
+    "question3": null
+  },
+  {
+    "code": "NATO-5",
+    "name": "NATO-5 Expert Employee",
+    "description": "Experts employed on missions on behalf of NATO and dependents.",
+    "question1": "Are you a NATO-employed expert or your dependent in support of NATO missions?",
+    "question2": null,
+    "question3": null
+  },
+  {
+    "code": "NATO-6",
+    "name": "NATO-6 Civilian Component Member",
+    "description": "Civilian components attached to allied military headquarters in U.S.",
+    "question1": "Are you civilian staff assigned under NATO Status-of-Forces to U.S. headquarters?",
+    "question2": null,
+    "question3": null
+  },
+  {
+    "code": "NATO-7",
+    "name": "NATO-7 Attendant/Servant",
+    "description": "Attendants or servants of NATO-1 through NATO-6 members.",
+    "question1": "Are you employed as attendant or servant by a NATO-category visa holder?",
+    "question2": null,
+    "question3": null
+  },
+  {
+    "code": "O-1",
+    "name": "O-1 Extraordinary Ability",
+    "description": "For individuals with extraordinary ability in sciences, arts, business, athletics, or motion picture/TV.",
+    "question1": "Can you show sustained national or international acclaim (e.g. major award or evidence meeting at least 3 criteria)?",
+    "question2": null,
+    "question3": null
+  },
+  {
+    "code": "O-2",
+    "name": "O-2 Support Staff",
+    "description": "For assistants accompanying O-1 performers or athletes, essential to performance.",
+    "question1": "Are you essential to support an O-1 visa holder’s performance or event?",
+    "question2": null,
+    "question3": null
+  },
+  {
+    "code": "O-3",
+    "name": "O-3 Spouse/Child",
+    "description": "For spouse and children of O-1 or O-2 visa holders.",
+    "question1": "Are you the spouse or child of an O-1 or O-2 visa holder?",
+    "question2": null,
+    "question3": null
+  },
+  {
+    "code": "P-1",
+    "name": "P-1 Athlete/Entertainment Group",
+    "description": "For internationally recognized athletes or entertainment groups.",
+    "question1": "Are you an internationally recognized athlete or part of an entertainment group?",
+    "question2": null,
+    "question3": null
+  },
+  {
+    "code": "P-2",
+    "name": "P-2 Artist Exchange",
+    "description": "For artists or entertainers in reciprocal exchange programs.",
+    "question1": "Are you participating in a reciprocal exchange program as an artist or entertainer?",
+    "question2": null,
+    "question3": null
+  },
+  {
+    "code": "P-3",
+    "name": "P-3 Culturally Unique Program",
+    "description": "For artists/entertainers in culturally unique programs.",
+    "question1": "Is your performance part of a culturally unique program recognized by U.S. authorities?",
+    "question2": null,
+    "question3": null
+  },
+  {
+    "code": "P-4",
+    "name": "P-4 Spouse/Child",
+    "description": "For spouse or child of P-1, P-2, or P-3 visa holders.",
+    "question1": "Are you the spouse or child of a P-category visa holder?",
+    "question2": null,
+    "question3": null
+  },
+  {
+    "code": "Q-1",
+    "name": "Q-1 Cultural Exchange",
+    "description": "For participants in international cultural exchange programs or events.",
+    "question1": "Are you part of a CDC-designated cultural exchange program for practical experience?",
+    "question2": null,
+    "question3": null
+  },
+  {
+    "code": "R-1",
+    "name": "R-1 Religious Worker",
+    "description": "For individuals working in a religious occupation with a nonprofit religious organization.",
+    "question1": "Are you coming to work in a religious vocation or occupation for a nonprofit religious organization?",
+    "question2": "Are you a minister or religious worker with at least two years membership in the organization?",
+    "question3": null
+  },
+  {
+    "code": "R-2",
+    "name": "R-2 Dependent",
+    "description": "For spouse or child of R-1 religious worker.",
+    "question1": "Are you the spouse or child of an R-1 visa holder?",
+    "question2": null,
+    "question3": null
+  },
+  {
+    "code": "S-5",
+    "name": "S-5 Informant Visa (Criminal)",
+    "description": "For informants with credible information regarding criminal activity.",
+    "question1": "Do you possess credible information regarding criminal activity and are you assisting U.S. law enforcement?",
+    "question2": null,
+    "question3": null
+  },
+  {
+    "code": "S-6",
+    "name": "S-6 Informant Visa (Terrorism)",
+    "description": "For informants regarding terrorism or national security matters.",
+    "question1": "Do you have credible information about terrorism and intend to help U.S. authorities?",
+    "question2": null,
+    "question3": null
+  },
+  {
+    "code": "S-7",
+    "name": "S-7 Family of S-5 or S-6",
+    "description": "For spouse, unmarried child, or parent of S-5 or S-6 visa holders.",
+    "question1": "Are you a qualifying relative (spouse, child, or parent) of an S-5 or S-6 visa holder?",
+    "question2": null,
+    "question3": null
+  }
+  {
+    "code": "T-1",
+    "name": "T-1 Victim of Human Trafficking",
+    "description": "For victims of severe trafficking who assist law enforcement.",
+    "question1": "Were you a victim of a severe form of human trafficking (sex or labor)?",
+    "question2": "Are you in the U.S. because of that trafficking?",
+    "question3": "Can you comply with reasonable requests from law enforcement (unless trauma exception applies)?"
+  },
+  {
+    "code": "T-2",
+    "name": "T-2 Spouse of T-1",
+    "description": "For spouses of principal T-1 applicants.",
+    "question1": "Are you married to a T-1 principal applicant?",
+    "question2": null,
+    "question3": null
+  },
+  {
+    "code": "T-3",
+    "name": "T-3 Child of T-1",
+    "description": "For children of principal T-1 applicants.",
+    "question1": "Are you an unmarried child of a T-1 principal applicant?",
+    "question2": null,
+    "question3": null
+  },
+  {
+    "code": "T-4",
+    "name": "T-4 Parent of T-1",
+    "description": "For parents of T-1 principal applicants (if child under 21).",
+    "question1": "Are you a parent of a T-1 principal applicant under 21 years old?",
+    "question2": null,
+    "question3": null
+  },
+  {
+    "code": "U-1",
+    "name": "U-1 Victim of Criminal Activity",
+    "description": "For victims of qualifying crimes who assist law enforcement.",
+    "question1": "Were you a victim of a qualifying crime in the U.S.?",
+    "question2": "Have you suffered substantial physical or mental abuse?",
+    "question3": "Are you or likely to be helpful to law enforcement in investigating or prosecuting the crime?"
+  },
+  {
+    "code": "U-2",
+    "name": "U-2 Spouse of U-1",
+    "description": "For spouses of principal U-1 applicants.",
+    "question1": "Are you married to a U-1 principal applicant?",
+    "question2": null,
+    "question3": null
+  },
+  {
+    "code": "U-3",
+    "name": "U-3 Child of U-1",
+    "description": "For children of principal U-1 applicants.",
+    "question1": "Are you an unmarried child under 21 of a U-1 principal applicant?",
+    "question2": null,
+    "question3": null
+  },
+  {
+    "code": "U-4",
+    "name": "U-4 Parent of U-1",
+    "description": "For parents of U-1 principal applicants (if child under 21).",
+    "question1": "Are you the parent of a U-1 principal applicant under 21?",
+    "question2": null,
+    "question3": null
+  },
+  {
+    "code": "U-5",
+    "name": "U-5 Sibling of U-1",
+    "description": "For minor unmarried siblings of U-1 applicants.",
+    "question1": "Are you an unmarried sibling under 21 of a U-1 principal applicant?",
+    "question2": null,
+    "question3": null
+  },
+  {
+    "code": "V-1",
+    "name": "V-1 Spouse of LPR",
+    "description": "For spouses of lawful permanent residents with family petitions filed before Dec 21, 2000.",
+    "question1": "Is your spouse a lawful permanent resident with an I-130 petition filed before December 21, 2000?",
+    "question2": "Has that petition been pending at least three years?",
+    "question3": null
+  },
+  {
+    "code": "V-2",
+    "name": "V-2 Child of LPR",
+    "description": "For unmarried children of LPRs with qualifying petitions filed before cutoff date.",
+    "question1": "Are you an unmarried child of an LPR with a qualifying petition filed before Dec 21, 2000?",
+    "question2": "Has that petition been pending at least three years?",
+    "question3": null
+  },
+  {
+    "code": "TN",
+    "name": "TN NAFTA / USMCA Professional",
+    "description": "For Canadian and Mexican professionals under USMCA agreement.",
+    "question1": "Are you a Canadian or Mexican citizen with a job offer in a qualifying profession?",
+    "question2": "Do you have the required credentials or licensure for that profession?",
+    "question3": null
+  },
+  {
+    "code": "TPS",
+    "name": "Temporary Protected Status (TPS)",
+    "description": "For nationals of designated countries who cannot safely return due to conditions in their home country.",
+    "question1": "Is your nationality from a country designated for TPS?",
+    "question2": "Are you continuously residing in the U.S. since the TPS designation date?",
+    "question3": null
+  },
+  {
+    "code": "IR-1",
+    "name": "IR-1 Spouse of U.S. Citizen",
+    "description": "Immediate relative immigrant visa for spouse of a U.S. citizen.",
+    "question1": "Are you legally married to a U.S. citizen?",
+    "question2": "Was your marriage bona fide and not solely for immigration purposes?",
+    "question3": null
+  },
+  {
+    "code": "IR-2",
+    "name": "IR-2 Child of U.S. Citizen",
+    "description": "Immediate relative immigrant visa for unmarried child of U.S. citizen.",
+    "question1": "Are you unmarried and under 21 and the child of a U.S. citizen?",
+    "question2": null,
+    "question3": null
+  },
+  {
+    "code": "CR-1",
+    "name": "CR-1 Conditional Spouse",
+    "description": "Conditional permanent resident visa for spouses married less than two years.",
+    "question1": "Were you married for less than two years at time of admission on immigrant petition?",
+    "question2": "Is your marriage bona fide?",
+    "question3": null
+  },
+  {
+    "code": "IR-5",
+    "name": "IR-5 Parent of U.S. Citizen",
+    "description": "Immediate relative immigrant visa for parent of U.S. citizen (21+).",
+    "question1": "Is your child a U.S. citizen who is at least 21 years old?",
+    "question2": null,
+    "question3": null
+  },
+  {
+    "code": "EB-1A",
+    "name": "EB-1 Extraordinary Ability (Immigrant)",
+    "description": "Employment-based first preference for persons of extraordinary ability.",
+    "question1": "Can you demonstrate sustained national or international acclaim in your field?",
+    "question2": "Do you meet at least three of the regulatory criteria for extraordinary ability?",
+    "question3": null
+  },
+  {
+    "code": "EB-1B",
+    "name": "EB-1 Outstanding Professor/Researcher",
+    "description": "Employment-based first preference for outstanding professors or researchers.",
+    "question1": "Do you have at least three years of experience teaching or research?",
+    "question2": "Are you recognized internationally or widely in your academic field?",
+    "question3": null
+  },
+  {
+    "code": "EB-1C",
+    "name": "EB-1 Multinational Executive or Manager",
+    "description": "Employment-based first preference for managers or executives transferred within multinational companies.",
+    "question1": "Have you worked for the same employer abroad for at least one year in last three?",
+    "question2": "Will you work in a managerial or executive capacity in the U.S. entity?",
+    "question3": null
+  },
+  {
+    "code": "DV-1",
+    "name": "Diversity Immigrant (DV-1)",
+    "description": "Immigrant visa under Diversity Visa Program lottery.",
+    "question1": "Did you win the Diversity Visa lottery and qualify under education or work experience requirements?",
+    "question2": null,
+    "question3": null
+  }
+  {
+    "code": "CW-1",
+    "name": "CW-1 CNMI Transitional Worker",
+    "description": "Worker in the Commonwealth of Northern Mariana Islands under transitional worker program.",
+    "question1": "Are you employed in CNMI under a transitional worker petition approved by USCIS?",
+    "question2": null,
+    "question3": null
+  },
+  {
+    "code": "CW-2",
+    "name": "CW-2 Dependent of CW-1",
+    "description": "Spouse or child of a CW-1 visa holder.",
+    "question1": "Are you the spouse or unmarried child under 21 of a CW-1 visa holder?",
+    "question2": null,
+    "question3": null
+  },
+  {
+    "code": "M-3",
+    "name": "M-3 Canadian/Mexican Border-Commuter Student",
+    "description": "Canadian or Mexican commuter vocational or non-academic student.",
+    "question1": "Are you a Canadian or Mexican national commuting daily from border region enrolled in a vocational program?",
+    "question2": null,
+    "question3": null
+  },
+  {
+    "code": "N-8",
+    "name": "N-8 Special Immigrant Parent",
+    "description": "Parent of an SIJS youth (Special Immigrant Juvenile Status).",
+    "question1": "Are you the parent of a youth granted SIJS classification?",
+    "question2": null,
+    "question3": null
+  },
+  {
+    "code": "N-9",
+    "name": "N-9 Special Immigrant Child",
+    "description": "Child beneficiary under SIJS derived from certain relatives.",
+    "question1": "Are you an unmarried seeking special immigrant classification under SIJS?",
+    "question2": null,
+    "question3": null
+  },
+  {
+    "code": "SIJS",
+    "name": "Special Immigrant Juvenile Status",
+    "description": "Youth declared dependent by juvenile court and unable to reunite with one or both parents.",
+    "question1": "Are you declared dependent under a juvenile court for abuse, neglect, or abandonment?",
+    "question2": "Is reunification with one or both parents not viable due to abuse, neglect or abandonment?",
+    "question3": null
+  },
+  {
+    "code": "VAWA",
+    "name": "VAWA Self-Petitioner",
+    "description": "Self-petitioning abused spouse, child or parent under Violence Against Women Act.",
+    "question1": "Have you been subjected to battery or extreme cruelty by U.S. citizen or LPR relative?",
+    "question2": "Is your abuser a U.S. citizen or lawful permanent resident?",
+    "question3": "Can you demonstrate eligibility to self-petition without their knowledge or consent?"
+  },
+  {
+    "code": "SIV",
+    "name": "Special Immigrant Visa (SIV)",
+    "description": "For certain Iraqi or Afghan nationals who worked with U.S. Government or military.",
+    "question1": "Did you work for or on behalf of the U.S. government in Iraq or Afghanistan?",
+    "question2": "Have you met service eligibility, security, and documentation requirements?",
+    "question3": null
+  },
+  {
+    "code": "Diversity Visa (DV-1)",
+    "name": "Diversity Immigrant Visa",
+    "description": "Lottery-based immigrant visa for nationals of eligible countries.",
+    "question1": "Did you win the Diversity Visa lottery and meet education or experience criteria?",
+    "question2": null,
+    "question3": null
+  },
+  {
+    "code": "EB-2",
+    "name": "EB-2 Advanced Degree / Exceptional Ability",
+    "description": "Employment-based second preference for advanced degree holders or persons with exceptional ability.",
+    "question1": "Do you have an advanced degree (master’s or higher) or equivalent experience?",
+    "question2": "Do you possess exceptional ability in sciences, arts, or business above normal?",
+    "question3": null
+  },
+  {
+    "code": "EB-3",
+    "name": "EB-3 Professional / Skilled / Other Worker",
+    "description": "Employment-based third preference for degree professionals, skilled workers and other workers.",
+    "question1": "Are you a professional with a bachelor’s degree or a skilled worker with at least 2 years training?",
+    "question2": "Is there a permanent, full-time job offer from a U.S. employer?",
+    "question3": null
+  },
+  {
+    "code": "EB-4",
+    "name": "EB-4 Special Immigrant",
+    "description": "Special immigrant classification for religious workers, broadcasters, certain employees of U.S. foreign service.",
+    "question1": "Are you a qualifying religious worker, broadcaster, or special immigrant under EB-4 classification?",
+    "question2": null,
+    "question3": null
+  },
+  {
+    "code": "EB-5",
+    "name": "EB-5 Immigrant Investor",
+    "description": "Employment-based fifth preference for investors making qualifying investment and job creation.",
+    "question1": "Are you investing the required amount ($1.05 M or $800K in targeted area)?",
+    "question2": "Will the investment create at least 10 full-time U.S. jobs?",
+    "question3": null
+  }
+]
+

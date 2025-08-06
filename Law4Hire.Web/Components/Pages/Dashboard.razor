@@ -11,274 +11,487 @@
 
 @if (AuthState.CurrentUser is null)
 {
-    <p>Please log in to view your dashboard.</p>
+    <MudContainer MaxWidth="MaxWidth.Medium" Class="mt-8">
+        <MudAlert Severity="Severity.Warning" ShowCloseIcon="false">
+            <MudText>Please log in to view your dashboard.</MudText>
+        </MudAlert>
+    </MudContainer>
 }
 else
 {
-    <h1 class="mb-4">Client Dashboard</h1>
-    <div class="dashboard-grid">
-        <div class="dashboard-card card">
-            <div class="card-header d-flex align-items-center">
-                <span class="me-2">👤</span>
-                <h3 class="mb-0">Personal Information</h3>
-            </div>
-            <div class="card-body">
-                @if (editModel == null)
+    <MudContainer MaxWidth="MaxWidth.ExtraExtraLarge" Class="mt-4">
+        <!-- Welcome Header -->
+        <MudPaper Elevation="2" Class="pa-6 mb-6" Style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+            <MudStack Row AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+                <MudStack Spacing="1">
+                    <MudText Typo="Typo.h3" Class="font-weight-bold">Welcome back, @(AuthState.CurrentUser.FirstName)!</MudText>
+                    <MudText Typo="Typo.subtitle1" Style="opacity: 0.9;">Track your immigration journey progress</MudText>
+                </MudStack>
+                <MudIcon Icon="@Icons.Material.Filled.Dashboard" Size="Size.Large" Style="font-size: 4rem; opacity: 0.3;" />
+            </MudStack>
+        </MudPaper>
+        
+        <MudGrid Spacing="4">
+            <!-- Personal Information Card -->
+            <MudItem xs="12" md="6">
+                <MudCard Elevation="4" Style="height: 100%;">
+                    <MudCardHeader>
+                        <CardHeaderContent>
+                            <MudStack Row AlignItems="AlignItems.Center" Spacing="2">
+                                <MudIcon Icon="@Icons.Material.Filled.Person" Color="MudBlazor.Color.Primary" />
+                                <MudText Typo="Typo.h6" Class="font-weight-bold">Personal Information</MudText>
+                            </MudStack>
+                        </CardHeaderContent>
+                        <CardHeaderActions>
+                            @if (!editMode)
+                            {
+                                <MudIconButton Icon="@Icons.Material.Filled.Edit" Color="MudBlazor.Color.Primary" OnClick="EnableEdit" Size="Size.Small" />
+                            }
+                        </CardHeaderActions>
+                    </MudCardHeader>
+                    <MudCardContent>
+                        @if (editModel == null)
+                        {
+                            <MudStack AlignItems="AlignItems.Center" Spacing="2">
+                                <MudProgressCircular Indeterminate="true" />
+                                <MudText Typo="Typo.body2">Loading user information...</MudText>
+                            </MudStack>
+                        }
+                        else if (!editMode)
+                        {
+                            <MudStack Spacing="3">
+                                <MudStack Row AlignItems="AlignItems.Center" Spacing="2">
+                                    <MudIcon Icon="@Icons.Material.Filled.Badge" Color="MudBlazor.Color.Primary" Size="Size.Small" />
+                                    <MudText><strong>Name:</strong> @FullName</MudText>
+                                </MudStack>
+                                <MudStack Row AlignItems="AlignItems.Center" Spacing="2">
+                                    <MudIcon Icon="@Icons.Material.Filled.Email" Color="MudBlazor.Color.Primary" Size="Size.Small" />
+                                    <MudText><strong>Email:</strong> @editModel.Email</MudText>
+                                </MudStack>
+                                <MudStack Row AlignItems="AlignItems.Center" Spacing="2">
+                                    <MudIcon Icon="@Icons.Material.Filled.Phone" Color="MudBlazor.Color.Primary" Size="Size.Small" />
+                                    <MudText><strong>Phone:</strong> @editModel.PhoneNumber</MudText>
+                                </MudStack>
+                            </MudStack>
+                        }
+                        else
+                        {
+                            <EditForm Model="editModel" OnValidSubmit="SaveUser">
+                                <DataAnnotationsValidator />
+                                <MudStack Spacing="3">
+                                    <MudGrid Spacing="2">
+                                        <MudItem xs="12" sm="6">
+                                            <MudTextField @bind-Value="editModel.FirstName" Label="First Name" Variant="Variant.Outlined" For="@(() => editModel.FirstName)" />
+                                        </MudItem>
+                                        <MudItem xs="12" sm="6">
+                                            <MudTextField @bind-Value="editModel.MiddleName" Label="Middle Name" Variant="Variant.Outlined" For="@(() => editModel.MiddleName)" />
+                                        </MudItem>
+                                        <MudItem xs="12" sm="6">
+                                            <MudTextField @bind-Value="editModel.LastName" Label="Last Name" Variant="Variant.Outlined" For="@(() => editModel.LastName)" />
+                                        </MudItem>
+                                        <MudItem xs="12" sm="6">
+                                            <MudTextField @bind-Value="editModel.Email" Label="Email" Variant="Variant.Outlined" InputType="InputType.Email" For="@(() => editModel.Email)" />
+                                        </MudItem>
+                                        <MudItem xs="12" sm="6">
+                                            <MudTextField @bind-Value="editModel.PhoneNumber" Label="Phone" Variant="Variant.Outlined" InputType="InputType.Telephone" For="@(() => editModel.PhoneNumber)" />
+                                        </MudItem>
+                                        <MudItem xs="12" sm="6">
+                                            <MudDatePicker @bind-Date="editModel.DateOfBirth" Label="Birth Date" Variant="Variant.Outlined" For="@(() => editModel.DateOfBirth)" />
+                                        </MudItem>
+                                        <MudItem xs="12">
+                                            <MudTextField @bind-Value="editModel.Address1" Label="Address Line 1" Variant="Variant.Outlined" For="@(() => editModel.Address1)" />
+                                        </MudItem>
+                                        <MudItem xs="12">
+                                            <MudTextField @bind-Value="editModel.Address2" Label="Address Line 2" Variant="Variant.Outlined" For="@(() => editModel.Address2)" />
+                                        </MudItem>
+                                        <MudItem xs="12" sm="4">
+                                            <MudTextField @bind-Value="editModel.City" Label="City" Variant="Variant.Outlined" For="@(() => editModel.City)" />
+                                        </MudItem>
+                                        <MudItem xs="12" sm="4">
+                                            <MudTextField @bind-Value="editModel.State" Label="State/Province" Variant="Variant.Outlined" For="@(() => editModel.State)" />
+                                        </MudItem>
+                                        <MudItem xs="12" sm="4">
+                                            <MudTextField @bind-Value="editModel.PostalCode" Label="Postal Code" Variant="Variant.Outlined" For="@(() => editModel.PostalCode)" />
+                                        </MudItem>
+                                        <MudItem xs="12">
+                                            <MudTextField @bind-Value="editModel.Country" Label="Country" Variant="Variant.Outlined" For="@(() => editModel.Country)" />
+                                        </MudItem>
+                                    </MudGrid>
+                                    <MudStack Row Justify="Justify.FlexEnd" Spacing="2">
+                                        <MudButton Variant="Variant.Text" OnClick="() => editMode = false">Cancel</MudButton>
+                                        <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="MudBlazor.Color.Primary" StartIcon="@Icons.Material.Filled.Save">Save Changes</MudButton>
+                                    </MudStack>
+                                </MudStack>
+                            </EditForm>
+                        }
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+            
+            <!-- Documents Card -->
+            <MudItem xs="12" md="6">
+                <MudCard Elevation="4" Style="height: 100%;">
+                    <MudCardHeader>
+                        <CardHeaderContent>
+                            <MudStack Row AlignItems="AlignItems.Center" Spacing="2">
+                                <MudIcon Icon="@Icons.Material.Filled.Description" Color="MudBlazor.Color.Primary" />
+                                <MudText Typo="Typo.h6" Class="font-weight-bold">
+                                    @if (!string.IsNullOrEmpty(selectedVisaType))
+                                    {
+                                        @($"My Documents - {selectedVisaType}")
+                                    }
+                                    else
+                                    {
+                                        @("My Documents")
+                                    }
+                                </MudText>
+                            </MudStack>
+                        </CardHeaderContent>
+                    </MudCardHeader>
+                    <MudCardContent>
+                        @if (documents is null)
+                        {
+                            <MudStack AlignItems="AlignItems.Center" Spacing="2">
+                                <MudProgressCircular Indeterminate="true" Size="Size.Small" />
+                                <MudText Typo="Typo.body2">Loading documents...</MudText>
+                            </MudStack>
+                        }
+                        else if (!documents.Any())
+                        {
+                            <MudStack AlignItems="AlignItems.Center" Spacing="4" Class="pa-4">
+                                <MudIcon Icon="@Icons.Material.Filled.Assignment" Size="Size.Large" Color="MudBlazor.Color.Secondary" Style="font-size: 4rem; opacity: 0.5;" />
+                                <MudText Typo="Typo.body1" Align="MudBlazor.Align.Center">No documents found. Complete your visa interview to get started.</MudText>
+                                <MudButton Variant="Variant.Filled" Color="MudBlazor.Color.Primary" OnClick="ContinueInterview" StartIcon="@Icons.Material.Filled.PlayArrow">
+                                    Start Visa Interview
+                                </MudButton>
+                            </MudStack>
+                        }
+                        else
+                        {
+                            <MudStack Spacing="2">
+                                @foreach (var doc in documents)
+                                {
+                                    var (statusColor, statusIcon) = doc.Status switch
+                                    {
+                                        "NotStarted" => (MudBlazor.Color.Error, Icons.Material.Filled.RadioButtonUnchecked),
+                                        "InProgress" => (MudBlazor.Color.Warning, Icons.Material.Filled.Schedule), 
+                                        "Submitted" => (MudBlazor.Color.Info, Icons.Material.Filled.CloudUpload),
+                                        "Approved" => (MudBlazor.Color.Success, Icons.Material.Filled.CheckCircle),
+                                        "Completed" => (MudBlazor.Color.Success, Icons.Material.Filled.CheckCircle),
+                                        _ => (MudBlazor.Color.Success, Icons.Material.Filled.CheckCircle)
+                                    };
+                                    
+                                    <MudPaper Elevation="2" Class="pa-3">
+                                        <MudStack Row AlignItems="AlignItems.Center" Spacing="3">
+                                            <MudStack AlignItems="AlignItems.Center" Spacing="1">
+                                                <MudIcon Icon="@Icons.Material.Filled.Description" Color="@statusColor" Size="Size.Large" />
+                                                <MudChip T="string" Size="Size.Small" Color="@(doc.IsGovernmentProvided ? MudBlazor.Color.Error : MudBlazor.Color.Primary)">@(doc.IsGovernmentProvided ? ".GOV" : "User")</MudChip>
+                                            </MudStack>
+                                            
+                                            <MudStack Spacing="1" Style="flex-grow: 1;">
+                                                <MudText Typo="Typo.subtitle1" Class="font-weight-bold">@doc.DocumentName</MudText>
+                                                <MudText Typo="Typo.body2" Color="MudBlazor.Color.Secondary">@doc.VisaType</MudText>
+                                                <MudChip T="string" Icon="@statusIcon" Color="@statusColor" Size="Size.Small">@doc.StatusText</MudChip>
+                                            </MudStack>
+                                        </MudStack>
+                                    </MudPaper>
+                                }
+                            </MudStack>
+                        }
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+        </MudGrid>
+
+        <!-- Workflow Section -->
+        <MudGrid Spacing="4" Class="mt-6">
+            <MudItem xs="12">
+                <MudText Typo="Typo.h4" Class="font-weight-bold mb-4">Your Visa Workflow</MudText>
+                
+                @if (workflow != null)
                 {
-                    <div class="text-center">
-                        <div class="spinner-border" role="status">
-                            <span class="visually-hidden">Loading...</span>
-                        </div>
-                        <p class="mt-2">Loading user information...</p>
-                    </div>
+                    <MudCard Elevation="6">
+                        <MudCardHeader>
+                            <CardHeaderContent>
+                                <MudStack Row AlignItems="AlignItems.Center" Justify="Justify.SpaceBetween">
+                                    <MudStack Spacing="1">
+                                        <MudText Typo="Typo.h5" Class="font-weight-bold">@workflow.VisaType Visa Process</MudText>
+                                        <MudStack Row AlignItems="AlignItems.Center" Spacing="2">
+                                            <MudIcon Icon="@Icons.Material.Filled.Schedule" Size="Size.Small" Color="MudBlazor.Color.Secondary" />
+                                            <MudText Typo="Typo.body2" Color="MudBlazor.Color.Secondary">Estimated Time: @workflow.EstimatedTotalTimeDays days</MudText>
+                                        </MudStack>
+                                    </MudStack>
+                                    <MudButton Variant="Variant.Filled" Color="MudBlazor.Color.Secondary" OnClick="OpenCostCalculator" StartIcon="@Icons.Material.Filled.Calculate">
+                                        Calculate Total Cost
+                                    </MudButton>
+                                </MudStack>
+                            </CardHeaderContent>
+                        </MudCardHeader>
+                        <MudCardContent>
+
+                            <!-- Workflow Carousel Navigation -->
+                            <MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="mb-4">
+                                <MudStack Row Spacing="2">
+                                    <MudButton Variant="Variant.Outlined" Color="MudBlazor.Color.Primary" OnClick="PreviousStep" 
+                                               Disabled="@(currentWorkflowStep <= 0)" StartIcon="@Icons.Material.Filled.ArrowBack">
+                                        Previous
+                                    </MudButton>
+                                    <MudButton Variant="Variant.Outlined" Color="MudBlazor.Color.Primary" OnClick="NextStep" 
+                                               Disabled="@(currentWorkflowStep >= workflow.Steps.Count - 1)" EndIcon="@Icons.Material.Filled.ArrowForward">
+                                        Next
+                                    </MudButton>
+                                </MudStack>
+                                <MudChip T="string" Color="MudBlazor.Color.Info">Step @(currentWorkflowStep + 1) of @workflow.Steps.Count</MudChip>
+                            </MudStack>
+
+                            <!-- Current Step Display -->
+                            @if (workflow.Steps.Any() && currentWorkflowStep < workflow.Steps.Count)
+                            {
+                                var step = workflow.Steps[currentWorkflowStep];
+                                <MudPaper Elevation="3" Class="pa-4">
+                                    <MudStack Spacing="4">
+                                        <!-- Step Header -->
+                                        <MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Start">
+                                            <MudText Typo="Typo.h6" Class="font-weight-bold">@step.Name</MudText>
+                                            @if (!string.IsNullOrEmpty(step.GovernmentLink))
+                                            {
+                                                <MudButton Variant="Variant.Outlined" Color="MudBlazor.Color.Primary" 
+                                                           Href="@step.GovernmentLink" Target="_blank" 
+                                                           StartIcon="@Icons.Material.Filled.OpenInNew" Size="Size.Small">
+                                                    Gov Form
+                                                </MudButton>
+                                            }
+                                        </MudStack>
+                                        
+                                        <!-- Step Description -->
+                                        <MudText Typo="Typo.body1" Color="MudBlazor.Color.Secondary">@step.Description</MudText>
+                                        
+                                        <!-- Time Estimate -->
+                                        <MudPaper Elevation="1" Class="pa-3" Style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);">
+                                            <MudStack AlignItems="AlignItems.Center" Spacing="1">
+                                                <MudIcon Icon="@Icons.Material.Filled.AccessTime" Color="MudBlazor.Color.Primary" />
+                                                <MudText Typo="Typo.h6" Color="MudBlazor.Color.Primary" Class="font-weight-bold">@step.EstimatedTimeDays days</MudText>
+                                                <MudText Typo="Typo.caption" Color="MudBlazor.Color.Secondary">Estimated Time</MudText>
+                                            </MudStack>
+                                        </MudPaper>
+
+                                        <!-- Documents Section -->
+                                        @if (step.Documents.Any())
+                                        {
+                                            <MudDivider />
+                                            <MudStack Spacing="3">
+                                                <MudText Typo="Typo.h6" Class="font-weight-bold">Required Documents</MudText>
+                                                <MudGrid Spacing="3">
+                                                    @foreach (var doc in step.Documents)
+                                                    {
+                                                        <MudItem xs="12" lg="6">
+                                                            <MudCard Elevation="2" Style="height: 100%;">
+                                                                <MudCardContent>
+                                                                    <MudStack Row AlignItems="AlignItems.Center" Spacing="3">
+                                                                        <MudStack AlignItems="AlignItems.Center" Spacing="1">
+                                                                            <MudIcon Icon="@Icons.Material.Filled.Description" 
+                                                                                     Color="@(doc.IsGovernmentProvided ? MudBlazor.Color.Error : MudBlazor.Color.Primary)" 
+                                                                                     Size="Size.Large" />
+                                                                            <MudChip T="string" Size="Size.Small" 
+                                                                                     Color="@(doc.IsGovernmentProvided ? MudBlazor.Color.Error : MudBlazor.Color.Primary)">@(doc.IsGovernmentProvided ? ".GOV" : "User")</MudChip>
+                                                                        </MudStack>
+                                                                        
+                                                                        <MudStack Spacing="2" Style="flex-grow: 1;">
+                                                                            <MudText Typo="Typo.subtitle1" Class="font-weight-bold">@doc.Name</MudText>
+                                                                            <MudText Typo="Typo.caption" Color="MudBlazor.Color.Secondary">@doc.StatusText</MudText>
+                                                                            
+                                                                            <MudStack Row Spacing="1">
+                                                                                @if (doc.IsGovernmentProvided && !string.IsNullOrEmpty(doc.GovernmentLink))
+                                                                                {
+                                                                                    <MudButton Variant="Variant.Outlined" Color="MudBlazor.Color.Primary" 
+                                                                                               Href="@doc.GovernmentLink" Target="_blank" 
+                                                                                               StartIcon="@Icons.Material.Filled.Download" Size="Size.Small">
+                                                                                        Download
+                                                                                    </MudButton>
+                                                                                }
+                                                                                else if (!doc.IsGovernmentProvided)
+                                                                                {
+                                                                                    @if (doc.Status.Equals(DocumentStatusEnum.NotStarted))
+                                                                                    {
+                                                                                        <MudButton Variant="Variant.Outlined" Color="MudBlazor.Color.Primary" 
+                                                                                                   StartIcon="@Icons.Material.Filled.Upload" Size="Size.Small">
+                                                                                            Upload
+                                                                                        </MudButton>
+                                                                                    }
+                                                                                    else if (!string.IsNullOrEmpty(doc.FilePath))
+                                                                                    {
+                                                                                        <MudButton Variant="Variant.Outlined" Color="MudBlazor.Color.Success" 
+                                                                                                   StartIcon="@Icons.Material.Filled.Visibility" Size="Size.Small">
+                                                                                            View
+                                                                                        </MudButton>
+                                                                                    }
+                                                                                }
+                                                                            </MudStack>
+                                                                        </MudStack>
+                                                                    </MudStack>
+                                                                </MudCardContent>
+                                                            </MudCard>
+                                                        </MudItem>
+                                                    }
+                                                </MudGrid>
+                                            </MudStack>
+                                        }
+                                    </MudStack>
+                                </MudPaper>
+                            }
+                        </MudCardContent>
+                    </MudCard>
                 }
-                else if (!editMode)
+                else if (isLoadingWorkflow)
                 {
-                    <p><strong>Name:</strong> @FullName</p>
-                    <p><strong>Email:</strong> @editModel.Email</p>
-                    <p><strong>Phone:</strong> @editModel.PhoneNumber</p>
-                    <button class="btn btn-secondary btn-sm mt-2" @onclick="EnableEdit">Edit Information</button>
+                    <MudCard Elevation="3">
+                        <MudCardContent>
+                            <MudStack AlignItems="AlignItems.Center" Spacing="4" Class="pa-6">
+                                <MudProgressCircular Indeterminate="true" Size="Size.Large" />
+                                <MudText Typo="Typo.h6">Loading your workflow...</MudText>
+                                <MudSkeleton SkeletonType="SkeletonType.Rectangle" Height="100px" />
+                            </MudStack>
+                        </MudCardContent>
+                    </MudCard>
                 }
                 else
                 {
-                    <EditForm Model="editModel" OnValidSubmit="SaveUser">
-                        <DataAnnotationsValidator />
-                        <div class="mb-2">
-                            <label class="form-label">First Name</label>
-                            <InputText class="form-control" @bind-Value="editModel.FirstName" />
-                        </div>
-                        <div class="mb-2">
-                            <label class="form-label">Middle Name</label>
-                            <InputText class="form-control" @bind-Value="editModel.MiddleName" />
-                        </div>
-                        <div class="mb-2">
-                            <label class="form-label">Last Name</label>
-                            <InputText class="form-control" @bind-Value="editModel.LastName" />
-                        </div>
-                        <div class="mb-2">
-                            <label class="form-label">Email</label>
-                            <InputText class="form-control" @bind-Value="editModel.Email" />
-                        </div>
-                        <div class="mb-2">
-                            <label class="form-label">Phone</label>
-                            <InputText class="form-control" @bind-Value="editModel.PhoneNumber" />
-                        </div>
-                        <div class="mb-2">
-                            <label class="form-label">Address 1</label>
-                            <InputText class="form-control" @bind-Value="editModel.Address1" />
-                        </div>
-                        <div class="mb-2">
-                            <label class="form-label">Address 2</label>
-                            <InputText class="form-control" @bind-Value="editModel.Address2" />
-                        </div>
-                        <div class="mb-2">
-                            <label class="form-label">City</label>
-                            <InputText class="form-control" @bind-Value="editModel.City" />
-                        </div>
-                        <div class="mb-2">
-                            <label class="form-label">State</label>
-                            <InputText class="form-control" @bind-Value="editModel.State" />
-                        </div>
-                        <div class="mb-2">
-                            <label class="form-label">Country</label>
-                            <InputText class="form-control" @bind-Value="editModel.Country" />
-                        </div>
-                        <div class="mb-2">
-                            <label class="form-label">Postal Code</label>
-                            <InputText class="form-control" @bind-Value="editModel.PostalCode" />
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Birthdate</label>
-                            <InputDate class="form-control" @bind-Value="editModel.DateOfBirth" />
-                        </div>
-                        <button class="btn btn-primary btn-sm" type="submit">Save</button>
-                    </EditForm>
+                    <MudCard Elevation="3">
+                        <MudCardContent>
+                            <MudStack AlignItems="AlignItems.Center" Spacing="4" Class="pa-6">
+                                <MudIcon Icon="@Icons.Material.Filled.Assignment" Size="Size.Large" Color="MudBlazor.Color.Secondary" Style="font-size: 5rem; opacity: 0.5;" />
+                                <MudText Typo="Typo.h6" Align="MudBlazor.Align.Center">No visa workflow found</MudText>
+                                <MudText Typo="Typo.body1" Color="MudBlazor.Color.Secondary" Align="MudBlazor.Align.Center">
+                                    Complete your visa interview to see your personalized workflow.
+                                </MudText>
+                                <MudButton Variant="Variant.Filled" Color="MudBlazor.Color.Primary" 
+                                           Href="/interview/phase2" StartIcon="@Icons.Material.Filled.PlayArrow" Size="Size.Large">
+                                    Start Visa Interview
+                                </MudButton>
+                            </MudStack>
+                        </MudCardContent>
+                    </MudCard>
                 }
-            </div>
-        </div>
+            </MudItem>
+        </MudGrid>
+        
+        <!-- Footer Section -->
+        <MudPaper Elevation="1" Class="pa-4 mt-6" Style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);">
+            <MudStack Row AlignItems="AlignItems.Center" Justify="Justify.Center" Spacing="2">
+                <MudIcon Icon="@Icons.Material.Filled.Construction" Color="MudBlazor.Color.Secondary" />
+                <MudText Typo="Typo.body1" Color="MudBlazor.Color.Secondary" Class="font-weight-medium">
+                    Appointments, Messages and Status Updates coming soon!
+                </MudText>
+            </MudStack>
+        </MudPaper>
+    </MudContainer>
+}
 
-        <div class="dashboard-card card">
-            <div class="card-header d-flex align-items-center">
-                <span class="me-2">📝</span>
-                <h3 class="mb-0">My Documents</h3>
-            </div>
-            <div class="card-body">
-                <ul class="list-unstyled">
-                    @if (documents is null)
+<!-- Cost Calculator Dialog -->
+<MudDialog @bind-IsVisible="showCostCalculator" Options="@(new DialogOptions { MaxWidth = MaxWidth.Large, FullWidth = true })">
+    <TitleContent>
+        <MudStack Row AlignItems="AlignItems.Center" Spacing="2">
+            <MudIcon Icon="@Icons.Material.Filled.Calculate" />
+            <MudText Typo="Typo.h6">Calculate Total Estimated Cost</MudText>
+        </MudStack>
+    </TitleContent>
+    <DialogContent>
+        <MudStack Spacing="4">
+            @if (servicePackages == null)
+            {
+                <MudStack AlignItems="AlignItems.Center" Spacing="3">
+                    <MudProgressCircular Indeterminate="true" />
+                    <MudText Typo="Typo.body1">Loading pricing options...</MudText>
+                </MudStack>
+            }
+            else
+            {
+                <MudText Typo="Typo.h6" Class="mb-3">Select your service package for @(workflow?.VisaType ?? "your visa"):</MudText>
+                
+                <!-- Package Type Dropdown -->
+                <MudSelect T="string" @bind-Value="selectedPackageType" Label="Package Type" Variant="Variant.Outlined" FullWidth="true">
+                    <MudSelectItem Value="@string.Empty">Select a package type...</MudSelectItem>
+                    @foreach (var packageGroup in packagesByType)
                     {
-                        <li>Loading...</li>
+                        <MudSelectItem Value="@packageGroup.Key">@packageGroup.Key</MudSelectItem>
                     }
-                    else if (!documents.Any())
-                    {
-                        <li class="text-center">
-                            <p>No documents found. Complete your visa interview to get started.</p>
-                            <button class="btn btn-primary" @onclick="ContinueInterview">Start Visa Interview</button>
-                        </li>
-                    }
-                    else
-                    {
-                        @foreach (var doc in documents)
+                </MudSelect>
+
+                @if (!string.IsNullOrEmpty(selectedPackageType) && packagesByType.ContainsKey(selectedPackageType))
+                {
+                    <MudGrid Spacing="3">
+                        @foreach (var package in packagesByType[selectedPackageType])
                         {
-                            var badge = doc.Status switch
-                            {
-                                "NotStarted" => "bg-danger",
-                                "InProgress" => "bg-secondary",
-                                _ => "bg-success"
-                            };
-                            <li>@doc.DocumentName: <span class="badge @badge">@doc.Status</span></li>
+                            <MudItem xs="12" md="6">
+                                <MudCard Elevation="@(selectedPackageId == package.Id ? 8 : 2)" 
+                                         Style="@(selectedPackageId == package.Id ? "border: 2px solid var(--mud-palette-primary);" : "")">
+                                    <MudCardContent>
+                                        <MudStack Spacing="3">
+                                            <MudRadioGroup @bind-Value="selectedPackageId" T="int?">
+                                                <MudRadio T="int?" Value="@((int?)package.Id)" Color="MudBlazor.Color.Primary">
+                                                    <MudText Typo="Typo.h6" Class="font-weight-bold">@package.Name</MudText>
+                                                </MudRadio>
+                                            </MudRadioGroup>
+                                            
+                                            <MudText Typo="Typo.body2" Color="MudBlazor.Color.Secondary">@package.Description</MudText>
+                                            
+                                            <MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+                                                <MudText Typo="Typo.h5" Color="MudBlazor.Color.Success" Class="font-weight-bold">
+                                                    $@package.BasePrice.ToString("N2")
+                                                </MudText>
+                                                @if (package.HasMoneyBackGuarantee)
+                                                {
+                                                    <MudChip T="string" Color="MudBlazor.Color.Success" Size="Size.Small">Money Back Guarantee</MudChip>
+                                                }
+                                            </MudStack>
+                                        </MudStack>
+                                    </MudCardContent>
+                                </MudCard>
+                            </MudItem>
                         }
-                    }
-                </ul>
-            </div>
-        </div>
-    </div>
-
-    <div class="workflow-section mt-8">
-        <h3 class="text-2xl font-bold mb-6">Your Visa Workflow</h3>
-
-        @if (workflow != null)
-        {
-            <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-                <div class="flex justify-between items-center mb-4">
-                    <h4 class="text-xl font-semibold">@workflow.VisaType Visa Process</h4>
-                    <div class="text-sm text-gray-600">
-                        <span class="mr-4">Estimated Cost: $@workflow.EstimatedTotalCost.ToString("N2")</span>
-                        <span>Estimated Time: @workflow.EstimatedTotalTimeDays days</span>
-                    </div>
-                </div>
-
-                <div class="space-y-6">
-                    @foreach (var step in workflow.Steps)
-                    {
-                        <div class="border-l-4 border-blue-500 pl-4 py-2">
-                            <div class="flex justify-between items-start mb-2">
-                                <h5 class="font-semibold text-lg">@step.Name</h5>
-                                @if (!string.IsNullOrEmpty(step.GovernmentLink))
-                                {
-                                    <a href="@step.GovernmentLink" target="_blank"
-                                       class="inline-flex items-center px-3 py-1 text-sm bg-blue-100 text-blue-800 rounded-full hover:bg-blue-200">
-                                        <svg class="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
-                                            <path d="M11 3a1 1 0 100 2h2.586l-6.293 6.293a1 1 0 101.414 1.414L15 6.414V9a1 1 0 102 0V4a1 1 0 00-1-1h-5z"></path>
-                                            <path d="M5 5a2 2 0 00-2 2v8a2 2 0 002 2h8a2 2 0 002-2v-3a1 1 0 10-2 0v3H5V7h3a1 1 0 000-2H5z"></path>
-                                        </svg>
-                                        Government Form
-                                    </a>
-                                }
-                            </div>
-
-                            <p class="text-gray-700 mb-3">@step.Description</p>
-
-                            <div class="text-sm text-gray-500 mb-3">
-                                <span class="mr-4">Cost: $@step.EstimatedCost.ToString("N2")</span>
-                                <span>Time: @step.EstimatedTimeDays days</span>
-                            </div>
-
-                            @if (step.Documents.Any())
+                    </MudGrid>
+                }
+                
+                @if (selectedPackageId.HasValue && workflow != null)
+                {
+                    <MudPaper Elevation="3" Class="pa-4" Style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);">
+                        <MudStack Spacing="3">
+                            <MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center">
+                                <MudText Typo="Typo.h5" Class="font-weight-bold">Total Estimated Cost:</MudText>
+                                <MudText Typo="Typo.h4" Color="MudBlazor.Color.Success" Class="font-weight-bold">
+                                    $@((selectedPackage?.BasePrice ?? 0) + workflow.EstimatedTotalCost).ToString("N2")
+                                </MudText>
+                            </MudStack>
+                            
+                            <MudAlert Severity="Severity.Info" ShowCloseIcon="false">
+                                <strong>Note:</strong> This is an estimate only. Final costs may vary based on case complexity and government requirements.
+                            </MudAlert>
+                            
+                            @if (selectedPackage?.HasMoneyBackGuarantee == true)
                             {
-                                <div class="bg-gray-50 rounded-md p-3">
-                                    <h6 class="font-medium text-sm text-gray-700 mb-2">Required Documents:</h6>
-                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
-                                        @foreach (var doc in step.Documents)
-                                        {
-                                            <div class="flex items-center justify-between p-2 bg-white rounded border">
-                                                <div class="flex items-center">
-                                                    @if (doc.IsGovernmentProvided)
-                                                    {
-                                                        <div class="w-8 h-8 mr-3 bg-red-100 rounded flex items-center justify-center">
-                                                            <svg class="w-5 h-5 text-red-600" fill="currentColor" viewBox="0 0 20 20">
-                                                                <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z" clip-rule="evenodd"></path>
-                                                            </svg>
-                                                        </div>
-                                                        <span class="text-xs bg-red-100 text-red-800 px-1 rounded absolute ml-6 mt-4">PDF</span>
-                                                    }
-                                                    else
-                                                    {
-                                                        <div class="w-8 h-8 mr-3 bg-blue-100 rounded flex items-center justify-center">
-                                                            <svg class="w-5 h-5 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                                                                <path d="M5.5 13a3.5 3.5 0 01-.369-6.98 4 4 0 117.753-1.977A4.5 4.5 0 1113.5 13H11V9.413l1.293 1.293a1 1 0 001.414-1.414l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.413V13H5.5z"></path>
-                                                            </svg>
-                                                        </div>
-                                                    }
-
-                                                    <div>
-                                                        <span class="@doc.StatusColor font-medium">@doc.Name</span>
-                                                        <div class="text-xs text-gray-500">@doc.StatusText</div>
-                                                        @if (doc.SubmittedAt.HasValue)
-                                                        {
-                                                            <div class="text-xs text-gray-400">Submitted: @doc.SubmittedAt.Value.ToString("MM/dd/yyyy")</div>
-                                                        }
-                                                    </div>
-                                                </div>
-
-                                                <div class="flex items-center space-x-2">
-                                                    @if (doc.IsGovernmentProvided && !string.IsNullOrEmpty(doc.GovernmentLink))
-                                                    {
-                                                        <a href="@doc.GovernmentLink" target="_blank"
-                                                           class="text-blue-600 hover:text-blue-800 text-sm">
-                                                            Download
-                                                        </a>
-                                                    }
-                                                    else if (!doc.IsGovernmentProvided)
-                                                    {
-                                                        @if (doc.Status.Equals(DocumentStatusEnum.NotStarted))
-                                                        {
-                                                            <button class="text-blue-600 hover:text-blue-800 text-sm">
-                                                                Upload
-                                                            </button>
-                                                        }
-                                                        else if (!string.IsNullOrEmpty(doc.FilePath))
-                                                        {
-                                                            <button class="text-green-600 hover:text-green-800 text-sm">
-                                                                View
-                                                            </button>
-                                                        }
-                                                    }
-
-                                                    @if (doc.IsRequired)
-                                                    {
-                                                        <span class="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">Required</span>
-                                                    }
-                                                    else
-                                                    {
-                                                        <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded">Optional</span>
-                                                    }
-                                                </div>
-                                            </div>
-                                        }
-                                    </div>
-                                </div>
+                                <MudAlert Severity="Severity.Success" ShowCloseIcon="false">
+                                    <MudStack Row AlignItems="AlignItems.Center" Spacing="2">
+                                        <MudIcon Icon="@Icons.Material.Filled.Shield" />
+                                        <MudText><strong>Money Back Guarantee:</strong> This package includes our money back guarantee.</MudText>
+                                    </MudStack>
+                                </MudAlert>
                             }
-                        </div>
-                    }
-                </div>
-            </div>
-        }
-        else if (isLoadingWorkflow)
+                        </MudStack>
+                    </MudPaper>
+                }
+            }
+        </MudStack>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="CloseCostCalculator" Variant="Variant.Text">Close</MudButton>
+        @if (selectedPackageId.HasValue)
         {
-            <div class="bg-white rounded-lg shadow-md p-6">
-                <div class="animate-pulse">
-                    <div class="h-4 bg-gray-200 rounded w-1/4 mb-4"></div>
-                    <div class="space-y-3">
-                        <div class="h-3 bg-gray-200 rounded"></div>
-                        <div class="h-3 bg-gray-200 rounded w-5/6"></div>
-                    </div>
-                </div>
-            </div>
+            <MudButton OnClick="SelectServicePackage" Variant="Variant.Filled" Color="MudBlazor.Color.Primary" StartIcon="@Icons.Material.Filled.ShoppingCart">
+                Select This Package
+            </MudButton>
         }
-        else
-        {
-            <div class="bg-white rounded-lg shadow-md p-6 text-center">
-                <p class="text-gray-500">No visa workflow found. Complete your visa interview to see your personalized workflow.</p>
-                <a href="/interview/phase2" class="mt-4 inline-block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-                    Start Visa Interview
-                </a>
-            </div>
-        }
-    </div>
-
-    <div class="dashboard-footer mt-4">
-        Appointments, Messages and Statuses coming soon
-    </div>
+    </DialogActions>
+</MudDialog>
 }
 
 @code {
@@ -287,6 +500,16 @@ else
     private List<DocumentInfo>? documents;
     private DashboardWorkflowDto? workflow;
     private bool isLoadingWorkflow = true;
+    private int currentWorkflowStep = 0;
+    private string selectedVisaType = "";
+    
+    // Cost Calculator
+    private bool showCostCalculator = false;
+    private List<ServicePackageDto>? servicePackages;
+    private int? selectedPackageId;
+    private ServicePackageDto? selectedPackage => servicePackages?.FirstOrDefault(p => p.Id == selectedPackageId);
+    private string selectedPackageType = "";
+    private Dictionary<string, List<ServicePackageDto>> packagesByType = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -312,12 +535,14 @@ else
 
             try
             {
-                documents = await Http.GetFromJsonAsync<List<DocumentInfo>>($"api/DocumentStatus/user/{u.Id}");
+                documents = await Http.GetFromJsonAsync<List<DocumentInfo>>($"api/Dashboard/documents/{u.Id}");
+                selectedVisaType = await Http.GetStringAsync($"api/Dashboard/visa-type/{u.Id}");
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error loading documents: {ex.Message}");
                 documents = new List<DocumentInfo>();
+                selectedVisaType = "";
             }
         }
 
@@ -337,6 +562,7 @@ else
                 if (response.IsSuccessStatusCode)
                 {
                     workflow = await response.Content.ReadFromJsonAsync<DashboardWorkflowDto>();
+                    currentWorkflowStep = 0; // Reset to first step when loading new workflow
                 }
             }
         }
@@ -378,5 +604,105 @@ else
         NavigationManager.NavigateTo("/interview/phase2");
     }
 
-    private record DocumentInfo(Guid DocumentTypeId, string DocumentName, string Status, string VisaType);
+    private void NextStep()
+    {
+        if (workflow != null && currentWorkflowStep < workflow.Steps.Count - 1)
+        {
+            currentWorkflowStep++;
+            StateHasChanged();
+        }
+    }
+
+    private void PreviousStep()
+    {
+        if (currentWorkflowStep > 0)
+        {
+            currentWorkflowStep--;
+            StateHasChanged();
+        }
+    }
+
+    // Cost Calculator Methods
+    private async Task OpenCostCalculator()
+    {
+        showCostCalculator = true;
+        
+        if (servicePackages == null && workflow != null)
+        {
+            try
+            {
+                // Load service packages for this visa type
+                servicePackages = await Http.GetFromJsonAsync<List<ServicePackageDto>>($"api/ServicePackages/visa/{workflow.VisaType}");
+                
+                // Group packages by type
+                if (servicePackages != null)
+                {
+                    packagesByType = servicePackages
+                        .GroupBy(p => p.Type.ToString())
+                        .ToDictionary(g => g.Key, g => g.ToList());
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error loading service packages: {ex.Message}");
+                servicePackages = new List<ServicePackageDto>();
+                packagesByType = new Dictionary<string, List<ServicePackageDto>>();
+            }
+        }
+        
+        StateHasChanged();
+    }
+
+    private void CloseCostCalculator()
+    {
+        showCostCalculator = false;
+        selectedPackageId = null;
+        selectedPackageType = "";
+        StateHasChanged();
+    }
+
+    private void OnPackageTypeChanged(string value)
+    {
+        selectedPackageType = value ?? "";
+        selectedPackageId = null; // Reset package selection when type changes
+        StateHasChanged();
+    }
+
+    private void SelectPackage(int packageId)
+    {
+        selectedPackageId = packageId;
+        StateHasChanged();
+    }
+
+    private async Task SelectServicePackage()
+    {
+        if (!selectedPackageId.HasValue || AuthState.CurrentUser == null)
+            return;
+
+        try
+        {
+            // Create UserServicePackage record
+            var userServicePackage = new
+            {
+                UserId = AuthState.CurrentUser.Id,
+                ServicePackageId = selectedPackageId.Value,
+                Paid = false
+            };
+
+            var response = await Http.PostAsJsonAsync("api/UserServicePackages", userServicePackage);
+            if (response.IsSuccessStatusCode)
+            {
+                var result = await response.Content.ReadFromJsonAsync<dynamic>();
+                var userServicePackageId = result?.GetProperty("id").GetInt32();
+                
+                // Redirect to cannlaw.com with the UserServicePackage ID
+                NavigationManager.NavigateTo($"https://cannlaw.com?packageId={userServicePackageId}", true);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error selecting service package: {ex.Message}");
+        }
+    }
+
 }

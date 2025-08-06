@@ -1,57 +1,345 @@
 ﻿@page "/pricing"
+@using System.Net.Http.Json
+@using Law4Hire.Core.DTOs
+@using Law4Hire.Core.Entities
+@inject HttpClient Http
+@inject Law4Hire.Web.State.AuthState AuthState
+@inject NavigationManager NavigationManager
 
-<PageTitle>Pricing - Law4Hire</PageTitle>
+<PageTitle>Pricing Estimator - Law4Hire</PageTitle>
 
-<div class="container mt-4">
-    <div class="text-center mb-5">
-        <h1 class="display-4">Our Service Plans</h1>
-        <p class="lead text-muted">Choose the level of support that's right for you.</p>
-    </div>
+<MudContainer MaxWidth="MaxWidth.ExtraLarge" Class="mt-4">
+    <!-- Header -->
+    <MudPaper Elevation="3" Class="pa-6 mb-6" Style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white;">
+        <MudStack AlignItems="AlignItems.Center" Spacing="3">
+            <MudIcon Icon="@Icons.Material.Filled.Calculate" Size="Size.Large" />
+            <MudStack AlignItems="AlignItems.Center" Spacing="1">
+                <MudText Typo="Typo.h2" Class="font-weight-bold" Align="MudBlazor.Align.Center">Pricing Estimator</MudText>
+                <MudText Typo="Typo.h6" Style="opacity: 0.9;" Align="MudBlazor.Align.Center">
+                    Get an accurate estimate for your visa application with legal assistance
+                </MudText>
+            </MudStack>
+        </MudStack>
+    </MudPaper>
 
-    <div class="row g-4">
-        <!-- Plan 1 -->
-        <div class="col-lg-3 col-md-6">
-            <div class="card h-100 text-center">
-                <div class="card-header"><h3>Self-Service</h3></div>
-                <div class="card-body d-flex flex-column">
-                    <h4 class="card-title">$100</h4>
-                    <p class="text-muted">Document review by a paralegal.</p>
-                    <button class="btn btn-outline-primary mt-auto">Get Started</button>
-                </div>
-            </div>
-        </div>
-        <!-- Plan 2 -->
-        <div class="col-lg-3 col-md-6">
-            <div class="card h-100 text-center">
-                <div class="card-header"><h3>Hybrid</h3></div>
-                <div class="card-body d-flex flex-column">
-                    <h4 class="card-title">$1,000</h4>
-                    <p class="text-muted">Attorney oversight and guidance.</p>
-                    <button class="btn btn-outline-primary mt-auto">Get Started</button>
-                </div>
-            </div>
-        </div>
-        <!-- Plan 3 -->
-        <div class="col-lg-3 col-md-6">
-            <div class="card h-100 text-center border-primary">
-                <div class="card-header"><h3>Full Representation</h3></div>
-                <div class="card-body d-flex flex-column">
-                    <h4 class="card-title">$2,500</h4>
-                    <p class="text-muted">Complete case handling by an attorney.</p>
-                    <button class="btn btn-primary mt-auto">Most Popular</button>
-                </div>
-            </div>
-        </div>
-        <!-- Plan 4 -->
-        <div class="col-lg-3 col-md-6">
-            <div class="card h-100 text-center">
-                <div class="card-header"><h3>Guaranteed</h3></div>
-                <div class="card-body d-flex flex-column">
-                    <h4 class="card-title">$5,000</h4>
-                    <p class="text-muted">Full representation with a money-back guarantee.</p>
-                    <button class="btn btn-outline-primary mt-auto">Get Started</button>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
+    <!-- Visa Type Selection -->
+    <MudGrid Justify="Justify.Center" Class="mb-6">
+        <MudItem xs="12" md="8">
+            <MudCard Elevation="6">
+                <MudCardHeader>
+                    <CardHeaderContent>
+                        <MudStack Row AlignItems="AlignItems.Center" Spacing="2">
+                            <MudIcon Icon="@Icons.Material.Filled.FlightTakeoff" Color="MudBlazor.Color.Primary" />
+                            <MudText Typo="Typo.h5" Class="font-weight-bold">Select Your Visa Type</MudText>
+                        </MudStack>
+                    </CardHeaderContent>
+                </MudCardHeader>
+                <MudCardContent>
+                    @if (visaTypes == null)
+                    {
+                        <MudStack AlignItems="AlignItems.Center" Spacing="3" Class="pa-4">
+                            <MudProgressCircular Indeterminate="true" />
+                            <MudText Typo="Typo.body1">Loading visa types...</MudText>
+                        </MudStack>
+                    }
+                    else
+                    {
+                        <MudSelect T="string" @bind-Value="selectedVisaType" Label="Choose Visa Type" 
+                                   Variant="Variant.Outlined" FullWidth="true" 
+                                   Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.AssignmentInd">
+                            <MudSelectItem Value="@string.Empty">Select a visa type...</MudSelectItem>
+                            @foreach (var visaType in visaTypes)
+                            {
+                                <MudSelectItem Value="@visaType.Code">
+                                    @visaType.Code - @visaType.Description
+                                </MudSelectItem>
+                            }
+                        </MudSelect>
+                    }
+                </MudCardContent>
+            </MudCard>
+        </MudItem>
+    </MudGrid>
+
+    <!-- Service Packages Display -->
+    @if (!string.IsNullOrEmpty(selectedVisaType) && servicePackages != null && servicePackages.Any())
+    {
+        <MudText Typo="Typo.h4" Class="font-weight-bold mb-4" Align="MudBlazor.Align.Center">
+            Available Service Packages
+        </MudText>
+        
+        <MudGrid Spacing="4" Class="mb-6">
+            @foreach (var package in servicePackages)
+            {
+                var isPopular = package.Type.ToString().Contains("FullRepresentation");
+                <MudItem xs="12" sm="6" lg="3">
+                    <MudCard Elevation="@(selectedPackage?.Id == package.Id ? 8 : 4)" 
+                             Style="@(selectedPackage?.Id == package.Id ? "border: 2px solid var(--mud-palette-primary); transform: scale(1.02);" : "")" 
+                             Class="h-100 position-relative">
+                        
+                        @if (isPopular)
+                        {
+                            <MudChip T="string" Color="MudBlazor.Color.Secondary" 
+                                     Style="position: absolute; top: -10px; right: 15px; z-index: 10;">Most Popular</MudChip>
+                        }
+                        
+                        <MudCardHeader>
+                            <CardHeaderContent>
+                                <MudText Typo="Typo.h6" Class="font-weight-bold" Align="MudBlazor.Align.Center">
+                                    @package.Name
+                                </MudText>
+                            </CardHeaderContent>
+                        </MudCardHeader>
+                        
+                        <MudCardContent Class="text-center">
+                            <MudStack Spacing="3" AlignItems="AlignItems.Center">
+                                <MudText Typo="Typo.h4" Color="MudBlazor.Color.Primary" Class="font-weight-bold">
+                                    @package.BasePrice.ToString("C")
+                                </MudText>
+                                
+                                @if (package.L4HLLCFee > 0)
+                                {
+                                    <MudText Typo="Typo.caption" Color="MudBlazor.Color.Secondary">
+                                        + @package.L4HLLCFee.ToString("C") platform fee
+                                    </MudText>
+                                }
+                                
+                                <MudText Typo="Typo.body2" Color="MudBlazor.Color.Secondary" Align="MudBlazor.Align.Center">
+                                    @package.Description
+                                </MudText>
+                                
+                                @if (package.HasMoneyBackGuarantee)
+                                {
+                                    <MudChip T="string" Color="MudBlazor.Color.Success" 
+                                             Icon="@Icons.Material.Filled.Shield" Size="Size.Small">Money-Back Guarantee</MudChip>
+                                }
+                            </MudStack>
+                        </MudCardContent>
+                        
+                        <MudCardActions Class="justify-center pb-4">
+                            <MudButton Variant="@(isPopular ? Variant.Filled : Variant.Outlined)" 
+                                       Color="MudBlazor.Color.Primary" 
+                                       OnClick="@(() => SelectPackage(package))" 
+                                       FullWidth="true"
+                                       StartIcon="@Icons.Material.Filled.CheckCircle">
+                                @(selectedPackage?.Id == package.Id ? "Selected" : 
+                                  isPopular ? "Most Popular" : "Select Package")
+                            </MudButton>
+                        </MudCardActions>
+                    </MudCard>
+                </MudItem>
+            }
+        </MudGrid>
+    }
+
+    <!-- Estimate Display -->
+    @if (selectedPackage != null)
+    {
+        <MudGrid Justify="Justify.Center" Class="mb-6">
+            <MudItem xs="12" md="10" lg="8">
+                <MudCard Elevation="8" Style="border: 2px solid var(--mud-palette-success);">
+                    <MudCardHeader Style="background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white;">
+                        <CardHeaderContent>
+                            <MudStack Row AlignItems="AlignItems.Center" Spacing="2">
+                                <MudIcon Icon="@Icons.Material.Filled.Receipt" />
+                                <MudText Typo="Typo.h5" Class="font-weight-bold">Your Estimate</MudText>
+                            </MudStack>
+                        </CardHeaderContent>
+                    </MudCardHeader>
+                    
+                    <MudCardContent Class="pa-6">
+                        <MudGrid Spacing="4">
+                            <MudItem xs="12" md="6">
+                                <MudStack Spacing="3">
+                                    <MudStack Row AlignItems="AlignItems.Center" Spacing="2">
+                                        <MudIcon Icon="@Icons.Material.Filled.FlightTakeoff" Color="MudBlazor.Color.Primary" />
+                                        <MudText Typo="Typo.h6"><strong>Visa Type:</strong> @selectedVisaType</MudText>
+                                    </MudStack>
+                                    <MudStack Row AlignItems="AlignItems.Center" Spacing="2">
+                                        <MudIcon Icon="@Icons.Material.Filled.BusinessCenter" Color="MudBlazor.Color.Primary" />
+                                        <MudText Typo="Typo.h6"><strong>Service Package:</strong> @selectedPackage.Name</MudText>
+                                    </MudStack>
+                                </MudStack>
+                            </MudItem>
+                            
+                            <MudItem xs="12" md="6">
+                                <MudPaper Elevation="2" Class="pa-4">
+                                    <MudStack Spacing="2">
+                                        <MudStack Row Justify="Justify.SpaceBetween">
+                                            <MudText>Government Fees:</MudText>
+                                            <MudText Class="font-weight-bold">@estimatedGovFees.ToString("C")</MudText>
+                                        </MudStack>
+                                        <MudStack Row Justify="Justify.SpaceBetween">
+                                            <MudText>Legal Fees:</MudText>
+                                            <MudText Class="font-weight-bold">@selectedPackage.BasePrice.ToString("C")</MudText>
+                                        </MudStack>
+                                        @if (selectedPackage.L4HLLCFee > 0)
+                                        {
+                                            <MudStack Row Justify="Justify.SpaceBetween">
+                                                <MudText>Platform Fee:</MudText>
+                                                <MudText Class="font-weight-bold">@selectedPackage.L4HLLCFee.ToString("C")</MudText>
+                                            </MudStack>
+                                        }
+                                        <MudDivider />
+                                        <MudStack Row Justify="Justify.SpaceBetween">
+                                            <MudText Typo="Typo.h6" Class="font-weight-bold">Total Estimate:</MudText>
+                                            <MudText Typo="Typo.h6" Color="MudBlazor.Color.Success" Class="font-weight-bold">
+                                                @totalEstimate.ToString("C")
+                                            </MudText>
+                                        </MudStack>
+                                    </MudStack>
+                                </MudPaper>
+                            </MudItem>
+                        </MudGrid>
+                        
+                        <MudAlert Severity="Severity.Warning" ShowCloseIcon="false" Class="mt-4">
+                            <strong>Note:</strong> This is an estimate only and subject to change. Final costs may vary based on your specific case complexity and government fee updates.
+                        </MudAlert>
+
+                        <!-- CannLaw Integration Button -->
+                        <MudStack AlignItems="AlignItems.Center" Class="mt-6">
+                            <MudButton Variant="Variant.Filled" 
+                                       Size="Size.Large" 
+                                       Color="MudBlazor.Color.Success" 
+                                       OnClick="StartCannLawIntake"
+                                       StartIcon="@Icons.Material.Filled.Start"
+                                       Class="px-8 py-3"
+                                       Style="background: linear-gradient(135deg, #B22234 0%, #B22234 33.33%, #FFFFFF 33.33%, #FFFFFF 66.66%, #3C3B6E 66.66%, #3C3B6E 100%); color: white; font-weight: bold; text-shadow: 1px 1px 2px rgba(0,0,0,0.7);">
+                                I'm Ready to Start
+                            </MudButton>
+                        </MudStack>
+                    </MudCardContent>
+                </MudCard>
+            </MudItem>
+        </MudGrid>
+    }
+    else if (!string.IsNullOrEmpty(selectedVisaType) && (servicePackages == null || !servicePackages.Any()))
+    {
+        <MudGrid Justify="Justify.Center">
+            <MudItem xs="12" md="6">
+                <MudAlert Severity="Severity.Info" ShowCloseIcon="false">
+                    <MudStack AlignItems="AlignItems.Center" Spacing="2">
+                        <MudText Typo="Typo.h6">No service packages available for @selectedVisaType</MudText>
+                        <MudText>Please contact us directly for assistance with this visa type.</MudText>
+                        <MudButton Variant="Variant.Filled" Color="MudBlazor.Color.Primary" 
+                                   StartIcon="@Icons.Material.Filled.ContactSupport">
+                            Contact Us
+                        </MudButton>
+                    </MudStack>
+                </MudAlert>
+            </MudItem>
+        </MudGrid>
+    }
+</MudContainer>
+
+
+@code {
+    private List<BaseVisaType>? visaTypes;
+    private List<ServicePackageDto>? servicePackages;
+    private ServicePackageDto? selectedPackage;
+    private decimal estimatedGovFees = 0;
+    private decimal totalEstimate = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadVisaTypes();
+    }
+
+    private async Task LoadVisaTypes()
+    {
+        try
+        {
+            visaTypes = await Http.GetFromJsonAsync<List<BaseVisaType>>("api/VisaTypes");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading visa types: {ex.Message}");
+            visaTypes = new List<BaseVisaType>();
+        }
+    }
+
+    private string _selectedVisaType = "";
+    private string selectedVisaType 
+    { 
+        get => _selectedVisaType; 
+        set 
+        { 
+            if (_selectedVisaType != value)
+            {
+                _selectedVisaType = value;
+                OnVisaTypeChanged(value);
+            }
+        } 
+    }
+
+    private async void OnVisaTypeChanged(string visaType)
+    {
+        selectedPackage = null;
+        servicePackages = null;
+        
+        if (!string.IsNullOrEmpty(visaType))
+        {
+            await LoadServicePackages(visaType);
+            await LoadEstimatedGovFees(visaType);
+            StateHasChanged();
+        }
+    }
+
+    private async Task LoadServicePackages(string visaTypeName)
+    {
+        try
+        {
+            servicePackages = await Http.GetFromJsonAsync<List<ServicePackageDto>>($"api/ServicePackages/visa/{visaTypeName}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading service packages: {ex.Message}");
+            servicePackages = new List<ServicePackageDto>();
+        }
+    }
+
+    private async Task LoadEstimatedGovFees(string visaTypeName)
+    {
+        // This would ideally come from the visa wizard data or a separate API
+        // For now, using estimated values based on common visa types
+        estimatedGovFees = visaTypeName switch
+        {
+            "H-1B" => 460 + 500 + 750, // Base fee + fraud fee + training fee
+            "F-1" => 350,
+            "EB-5" => 3675,
+            "O-1" => 460,
+            "L-1" => 460 + 500,
+            "E-2" => 205,
+            "TN" => 56,
+            _ => 350 // Default estimate
+        };
+    }
+
+    private void SelectPackage(ServicePackageDto package)
+    {
+        selectedPackage = package;
+        CalculateTotalEstimate();
+    }
+
+    private void CalculateTotalEstimate()
+    {
+        if (selectedPackage != null)
+        {
+            totalEstimate = estimatedGovFees + selectedPackage.BasePrice + selectedPackage.L4HLLCFee;
+        }
+    }
+
+    private void StartCannLawIntake()
+    {
+        if (AuthState.CurrentUser != null)
+        {
+            var cannLawUrl = $"https://cannlaw.com/intake?id={AuthState.CurrentUser.Id}";
+            NavigationManager.NavigateTo(cannLawUrl, forceLoad: true);
+        }
+        else
+        {
+            // Redirect to login first
+            NavigationManager.NavigateTo($"/login?returnUrl={Uri.EscapeDataString("/pricing")}");
+        }
+    }
+}

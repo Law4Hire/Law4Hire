@@ -1,4 +1,3 @@
-
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Montserrat:wght@400;600;700&display=swap');
 
 :root {
@@ -17,8 +16,6 @@
 html, body {
     font-family: 'Roboto', sans-serif;
     line-height: 1.7;
-    color: var(--text-color);
-    background-color: var(--background-color);
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -219,8 +216,7 @@ a {
         justify-content: space-between;
     }
 
-        .top-row a, .top-row .btn-link {
-            margin-left: 0;
+        .top-row a, .top-row .btn-link {\r\n            margin-left: 0;
         }
 }
 
@@ -240,4 +236,37 @@ a {
         top: 0;
         z-index: 1;
     }
+}
+
+/* MudBlazor Overrides for Navigation */
+.mud-appbar .mud-button-text {
+    color: inherit !important;
+}
+
+.mud-appbar .mud-text {
+    color: inherit !important;
+}
+
+.mud-appbar .mud-link {
+    color: inherit !important;
+}
+
+.mud-appbar .mud-icon-button {
+    color: inherit !important;
+}
+
+.mud-select-outlined-inherit .mud-select-input {
+    color: inherit !important;
+}
+
+.mud-select-outlined-inherit .mud-input-outlined .mud-input-outlined-border {
+    border-color: rgba(255, 255, 255, 0.5) !important;
+}
+
+.mud-select-outlined-inherit:hover .mud-input-outlined .mud-input-outlined-border {
+    border-color: rgba(255, 255, 255, 0.8) !important;
+}
+
+.mud-select-outlined-inherit .mud-input-adornment {
+    color: inherit !important;
 }

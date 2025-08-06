@@ -19,12 +19,31 @@ namespace Law4Hire.API.Controllers
         private readonly Law4HireDbContext _db;
         private readonly VisaInterviewBot _bot;
         private readonly WorkflowProcessingService _workflowProcessor;
+        private readonly VisaEligibilityService _eligibilityService;
 
-        public VisaInterviewController(Law4HireDbContext db, VisaInterviewBot bot, WorkflowProcessingService workflowProcessor)
+        public VisaInterviewController(Law4HireDbContext db, VisaInterviewBot bot, WorkflowProcessingService workflowProcessor, VisaEligibilityService eligibilityService)
         {
             _db = db;
             _bot = bot;
             _workflowProcessor = workflowProcessor;
+            _eligibilityService = eligibilityService;
+        }
+
+        private string GetCurrentLanguageCode()
+        {
+            // Get language from Accept-Language header or default to en-US
+            var acceptLanguage = Request.Headers["Accept-Language"].FirstOrDefault();
+            if (!string.IsNullOrEmpty(acceptLanguage))
+            {
+                // Parse the first language from Accept-Language header
+                var languages = acceptLanguage.Split(',');
+                if (languages.Length > 0)
+                {
+                    var primaryLanguage = languages[0].Split(';')[0].Trim();
+                    return primaryLanguage;
+                }
+            }
+            return "en-US";
         }
 
         [HttpPost("step")]
@@ -193,657 +212,108 @@ namespace Law4Hire.API.Controllers
                     CurrentStep = 0
                 };
                 _db.VisaInterviewStates.Add(state);
-        await _db.SaveChangesAsync();
-    }
+                await _db.SaveChangesAsync();
+                Console.WriteLine($"[DEBUG] Created new interview state for user {dto.UserId}");
+            }
 
-    // Initial handshake: send base visa types as Payload
-    if (string.IsNullOrEmpty(state.CurrentVisaOptionsJson))
-    {
-        var baseVisaTypes = await _db.BaseVisaTypes
-            .Where(b => b.Status == "Active")
-            .Select(b => b.Name)
-            .ToListAsync();
+            Console.WriteLine($"[DEBUG] Current state - Step: {state.CurrentStep}, HasOptions: {!string.IsNullOrEmpty(state.CurrentVisaOptionsJson)}, Answer: '{dto.Answer}'");
 
-        var payloadObj = new { Payload = new { visaTypes = baseVisaTypes } };
-        var payloadJson = JsonSerializer.Serialize(payloadObj);
-        Console.WriteLine($"[DEBUG] Sending initial Payload: {payloadJson}");
-
-        var botResponseInternal = await _bot.ProcessAsync(payloadJson);
-        Console.WriteLine($"[DEBUG] Bot response to initial Payload: {botResponseInternal}");
-
-        string questionText;
-        try
-        {
-            using var doc = JsonDocument.Parse(botResponseInternal);
-            questionText = doc.RootElement
-                .GetProperty("Question")
-                .GetProperty("text")
-                .GetString() ?? string.Empty;
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"[ERROR] Failed to parse Question response: {ex.Message}");
-            return BadRequest("Invalid Question response from bot.");
-        }
-
-        state.CurrentVisaOptionsJson = JsonSerializer.Serialize(baseVisaTypes);
-        state.CurrentStep++;
-        state.LastBotMessage = botResponseInternal;
-        state.LastClientMessage = payloadJson;
-        state.LastUpdated = DateTime.UtcNow;
-        await _db.SaveChangesAsync();
-
-        return Ok(new Phase2QuestionDto
-        {
-            Question = questionText,
-            Step = state.CurrentStep,
-            IsComplete = false
-        });
-    }
-
-            string? botResponse = null;
-
-            // 2. If no visa options stored, do handshake and get list, then get question
+            // Handle initial request (no visa options in state)
             if (string.IsNullOrEmpty(state.CurrentVisaOptionsJson))
             {
-                try
-                {
-                    // Step 2a: Send category to get visa types list
-                    var handshakePayload = new
-                    {
-                        category = dto.Category,
-                        instructions = dto.Instructions
-                    };
-                    var handshakeJson = JsonSerializer.Serialize(handshakePayload);
-                    Console.WriteLine($"[DEBUG] Sending handshake: {handshakeJson}");
+                Console.WriteLine("[DEBUG] INITIAL REQUEST - Setting up visa options");
+                
+                // Get visa types for the category
+                var eligibleVisaTypes = new List<string> { "EB-1", "EB-2", "EB-3", "EB-5", "IR-1", "IR-5", "F-1", "F-2", "F-3", "F-4" };
+                
+                // Store visa options and increment step
+                state.CurrentVisaOptionsJson = JsonSerializer.Serialize(eligibleVisaTypes);
+                state.CurrentStep = 1;
+                state.LastUpdated = DateTime.UtcNow;
+                await _db.SaveChangesAsync();
 
-                    var handshakeResponse = await _bot.ProcessAsync(handshakeJson);
-                    Console.WriteLine($"[DEBUG] Handshake response: {handshakeResponse}");
-
-                    // Step 2b: Parse and store the visa types list
-                    List<string> visaTypeList;
-                    try
-                    {
-                        // First try to parse as a simple array (old format)
-                        visaTypeList = JsonSerializer.Deserialize<List<string>>(handshakeResponse) ?? new List<string>();
-                        Console.WriteLine($"[DEBUG] Parsed as simple array: {JsonSerializer.Serialize(visaTypeList)}");
-                    }
-                    catch (JsonException)
-                    {
-                        try
-                        {
-                            // If that fails, try to parse as an object with visaTypes property (new format)
-                            using var doc = JsonDocument.Parse(handshakeResponse);
-                            if (doc.RootElement.TryGetProperty("visaTypes", out var visaTypesElement))
-                            {
-                                visaTypeList = JsonSerializer.Deserialize<List<string>>(visaTypesElement.GetRawText()) ?? new List<string>();
-                                Console.WriteLine($"[DEBUG] Parsed from object.visaTypes: {JsonSerializer.Serialize(visaTypeList)}");
-                            }
-                            else
-                            {
-                                Console.WriteLine("[ERROR] No visaTypes property found in response");
-                                visaTypeList = GetFallbackVisaTypes(dto.Category);
-                            }
-                        }
-                        catch (JsonException ex2)
-                        {
-                            Console.WriteLine($"[ERROR] Failed to parse handshake response as object: {ex2.Message}");
-                            visaTypeList = GetFallbackVisaTypes(dto.Category);
-                        }
-                    }
-
-                    if (visaTypeList == null || !visaTypeList.Any())
-                    {
-                        // Fallback with default visa types based on category
-                        visaTypeList = GetFallbackVisaTypes(dto.Category);
-                        Console.WriteLine($"[DEBUG] Using fallback visa types: {JsonSerializer.Serialize(visaTypeList)}");
-                    }
-
-                    state.CurrentVisaOptionsJson = JsonSerializer.Serialize(visaTypeList);
-                    state.LastUpdated = DateTime.UtcNow;
-                    await _db.SaveChangesAsync();
-
-                    // Step 2c: Now send the list back to get the first question
-                    var listPayload = JsonSerializer.Serialize(visaTypeList);
-                    Console.WriteLine($"[DEBUG] Sending visa list for question: {listPayload}");
-
-                    botResponse = await _bot.ProcessAsync(listPayload);
-                    Console.WriteLine($"[DEBUG] Bot response to visa list: {botResponse}");
-
-                    // Check if the response looks like a question
-                    if (botResponse.Trim().StartsWith("["))
-                    {
-                        Console.WriteLine("[ERROR] Bot returned array instead of question!");
-                        // Fallback question
-                        botResponse = "\"What is the primary purpose of your visit to the United States?\"";
-                    }
-                }
-                catch (JsonException ex)
-                {
-                    Console.WriteLine($"[ERROR] JSON parsing failed: {ex.Message}");
-                    return BadRequest($"Failed to parse visa types: {ex.Message}");
-                }
-            }
-            else if (!string.IsNullOrEmpty(dto.Answer))
-            {
-                // 3. Process user's answer
-                try
-                {
-                    var currentList = JsonSerializer.Deserialize<List<string>>(state.CurrentVisaOptionsJson);
-                    if (currentList == null || !currentList.Any())
-                    {
-                        return BadRequest("No current visa options available");
-                    }
-
-                    var payload = new
-                    {
-                        visaTypes = currentList,
-                        answer = dto.Answer
-                    };
-                    var payloadJson = JsonSerializer.Serialize(payload);
-                    Console.WriteLine($"[DEBUG] Sending answer payload: {payloadJson}");
-
-                    botResponse = await _bot.ProcessAsync(payloadJson);
-                    Console.WriteLine($"[DEBUG] Bot response to answer: {botResponse}");
-
-                    // Check if response is an object with both visaTypes and question
-                    if (botResponse.Trim().StartsWith("{"))
-                    {
-                        try
-                        {
-                            using var doc = JsonDocument.Parse(botResponse);
-
-                            // Extract visaTypes if present
-                            if (doc.RootElement.TryGetProperty("visaTypes", out var visaTypesElement))
-                            {
-                                var newList = JsonSerializer.Deserialize<List<string>>(visaTypesElement.GetRawText());
-
-                                if (newList != null && newList.Any())
-                                {
-                                    // Update the visa list in state
-                                    state.CurrentVisaOptionsJson = JsonSerializer.Serialize(newList);
-                                    state.CurrentStep += 1;
-                                    state.LastUpdated = DateTime.UtcNow;
-                                    await _db.SaveChangesAsync();
-
-                                    Console.WriteLine($"[DEBUG] Updated list has {newList.Count} items: {JsonSerializer.Serialize(newList)}");
-
-                                    // Check if down to one visa
-                                    // Replace your workflow completion section with this:
-
-                                    if (newList.Count == 1)
-                                    {
-                                        var workflowPayload = newList[0];
-                                        Console.WriteLine($"[DEBUG] Requesting workflow for: {workflowPayload}");
-
-                                        var workflowResponse = await _bot.ProcessAsync(workflowPayload);
-                                        Console.WriteLine($"[DEBUG] Workflow response: {workflowResponse}");
-
-                                        // Check if the response is a proper workflow format
-                                        string finalWorkflow;
-                                        try
-                                        {
-                                            using var testDoc = JsonDocument.Parse(workflowResponse);
-                                            if (testDoc.RootElement.TryGetProperty("steps", out var steps) && steps.ValueKind == JsonValueKind.Array)
-                                            {
-                                                // It's a proper workflow
-                                                finalWorkflow = workflowResponse;
-                                                Console.WriteLine("[DEBUG] Using bot-generated workflow");
-                                            }
-                                            else
-                                            {
-                                                // Bad format, use fallback
-                                                finalWorkflow = CreateFallbackWorkflow(workflowPayload);
-                                                Console.WriteLine("[DEBUG] Bot returned bad format, using fallback workflow");
-                                            }
-                                        }
-                                        catch (JsonException)
-                                        {
-                                            // Invalid JSON, use fallback
-                                            finalWorkflow = CreateFallbackWorkflow(workflowPayload);
-                                            Console.WriteLine("[DEBUG] Bot returned invalid JSON, using fallback workflow");
-                                        }
-
-                                        state.VisaWorkflowJson = finalWorkflow;
-                                        state.SelectedVisaType = newList[0];
-                                        state.IsCompleted = true;
-                                        state.LastUpdated = DateTime.UtcNow;
-                                        await _db.SaveChangesAsync();
-
-                                        // Process workflow steps into database tables
-                                        try
-                                        {
-                                            await _workflowProcessor.ProcessWorkflowSteps(dto.UserId, newList[0], finalWorkflow);
-                                            Console.WriteLine("[DEBUG] Workflow steps processed successfully");
-                                        }
-                                        catch (Exception ex)
-                                        {
-                                            Console.WriteLine($"[ERROR] Failed to process workflow steps: {ex.Message}");
-                                            // Continue anyway - we still have the workflow saved
-                                        }
-
-                                        return Ok(new Phase2QuestionDto
-                                        {
-                                            Question = $"Perfect! I recommend the {newList[0]} visa. Your personalized workflow has been created and documents have been organized for you.",
-                                            Step = state.CurrentStep,
-                                            IsComplete = true
-                                        });
-                                    }
-                                }
-                            }
-
-                            // Extract question if present
-                            if (doc.RootElement.TryGetProperty("question", out var questionElement))
-                            {
-                                botResponse = JsonSerializer.Serialize(questionElement.GetString());
-                                Console.WriteLine($"[DEBUG] Extracted question: {botResponse}");
-                            }
-                            else
-                            {
-                                // No question in response, ask for clarification
-                                botResponse = "\"Could you please provide more details about your specific situation?\"";
-                            }
-                        }
-                        catch (JsonException ex)
-                        {
-                            Console.WriteLine($"[ERROR] Failed to parse object response: {ex.Message}");
-                            botResponse = "\"Could you please clarify your answer?\"";
-                        }
-                    }
-                    // If response is a simple array (old format)
-                    else if (botResponse.Trim().StartsWith("["))
-                    {
-                        var newList = JsonSerializer.Deserialize<List<string>>(botResponse);
-
-                        // Handle empty array case
-                        if (newList == null || !newList.Any())
-                        {
-                            Console.WriteLine("[ERROR] Bot returned empty array - asking for clarification");
-                            botResponse = "\"I didn't quite understand your answer. Could you please clarify your specific situation?\"";
-                        }
-                        else if (newList.Count == currentList.Count &&
-                                newList.All(currentList.Contains) &&
-                                currentList.All(newList.Contains))
-                        {
-                            Console.WriteLine("[ERROR] Bot didn't filter the list - checking if we need to force progression");
-
-                            // Check if we've been stuck on the same list for too many steps
-                            if (state.CurrentStep >= 3)
-                            {
-                                Console.WriteLine("[FORCE] Too many steps without progress - forcing decision");
-
-                                // Force a decision based on common scenarios
-                                string forcedRecommendation = ForceBestVisaChoice(currentList, dto.Answer);
-
-                                // Create a single-item list with our forced choice
-                                var forcedList = new List<string> { forcedRecommendation };
-
-                                state.CurrentVisaOptionsJson = JsonSerializer.Serialize(forcedList);
-                                state.CurrentStep += 1;
-                                state.LastUpdated = DateTime.UtcNow;
-                                await _db.SaveChangesAsync();
-
-                                Console.WriteLine($"[FORCE] Forced recommendation: {forcedRecommendation}");
-
-                                // Get workflow for the forced choice
-                                var workflowPayload = forcedRecommendation;
-                                var workflowResponse = await _bot.ProcessAsync(workflowPayload);
-
-                                state.VisaWorkflowJson = workflowResponse;
-                                state.SelectedVisaType = forcedRecommendation;
-                                state.IsCompleted = true;
-                                state.LastUpdated = DateTime.UtcNow;
-                                await _db.SaveChangesAsync();
-
-                                // Process workflow documents
-                                try
-                                {
-                                    await _workflowProcessor.ProcessWorkflowDocuments(dto.UserId, forcedRecommendation, workflowResponse);
-                                    Console.WriteLine("[DEBUG] Workflow documents processed successfully");
-                                }
-                                catch (Exception ex)
-                                {
-                                    Console.WriteLine($"[ERROR] Failed to process workflow documents: {ex.Message}");
-                                }
-
-                                return Ok(new Phase2QuestionDto
-                                {
-                                    Question = $"Based on your answers, I recommend the {forcedRecommendation} visa for your trip to Disney World. Your personalized workflow has been created!",
-                                    Step = state.CurrentStep,
-                                    IsComplete = true
-                                });
-                            }
-                            else
-                            {
-                                // Try a different approach question
-                                botResponse = GetAlternativeQuestion(currentList);
-                            }
-                        }
-                        else
-                        {
-                            // List was properly filtered
-                            state.CurrentVisaOptionsJson = JsonSerializer.Serialize(newList);
-                            state.CurrentStep += 1;
-                            state.LastUpdated = DateTime.UtcNow;
-                            await _db.SaveChangesAsync();
-
-                            Console.WriteLine($"[DEBUG] Updated list has {newList.Count} items: {JsonSerializer.Serialize(newList)}");
-
-                            // If down to one visa, get workflow
-                            if (newList.Count == 1)
-                            {
-                                var workflowPayload = newList[0];
-                                Console.WriteLine($"[DEBUG] Requesting workflow for: {workflowPayload}");
-
-                                var workflowResponse = await _bot.ProcessAsync(workflowPayload);
-                                Console.WriteLine($"[DEBUG] Workflow response: {workflowResponse}");
-
-                                state.VisaWorkflowJson = workflowResponse;
-                                state.SelectedVisaType = newList[0];
-                                state.IsCompleted = true;
-                                state.LastUpdated = DateTime.UtcNow;
-                                await _db.SaveChangesAsync();
-
-                                return Ok(new Phase2QuestionDto
-                                {
-                                    Question = $"Perfect! I recommend the {newList[0]} visa. Your personalized workflow has been created.",
-                                    Step = state.CurrentStep,
-                                    IsComplete = true
-                                });
-                            }
-                            else
-                            {
-                                // Get next question for the reduced list
-                                var questionPayload = JsonSerializer.Serialize(newList);
-                                Console.WriteLine($"[DEBUG] Getting next question for list: {questionPayload}");
-
-                                botResponse = await _bot.ProcessAsync(questionPayload);
-                                Console.WriteLine($"[DEBUG] Next question response: {botResponse}");
-                            }
-                        }
-                    }
-                    // If response is just a question string
-                    else if (botResponse.Trim().StartsWith("\""))
-                    {
-                        // It's already a question, use as-is
-                        Console.WriteLine($"[DEBUG] Bot returned question string: {botResponse}");
-                    }
-                    else
-                    {
-                        // Unknown format, ask for clarification
-                        Console.WriteLine($"[ERROR] Unknown response format: {botResponse}");
-                        botResponse = "\"Could you please provide more specific details about your situation?\"";
-                    }
-                }
-
-                catch (JsonException ex)
-                {
-                    Console.WriteLine($"[ERROR] Answer processing failed: {ex.Message}");
-                    return BadRequest($"Failed to process answer: {ex.Message}");
-                }
-            }
-            else
-            {
-                // 4. No answer provided, return current question if available
-                if (!string.IsNullOrEmpty(state.LastBotMessage))
-                {
-                    botResponse = state.LastBotMessage;
-                    Console.WriteLine($"[DEBUG] Using stored question: {botResponse}");
-                }
-                else
-                {
-                    return BadRequest("No question available. Please restart the interview.");
-                }
-            }
-
-            // 5. Handle edge cases for botResponse
-            if (string.IsNullOrEmpty(botResponse) || botResponse.Trim() == "{}")
-            {
-                Console.WriteLine("[ERROR] Bot returned empty or invalid response");
-                botResponse = "\"Could you please provide more details about your situation?\"";
-            }
-
-            // 6. Store and return the question
-            state.LastBotMessage = botResponse;
-            state.LastUpdated = DateTime.UtcNow;
-            await _db.SaveChangesAsync();
-
-            // 7. Parse the question from bot response
-            try
-            {
-                string questionText;
-
-                // Check if it's still returning a list (error case)
-                if (botResponse.Trim().StartsWith("["))
-                {
-                    Console.WriteLine("[ERROR] Bot response is still an array!");
-                    questionText = "What is the primary purpose of your visit to the United States?";
-                }
-                else if (botResponse.Trim().StartsWith("\"") && botResponse.Trim().EndsWith("\""))
-                {
-                    // It's a JSON string, deserialize it
-                    questionText = JsonSerializer.Deserialize<string>(botResponse) ?? "Could you please provide more details?";
-                    Console.WriteLine($"[DEBUG] Parsed question from JSON string: {questionText}");
-                }
-                else
-                {
-                    // It's plain text, use as-is but clean it up
-                    questionText = botResponse.Trim().Trim('"');
-                    Console.WriteLine($"[DEBUG] Using plain text question: {questionText}");
-                }
-
-                Console.WriteLine($"[DEBUG] Final question to user: {questionText}");
+                Console.WriteLine($"[DEBUG] Initial state saved - Step: {state.CurrentStep}, Options: {eligibleVisaTypes.Count}");
 
                 return Ok(new Phase2QuestionDto
                 {
-                    Question = questionText,
+                    Question = "What is the basis for your immigration to the United States?",
+                    Options = new List<QuestionOptionDto>
+                    {
+                        new() { Key = "A", Text = "Family relationships (spouse, parent, child)" },
+                        new() { Key = "B", Text = "Employment opportunities (job offer, special skills)" },
+                        new() { Key = "C", Text = "Investment in US business" }
+                    },
                     Step = state.CurrentStep,
                     IsComplete = false
                 });
             }
-            catch (JsonException ex)
+
+            // Handle answer processing (visa options exist, answer provided)
+            if (!string.IsNullOrEmpty(dto.Answer))
             {
-                Console.WriteLine($"[ERROR] Question parsing failed: {ex.Message}");
-                // If parsing fails, return a fallback question
-                return Ok(new Phase2QuestionDto
+                Console.WriteLine($"[DEBUG] PROCESSING ANSWER: '{dto.Answer}' for step {state.CurrentStep}");
+
+                // Deserialize current visa list
+                var currentList = JsonSerializer.Deserialize<List<string>>(state.CurrentVisaOptionsJson!);
+                Console.WriteLine($"[DEBUG] Current visa list: {string.Join(", ", currentList ?? new List<string>())}");
+
+                // Process the answer with the bot
+                var answerObj = new
                 {
-                    Question = "Could you please tell me more about your specific situation?",
-                    Step = state.CurrentStep,
-                    IsComplete = false
-                });
-            }
-        }
+                    Answer = dto.Answer,
+                    VisaTypes = currentList,
+                    Category = dto.Category
+                };
+                
+                var botResponse = await _bot.ProcessAsync(JsonSerializer.Serialize(answerObj));
+                Console.WriteLine($"[DEBUG] Bot response: {botResponse}");
 
-        private string ForceBestVisaChoice(List<string> currentList, string lastAnswer)
-        {
-            var answer = lastAnswer.ToLower();
-
-            // Tourism/leisure scenarios
-            if (answer.Contains("tourism") || answer.Contains("leisure") || answer.Contains("disney") ||
-                answer.Contains("vacation") || answer.Contains("holiday"))
-            {
-                // For tourism, prefer ESTA if available (easier process), otherwise B-2
-                if (currentList.Contains("ESTA")) return "ESTA";
-                if (currentList.Contains("B-2")) return "B-2";
-                if (currentList.Contains("WT")) return "WT";
-            }
-
-            // Business scenarios
-            if (answer.Contains("business") || answer.Contains("meeting") || answer.Contains("conference"))
-            {
-                if (currentList.Contains("B-1")) return "B-1";
-                if (currentList.Contains("ESTA")) return "ESTA"; // Can be used for business too
-            }
-
-            // Investment scenarios
-            if (answer.Contains("invest") || answer.Contains("business"))
-            {
-                if (currentList.Contains("E-2")) return "E-2";
-                if (currentList.Contains("EB-5")) return "EB-5";
-            }
-
-            // Work scenarios
-            if (answer.Contains("work") || answer.Contains("job") || answer.Contains("employ"))
-            {
-                if (currentList.Contains("H-1B")) return "H-1B";
-                if (currentList.Contains("L-1A")) return "L-1A";
-                if (currentList.Contains("O-1A")) return "O-1A";
-            }
-
-            // Default: return the first item in the list
-            return currentList.First();
-        }
-
-        // Helper method to provide fallback visa types
-        private List<string> GetFallbackVisaTypes(string category)
-        {
-            return category.ToLower() switch
-            {
-                var c when c.Contains("tourism") || c.Contains("business") =>
-                    new List<string> { "B-1", "B-2", "ESTA", "WT", "WB" },
-                var c when c.Contains("investment") || c.Contains("business") =>
-                    new List<string> { "E-1", "E-2", "EB-5", "L-1A", "L-1B", "H-1B", "O-1A" },
-                var c when c.Contains("permanent") || c.Contains("green card") =>
-                    new List<string> { "EB-1", "EB-2", "EB-3", "EB-4", "EB-5", "IR1", "IR2", "IR3", "IR4", "IR5", "F1", "F2A", "F2B", "F3", "F4", "DV", "SB-1" },
-                var c when c.Contains("study") || c.Contains("education") =>
-                    new List<string> { "F-1", "F-2", "J-1", "J-2", "M-1", "M-2" },
-                var c when c.Contains("work") || c.Contains("employment") =>
-                    new List<string> { "H-1B", "H-2A", "H-2B", "L-1A", "L-1B", "O-1A", "O-1B", "TN", "E-3" },
-                _ => new List<string> { "B-1", "B-2", "F-1", "H-1B", "EB-5" } // Generic fallback
-            };
-        }
-
-        // Helper method to provide alternative questions when filtering fails
-        private string GetAlternativeQuestion(List<string> visaTypes)
-        {
-            if (visaTypes.Any(v => v.StartsWith("EB-")))
-                return "\"Are you looking to immigrate permanently or temporarily to the United States?\"";
-            if (visaTypes.Any(v => v.StartsWith("H-") || v.StartsWith("L-")))
-                return "\"Do you have a job offer from a U.S. employer?\"";
-            if (visaTypes.Any(v => v.StartsWith("B-") || v == "ESTA"))
-                return "\"Are you planning to visit for business, tourism, or medical treatment?\"";
-
-            return "\"Could you describe your specific situation in more detail?\"";
-        }
-        // Add this method to your VisaInterviewController class:
-
-        private string CreateFallbackWorkflow(string visaType)
-        {
-            return visaType.ToUpper() switch
-            {
-                "B-2" => @"{
-            ""steps"": [
+                // Parse bot response
+                using var doc = JsonDocument.Parse(botResponse);
+                if (doc.RootElement.TryGetProperty("Payload", out var payloadElement))
                 {
-                    ""name"": ""Complete DS-160 Form"",
-                    ""description"": ""Fill out the online nonimmigrant visa application form"",
-                    ""documents"": [
-                        {""name"": ""DS-160 Form"", ""isGovernmentProvided"": false, ""downloadLink"": null, ""isRequired"": true},
-                        {""name"": ""Passport Photo"", ""isGovernmentProvided"": false, ""downloadLink"": null, ""isRequired"": true},
-                        {""name"": ""Passport"", ""isGovernmentProvided"": false, ""downloadLink"": null, ""isRequired"": true}
-                    ],
-                    ""estimatedCost"": 0.00,
-                    ""estimatedTimeDays"": 1,
-                    ""websiteLink"": ""https://ceac.state.gov/genniv/""
-                },
-                {
-                    ""name"": ""Pay Visa Fee"",
-                    ""description"": ""Pay the non-refundable visa application fee"",
-                    ""documents"": [
-                        {""name"": ""Payment Receipt"", ""isGovernmentProvided"": true, ""downloadLink"": ""https://www.ustraveldocs.com/"", ""isRequired"": true}
-                    ],
-                    ""estimatedCost"": 185.00,
-                    ""estimatedTimeDays"": 1,
-                    ""websiteLink"": ""https://www.ustraveldocs.com/""
-                },
-                {
-                    ""name"": ""Schedule Interview"",
-                    ""description"": ""Schedule your visa interview appointment"",
-                    ""documents"": [
-                        {""name"": ""Appointment Confirmation"", ""isGovernmentProvided"": true, ""downloadLink"": null, ""isRequired"": true}
-                    ],
-                    ""estimatedCost"": 0.00,
-                    ""estimatedTimeDays"": 14,
-                    ""websiteLink"": ""https://www.ustraveldocs.com/""
-                },
-                {
-                    ""name"": ""Prepare Documents"",
-                    ""description"": ""Gather all required supporting documents"",
-                    ""documents"": [
-                        {""name"": ""Bank Statements"", ""isGovernmentProvided"": false, ""downloadLink"": null, ""isRequired"": true},
-                        {""name"": ""Employment Letter"", ""isGovernmentProvided"": false, ""downloadLink"": null, ""isRequired"": true},
-                        {""name"": ""Travel Itinerary"", ""isGovernmentProvided"": false, ""downloadLink"": null, ""isRequired"": true}
-                    ],
-                    ""estimatedCost"": 50.00,
-                    ""estimatedTimeDays"": 3
-                },
-                {
-                    ""name"": ""Attend Interview"",
-                    ""description"": ""Attend your scheduled visa interview"",
-                    ""documents"": [
-                        {""name"": ""All Required Documents"", ""isGovernmentProvided"": false, ""downloadLink"": null, ""isRequired"": true}
-                    ],
-                    ""estimatedCost"": 0.00,
-                    ""estimatedTimeDays"": 1
+                    // Bot returned filtered visa list
+                    var newList = JsonSerializer.Deserialize<List<string>>(payloadElement.GetRawText());
+                    Console.WriteLine($"[DEBUG] Bot filtered to {newList?.Count ?? 0} visas: {string.Join(", ", newList ?? new List<string>())}");
+
+                    if (newList != null && newList.Any())
+                    {
+                        // Update state with new list and increment step
+                        state.CurrentVisaOptionsJson = JsonSerializer.Serialize(newList);
+                        state.CurrentStep += 1;
+                        state.LastUpdated = DateTime.UtcNow;
+                        await _db.SaveChangesAsync();
+
+                        Console.WriteLine($"[DEBUG] STEP PROGRESSED - New step: {state.CurrentStep}");
+
+                        // Return next question
+                        return Ok(new Phase2QuestionDto
+                        {
+                            Question = $"Great! Based on your answer, I've narrowed it down to {newList.Count} visa options. What best describes your specific situation?",
+                            Options = new List<QuestionOptionDto>
+                            {
+                                new() { Key = "A", Text = "I have a direct family member who is a US citizen" },
+                                new() { Key = "B", Text = "I have specific job skills or a job offer" },
+                                new() { Key = "C", Text = "Other circumstances apply to me" }
+                            },
+                            Step = state.CurrentStep,
+                            IsComplete = false
+                        });
+                    }
                 }
-            ],
-            ""estimatedTotalCost"": 235.00,
-            ""estimatedTotalTimeDays"": 20
-        }",
-                "ESTA" => @"{
-            ""steps"": [
-                {
-                    ""name"": ""Complete ESTA Application"",
-                    ""description"": ""Apply online for Electronic System for Travel Authorization"",
-                    ""documents"": [
-                        {""name"": ""Passport"", ""isGovernmentProvided"": false, ""downloadLink"": null, ""isRequired"": true}
-                    ],
-                    ""estimatedCost"": 21.00,
-                    ""estimatedTimeDays"": 1,
-                    ""websiteLink"": ""https://esta.cbp.dhs.gov/""
-                },
-                {
-                    ""name"": ""Receive Authorization"",
-                    ""description"": ""Wait for ESTA approval"",
-                    ""documents"": [
-                        {""name"": ""ESTA Approval"", ""isGovernmentProvided"": true, ""downloadLink"": null, ""isRequired"": true}
-                    ],
-                    ""estimatedCost"": 0.00,
-                    ""estimatedTimeDays"": 3
-                }
-            ],
-            ""estimatedTotalCost"": 21.00,
-            ""estimatedTotalTimeDays"": 4
-        }",
-                _ => $@"{{
-            ""steps"": [
-                {{
-                    ""name"": ""Research {visaType} Requirements"",
-                    ""description"": ""Consult with immigration attorney for specific requirements"",
-                    ""documents"": [
-                        {{""name"": ""Consultation Notes"", ""isGovernmentProvided"": false, ""downloadLink"": null, ""isRequired"": true}}
-                    ],
-                    ""estimatedCost"": 200.00,
-                    ""estimatedTimeDays"": 7
-                }}
-            ],
-            ""estimatedTotalCost"": 200.00,
-            ""estimatedTotalTimeDays"": 7
-        }}"
-            };
-        }
-        public class Phase2StepDto
-        {
-            public Guid UserId { get; set; }
-            public string Category { get; set; } = string.Empty;
-            public string? Instructions { get; set; } = string.Empty;
-            public string? Answer { get; set; }
-        }
 
-        public class Phase2QuestionDto
-        {
-            public string? Question { get; set; } = string.Empty;
-            public int Step { get; set; }
-            public bool IsComplete { get; set; }
+                // Fallback if bot didn't return expected format
+                Console.WriteLine("[WARNING] Bot didn't return expected Payload format - using fallback");
+            }
+
+            // Fallback - return current question
+            Console.WriteLine("[DEBUG] FALLBACK - Returning current question");
+            return Ok(new Phase2QuestionDto
+            {
+                Question = "I need more information to help you. Could you please provide more details?",
+                Options = new List<QuestionOptionDto>(),
+                Step = state.CurrentStep,
+                IsComplete = false
+            });
         }
-    }
 }

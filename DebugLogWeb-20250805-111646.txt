@@ -1,0 +1,6 @@
+Using launch settings from Law4Hire.Web\Properties\launchSettings.json...
+Building...
+MSBUILD : error MSB4166: Child node "3" exited prematurely. Shutting down. Diagnostic information may be found in files in "C:\Users\The_R\AppData\Local\Temp\MSBuildTemp\" and will be named MSBuild_*.failure.txt. This location can be changed by setting the MSBUILDDEBUGPATH environment variable to a different directory.
+C:\Program Files\dotnet\sdk\10.0.100-preview.6.25358.103\Roslyn\Microsoft.CSharp.Core.targets(84,5): warning MSB5021: Terminating the task executable "dotnet" and its child processes because the build was canceled. [C:\programming\LegalEnvironment\Law4Hire\Law4Hire.Web\Law4Hire.Web.csproj]
+
+The build failed. Fix the build errors and run again.

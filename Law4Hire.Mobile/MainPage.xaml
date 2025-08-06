@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:uranium="http://schemas.enisn-projects.io/dotnet/maui/uraniumui"
+             xmlns:material="http://schemas.enisn-projects.io/dotnet/maui/uraniumui/material"
              x:Class="Law4Hire.Mobile.MainPage"
              Title="Law4Hire"
              BackgroundColor="{DynamicResource PageBackgroundColor}">
@@ -116,7 +118,7 @@
                                 <x:String>🇰🇷 한국어</x:String>
                                 <x:String>🇮🇳 தமிழ்</x:String>
                                 <x:String>🇮🇳 తెలుగు</x:String>
-                                <x:String>🇮🇳 मराठी</x:String>
+                                <x:String>🇮🇳 मराठী</x:String>
                                 <x:String>🇵🇱 Polski</x:String>
                             </x:Array>
                         </Picker.ItemsSource>

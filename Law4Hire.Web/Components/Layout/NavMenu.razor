@@ -1,5 +1,4 @@
-﻿@inject IJSRuntime JS
-@inject NavigationManager NavigationManager
+﻿@inject NavigationManager NavigationManager
 @inject IStringLocalizer<NavMenu> Localizer
 @inject Law4Hire.Web.State.CultureState CultureState
 @inject Law4Hire.Web.State.AuthState AuthState
@@ -9,158 +8,152 @@
 @using System.Net.Http.Json
 @implements IDisposable
 
-<header class="top-nav-header">
-    <nav class="container-fluid navbar navbar-expand-lg">
-        <a class="navbar-brand" href="/">
-            <span class="logo-icon" aria-hidden="true">🏛️</span>
-            Law4Hire
-        </a>
+<MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Class="flex-grow-1">
+    <!-- Left side: Logo and Navigation -->
+    <MudStack Row AlignItems="AlignItems.Center" Spacing="4">
+        <MudText Typo="Typo.h6" Color="MudBlazor.Color.Inherit" Class="font-weight-bold">
+            <MudLink Href="/" Color="MudBlazor.Color.Inherit" Underline="Underline.None" Class="font-weight-bold">Law4Hire</MudLink>
+        </MudText>
+        
+        <MudStack Row Spacing="2">
+            <MudButton Variant="Variant.Text" Color="MudBlazor.Color.Inherit" Href="/" 
+                       Class="text-capitalize" Style="font-weight: 500;">
+                @Localizer["Home"]
+            </MudButton>
+            
+            @if (hasVisa)
+            {
+                <MudButton Variant="Variant.Text" Color="MudBlazor.Color.Inherit" Href="pricing" 
+                           Class="text-capitalize" Style="font-weight: 500;">
+                    @Localizer["Pricing"]
+                </MudButton>
+            }
+            
+            <MudButton Variant="Variant.Text" Color="MudBlazor.Color.Inherit" Href="immigrationLibrary" 
+                       Class="text-capitalize" Style="font-weight: 500;">
+                @Localizer["Library"]
+            </MudButton>
+            
+            @if (AuthState.IsLoggedIn)
+            {
+                <MudButton Variant="Variant.Text" Color="MudBlazor.Color.Inherit" Href="dashboard" 
+                           Class="text-capitalize" Style="font-weight: 500;">
+                    @Localizer["Dashboard"]
+                </MudButton>
+                
+                @if (isAdmin)
+                {
+                    <MudButton Variant="Variant.Text" Color="MudBlazor.Color.Inherit" Href="admin" 
+                               Class="text-capitalize" Style="font-weight: 500;">
+                        Admin
+                    </MudButton>
+                }
+            }
+        </MudStack>
+    </MudStack>
 
-        <!-- Fixed hamburger button -->
-        <button class="navbar-toggler"
-                type="button"
-                @onclick="ToggleNavMenu"
-                @onclick:preventDefault="true"
-                data-bs-toggle="collapse"
-                data-bs-target="#navbarNav"
-                aria-controls="navbarNav"
-                aria-expanded="@(!collapseNavMenu)"
-                aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-
-        <!-- Navigation content with explicit ID -->
-        <div class="collapse navbar-collapse @NavMenuCssClass" id="navbarNav">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <li class="nav-item">
-                    <NavLink class="nav-link" href="" Match="NavLinkMatch.All">@Localizer["Home"]</NavLink>
-                </li>
-                @if (hasVisa)
-                {
-                    <li class="nav-item">
-                        <NavLink class="nav-link" href="pricing">@Localizer["Pricing"]</NavLink>
-                    </li>
-                }
-                <li class="nav-item">
-                    <NavLink class="nav-link" href="immigrationLibrary">@Localizer["Library"]</NavLink>
-                </li>
-                @if (AuthState.IsLoggedIn)
-                {
-                    <li class="nav-item">
-                        <NavLink class="nav-link" href="dashboard">@Localizer["Dashboard"]</NavLink>
-                    </li>
-                }
-            </ul>
-            <!-- Right-aligned items -->
-            <ul class="navbar-nav ms-auto align-items-center">
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="languageDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <span class="oi oi-globe" aria-hidden="true"></span> @GetCurrentLanguageName()
-                    </a>
-                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="languageDropdown">
-                        @foreach (var lang in SupportedLanguages)
-                        {
-                            <li>
-                                <a class="dropdown-item @(IsCurrentCulture(lang.CultureCode) ? "active fw-bold" : "")"
-                                   href="@GetCultureChangeUrl(lang.CultureCode)">
-                                    @lang.Name
-                                    @if (IsCurrentCulture(lang.CultureCode))
-                                    {
-                                        <span class="text-success ms-2">✓</span>
-                                    }
-                                </a>
-                            </li>
-                        }
-                    </ul>
-                </li>
-                @if (!AuthState.IsLoggedIn)
-                {
-                    <li class="nav-item">
-                        <NavLink class="nav-link" href="login">
-                            <span class="oi oi-account-login" aria-hidden="true"></span> @Localizer["Login"]
-                        </NavLink>
-                    </li>
-                }
-                else if (AuthState.CurrentUser is not null)
-                {
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            Hello @AuthState.CurrentUser.FirstName
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                            <li><NavLink class="dropdown-item" href="profile">Profile</NavLink></li>
-                            <li><button class="dropdown-item" @onclick="Logout">Logout</button></li>
-                        </ul>
-                    </li>
-                }
-            </ul>
-        </div>
-    </nav>
-</header>
+    <!-- Right side controls -->
+    <MudStack Row AlignItems="AlignItems.Center" Spacing="2">
+        <!-- Theme Toggle -->
+        <MudIconButton Icon="@(IsDarkMode ? Icons.Material.Filled.LightMode : Icons.Material.Filled.DarkMode)" 
+                       Color="MudBlazor.Color.Inherit" 
+                       Size="Size.Medium"
+                       OnClick="ToggleTheme" />
+        
+        <!-- Language Selector -->
+        <MudSelect T="string" Value="@currentLanguage" ValueChanged="OnLanguageChanged" 
+                   Variant="Variant.Outlined" Margin="Margin.Dense" 
+                   Style="min-width: 120px;"
+                   Class="mud-select-outlined-inherit">
+            @foreach (var lang in SupportedLanguages)
+            {
+                <MudSelectItem Value="@lang.CultureCode">@lang.Name</MudSelectItem>
+            }
+        </MudSelect>
+        
+        @if (!AuthState.IsLoggedIn)
+        {
+            <MudButton Variant="Variant.Filled" Color="MudBlazor.Color.Secondary" 
+                       OnClick="@(() => NavigationManager.NavigateTo("/login"))">
+                @Localizer["Login"]
+            </MudButton>
+        }
+        else if (AuthState.CurrentUser is not null)
+        {
+            <MudText Color="MudBlazor.Color.Inherit" Class="font-weight-medium">Hello @AuthState.CurrentUser.FirstName</MudText>
+            <MudButton Variant="Variant.Filled" Color="MudBlazor.Color.Secondary" Size="Size.Small"
+                       OnClick="@(() => NavigationManager.NavigateTo("/profile"))">
+                Profile
+            </MudButton>
+            <MudButton Variant="Variant.Outlined" Color="MudBlazor.Color.Inherit" Size="Size.Small"
+                       OnClick="Logout">
+                Logout
+            </MudButton>
+        }
+    </MudStack>
+</MudStack>
 
 @code {
-    private bool collapseNavMenu = true;
-    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
     private bool hasVisa;
+    private bool isAdmin;
+    private string currentLanguage = "en-US";
 
     protected override async Task OnInitializedAsync()
     {
         CultureState.OnChange += OnStateChanged;
         AuthState.OnChange += OnStateChanged;
+        currentLanguage = CultureInfo.CurrentUICulture.Name;
         await LoadVisaStatus();
-    }
-
-    protected override void OnAfterRender(bool firstRender)
-    {
-        if (firstRender)
-        {
-            StateHasChanged();
-        }
-    }
-
-    // Get the current language name based on the actual current culture
-    private string GetCurrentLanguageName()
-    {
-        var currentCulture = CultureInfo.CurrentUICulture.Name;
-        var match = SupportedLanguages.FirstOrDefault(l => l.CultureCode == currentCulture);
-        return match?.Name ?? "🇺🇸 English";
-    }
-
-    // Check if the given culture code is the current culture
-    private bool IsCurrentCulture(string cultureCode)
-    {
-        return CultureInfo.CurrentUICulture.Name.Equals(cultureCode, StringComparison.OrdinalIgnoreCase);
-    }
-
-    // Generate the culture change URL with current page path
-    private string GetCultureChangeUrl(string cultureCode)
-    {
-        // Don't generate URL for current culture
-        if (IsCurrentCulture(cultureCode))
-        {
-            return "#";
-        }
-
-        // Get the current path and query string
-        var currentUri = NavigationManager.Uri;
-        var currentPath = new Uri(currentUri).PathAndQuery;
-
-        // URL encode the redirect path
-        var encodedRedirectUri = Uri.EscapeDataString(currentPath);
-
-        // Build the culture change URL
-        return $"/Culture/SetCulture?culture={cultureCode}&redirectUri={encodedRedirectUri}";
-    }
-
-    private void ToggleNavMenu()
-    {
-        collapseNavMenu = !collapseNavMenu;
+        await CheckAdminRole();
     }
 
     private void Logout()
     {
         AuthState.Logout();
         NavigationManager.NavigateTo("/");
+    }
+    
+    private void ChangeCulture(string cultureCode)
+    {
+        if (!IsCurrentCulture(cultureCode))
+        {
+            var url = GetCultureChangeUrl(cultureCode);
+            NavigationManager.NavigateTo(url);
+        }
+    }
+
+    private void OnLanguageChanged(string cultureCode)
+    {
+        if (!string.IsNullOrEmpty(cultureCode))
+        {
+            ChangeCulture(cultureCode);
+        }
+    }
+
+    [Parameter] public bool IsDarkMode { get; set; }
+    [Parameter] public EventCallback OnToggleTheme { get; set; }
+
+    private async Task ToggleTheme()
+    {
+        await OnToggleTheme.InvokeAsync();
+    }
+
+    private bool IsCurrentCulture(string cultureCode)
+    {
+        return CultureInfo.CurrentUICulture.Name.Equals(cultureCode, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private string GetCultureChangeUrl(string cultureCode)
+    {
+        if (IsCurrentCulture(cultureCode))
+        {
+            return "#";
+        }
+
+        var currentUri = NavigationManager.Uri;
+        var currentPath = new Uri(currentUri).PathAndQuery;
+        var encodedRedirectUri = Uri.EscapeDataString(currentPath);
+        return $"/Culture/SetCulture?culture={cultureCode}&redirectUri={encodedRedirectUri}";
     }
 
     private List<LanguageInfo> SupportedLanguages { get; } = new()
@@ -193,6 +186,7 @@
     private async void OnStateChanged()
     {
         await LoadVisaStatus();
+        await CheckAdminRole();
         StateHasChanged();
     }
 
@@ -211,6 +205,24 @@
         catch
         {
             hasVisa = false;
+        }
+    }
+
+    private async Task CheckAdminRole()
+    {
+        if (AuthState.CurrentUser == null)
+        {
+            isAdmin = false;
+            return;
+        }
+
+        try
+        {
+            isAdmin = await Http.GetFromJsonAsync<bool>($"api/Users/{AuthState.CurrentUser.Id}/isAdmin");
+        }
+        catch
+        {
+            isAdmin = false;
         }
     }
 

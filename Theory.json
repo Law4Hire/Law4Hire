@@ -1,0 +1,375 @@
+{
+  "visa_type": "E-2",
+  "visa_name": "Treaty Investor Visa",
+  "description": "Nonimmigrant visa for nationals of treaty countries who have invested or are actively investing a substantial amount of capital in a U.S. business enterprise",
+  "category": "Investment",
+  "estimated_total_time": "3-6 months",
+  "estimated_cost": "$5,000 - $15,000",
+  "complexity_level": "High",
+  "success_rate": "75-85%",
+  "workflow": {
+    "phases": [
+      {
+        "phase_id": "eligibility_assessment",
+        "phase_name": "Eligibility Assessment & Planning",
+        "description": "Determine eligibility and develop investment strategy",
+        "estimated_duration": "2-4 weeks",
+        "estimated_cost": "$1,500 - $3,000",
+        "steps": [
+          {
+            "step_id": "treaty_country_verification",
+            "step_name": "Verify Treaty Country Status",
+            "description": "Confirm applicant's nationality is from a country with E-2 treaty with the United States",
+            "estimated_time": "1-2 days",
+            "required_documents": [
+              "Valid passport showing nationality",
+              "Birth certificate if passport nationality differs from birth country",
+              "Certificate of naturalization (if applicable)"
+            ],
+            "forms": [],
+            "fees": [],
+            "notes": "Must be national of treaty country. Cannot be derived through marriage or other means."
+          },
+          {
+            "step_id": "investment_planning",
+            "step_name": "Investment Amount & Business Planning",
+            "description": "Determine substantial investment amount and develop business plan",
+            "estimated_time": "1-2 weeks",
+            "required_documents": [
+              "Business plan with financial projections",
+              "Market analysis and feasibility study",
+              "Evidence of available investment funds",
+              "Source of funds documentation"
+            ],
+            "forms": [],
+            "fees": [],
+            "notes": "Investment must be substantial relative to business cost. Generally $100,000+ recommended minimum."
+          },
+          {
+            "step_id": "legal_consultation",
+            "step_name": "Legal Strategy Session",
+            "description": "Consult with immigration attorney to develop application strategy",
+            "estimated_time": "3-5 days",
+            "required_documents": [
+              "Initial case assessment questionnaire",
+              "Financial statements",
+              "Business formation documents (if applicable)"
+            ],
+            "forms": [],
+            "fees": ["$500 - $1,500 (attorney consultation)"],
+            "notes": "Recommended to engage qualified E-2 attorney for complex cases."
+          }
+        ]
+      },
+      {
+        "phase_id": "business_establishment",
+        "phase_name": "U.S. Business Entity Formation",
+        "description": "Establish or acquire qualifying U.S. business enterprise",
+        "estimated_duration": "4-8 weeks",
+        "estimated_cost": "$2,000 - $5,000",
+        "steps": [
+          {
+            "step_id": "entity_formation",
+            "step_name": "Form U.S. Business Entity",
+            "description": "Incorporate or form LLC with at least 50% treaty country national ownership",
+            "estimated_time": "1-2 weeks",
+            "required_documents": [
+              "Articles of incorporation/organization",
+              "Corporate bylaws or operating agreement",
+              "Shareholder/member agreements",
+              "EIN application (Form SS-4)"
+            ],
+            "forms": ["SS-4 (EIN Application)"],
+            "fees": ["State filing fees ($100 - $500)", "Legal fees ($1,000 - $3,000)"],
+            "notes": "Must maintain at least 50% ownership by treaty country nationals."
+          },
+          {
+            "step_id": "investment_transfer",
+            "step_name": "Transfer Investment Capital",
+            "description": "Document transfer of substantial investment funds to U.S. business",
+            "estimated_time": "1-2 weeks",
+            "required_documents": [
+              "Bank statements showing fund transfers",
+              "Wire transfer receipts",
+              "Currency exchange records",
+              "Investment commitment letters",
+              "Business bank account statements"
+            ],
+            "forms": [],
+            "fees": ["Wire transfer fees ($50 - $200)"],
+            "notes": "Must demonstrate actual commitment of capital, not just availability."
+          },
+          {
+            "step_id": "business_operations",
+            "step_name": "Commence Business Operations",
+            "description": "Begin active business operations to demonstrate bona fide enterprise",
+            "estimated_time": "2-4 weeks",
+            "required_documents": [
+              "Business licenses and permits",
+              "Lease agreements or property deeds",
+              "Equipment purchases/leases",
+              "Employee hiring documentation",
+              "Business insurance policies",
+              "Initial contracts or sales records"
+            ],
+            "forms": [],
+            "fees": ["Business license fees ($100 - $1,000)", "Equipment/setup costs (varies)"],
+            "notes": "Must demonstrate real, active, operating commercial enterprise."
+          }
+        ]
+      },
+      {
+        "phase_id": "document_preparation",
+        "phase_name": "Application Document Assembly",
+        "description": "Gather and prepare all required documentation for visa application",
+        "estimated_duration": "3-4 weeks",
+        "estimated_cost": "$1,000 - $2,500",
+        "steps": [
+          {
+            "step_id": "personal_documents",
+            "step_name": "Personal Documentation",
+            "description": "Collect personal identification and background documents",
+            "estimated_time": "1 week",
+            "required_documents": [
+              "Valid passport (6+ months validity)",
+              "Birth certificate",
+              "Marriage certificate (if applicable)",
+              "Police clearance certificates",
+              "Educational credentials",
+              "Resume/CV",
+              "Passport photos (2x2 inches)"
+            ],
+            "forms": [],
+            "fees": ["Document translation fees ($100 - $500)", "Apostille fees ($50 - $200)"],
+            "notes": "All foreign documents must be translated and apostilled/authenticated."
+          },
+          {
+            "step_id": "business_documentation",
+            "step_name": "Business Investment Documentation",
+            "description": "Compile comprehensive business and investment evidence",
+            "estimated_time": "2 weeks",
+            "required_documents": [
+              "Audited financial statements",
+              "Business plan with 5-year projections",
+              "Investment flow charts",
+              "Property appraisals or equipment valuations",
+              "Employment records and payroll",
+              "Tax returns (personal and business)",
+              "Bank statements (6-12 months)",
+              "Contracts and purchase agreements"
+            ],
+            "forms": [],
+            "fees": ["CPA fees ($500 - $1,500)", "Appraisal fees ($300 - $800)"],
+            "notes": "Documentation must prove substantial investment and non-marginal enterprise."
+          },
+          {
+            "step_id": "supporting_evidence",
+            "step_name": "Supporting Evidence Compilation",
+            "description": "Assemble evidence of economic impact and job creation",
+            "estimated_time": "1 week",
+            "required_documents": [
+              "Economic impact analysis",
+              "Job creation projections",
+              "Letters from business partners/clients",
+              "Industry certifications or memberships",
+              "Marketing materials and website",
+              "Utility bills and lease agreements",
+              "Insurance policies"
+            ],
+            "forms": [],
+            "fees": ["Economic analysis fees ($300 - $800)"],
+            "notes": "Demonstrate enterprise will generate more than minimal living for investor."
+          }
+        ]
+      },
+      {
+        "phase_id": "application_filing",
+        "phase_name": "Visa Application Filing",
+        "description": "Submit visa application and prepare for consular processing",
+        "estimated_duration": "2-3 weeks",
+        "estimated_cost": "$500 - $1,000",
+        "steps": [
+          {
+            "step_id": "form_completion",
+            "step_name": "Complete Visa Application Forms",
+            "description": "Fill out required State Department forms",
+            "estimated_time": "3-5 days",
+            "required_documents": [
+              "All supporting documentation organized",
+              "Digital passport photo",
+              "Travel itinerary (if applicable)"
+            ],
+            "forms": [
+              "DS-160 (Online Nonimmigrant Visa Application)",
+              "DS-156E (Nonimmigrant Treaty Trader/Treaty Investor Application)"
+            ],
+            "fees": [],
+            "notes": "DS-160 must be completed online. DS-156E required for executives/managers."
+          },
+          {
+            "step_id": "fee_payment",
+            "step_name": "Pay Application Fees",
+            "description": "Submit required government fees",
+            "estimated_time": "1 day",
+            "required_documents": [
+              "DS-160 confirmation page"
+            ],
+            "forms": [],
+            "fees": [
+              "$315 (MRV application fee)",
+              "Reciprocity fee (varies by country, if applicable)"
+            ],
+            "notes": "Reciprocity fees vary by nationality. Some countries may have additional fees."
+          },
+          {
+            "step_id": "interview_scheduling",
+            "step_name": "Schedule Consular Interview",
+            "description": "Book appointment at U.S. embassy or consulate",
+            "estimated_time": "1-2 weeks",
+            "required_documents": [
+              "DS-160 confirmation page",
+              "Fee payment receipt",
+              "Passport"
+            ],
+            "forms": [],
+            "fees": [],
+            "notes": "Interview wait times vary by country/embassy. Plan accordingly."
+          }
+        ]
+      },
+      {
+        "phase_id": "consular_processing",
+        "phase_name": "Consular Interview & Processing",
+        "description": "Attend visa interview and await decision",
+        "estimated_duration": "1-4 weeks",
+        "estimated_cost": "$200 - $500",
+        "steps": [
+          {
+            "step_id": "interview_preparation",
+            "step_name": "Interview Preparation",
+            "description": "Prepare for consular interview with practice sessions",
+            "estimated_time": "3-5 days",
+            "required_documents": [
+              "All original documents",
+              "Document organization system",
+              "Business presentation materials"
+            ],
+            "forms": [],
+            "fees": ["Attorney prep session ($200 - $500)"],
+            "notes": "Be prepared to explain investment details and business operations thoroughly."
+          },
+          {
+            "step_id": "consular_interview",
+            "step_name": "Attend Visa Interview",
+            "description": "Present case to consular officer",
+            "estimated_time": "1 day",
+            "required_documents": [
+              "Passport",
+              "DS-160 confirmation page",
+              "All supporting documents in organized folders",
+              "Interview appointment letter"
+            ],
+            "forms": [],
+            "fees": [],
+            "notes": "Bring all documents in original form. Be prepared for detailed questioning."
+          },
+          {
+            "step_id": "administrative_processing",
+            "step_name": "Visa Processing & Decision",
+            "description": "Await consular decision and visa issuance",
+            "estimated_time": "3-15 business days",
+            "required_documents": [],
+            "forms": [],
+            "fees": ["Visa delivery fees (varies)"],
+            "notes": "Processing time varies. Additional administrative processing may be required."
+          }
+        ]
+      },
+      {
+        "phase_id": "entry_and_status",
+        "phase_name": "U.S. Entry & Status Maintenance",
+        "description": "Enter U.S. and maintain E-2 status",
+        "estimated_duration": "Ongoing",
+        "estimated_cost": "$1,000 - $3,000 annually",
+        "steps": [
+          {
+            "step_id": "initial_entry",
+            "step_name": "First Entry to United States",
+            "description": "Present visa and documents at port of entry",
+            "estimated_time": "1 day",
+            "required_documents": [
+              "Valid passport with E-2 visa",
+              "Copy of business documents",
+              "I-94 arrival/departure record"
+            ],
+            "forms": [],
+            "fees": [],
+            "notes": "CBP officer determines period of admission (up to 2 years)."
+          },
+          {
+            "step_id": "status_maintenance",
+            "step_name": "Maintain E-2 Status",
+            "description": "Continue operating business and maintain investment",
+            "estimated_time": "Ongoing",
+            "required_documents": [
+              "Regular business financial reports",
+              "Tax returns (annual)",
+              "Employment records",
+              "Business license renewals"
+            ],
+            "forms": [],
+            "fees": ["Business operational costs", "Tax preparation ($500 - $1,500)"],
+            "notes": "Must maintain substantial investment and active business operations."
+          },
+          {
+            "step_id": "extension_preparation",
+            "step_name": "Prepare Extension Applications",
+            "description": "Plan for E-2 status extensions every 2 years",
+            "estimated_time": "2-4 weeks (every 2 years)",
+            "required_documents": [
+              "Updated business financial statements",
+              "Current investment documentation",
+              "Employment and payroll records",
+              "Tax returns"
+            ],
+            "forms": ["I-129 (if extending within U.S.)", "DS-160 (if applying abroad)"],
+            "fees": ["$460 (I-129 fee) + $2,805 (premium processing, optional)"],
+            "notes": "Extensions can be unlimited as long as business remains qualifying."
+          }
+        ]
+      }
+    ]
+  },
+  "key_requirements": {
+    "nationality": "Must be national of E-2 treaty country",
+    "investment_amount": "Substantial investment (typically $100,000+)",
+    "investment_type": "Must be at risk in active business enterprise",
+    "ownership": "At least 50% ownership by treaty country nationals",
+    "business_viability": "Enterprise must be non-marginal (generate more than minimal living)",
+    "intent": "Must intend to depart U.S. when status expires"
+  },
+  "common_challenges": [
+    "Proving substantiality of investment relative to business cost",
+    "Demonstrating non-marginal nature of enterprise",
+    "Maintaining 50%+ treaty country ownership",
+    "Documenting source of investment funds",
+    "Showing active business operations vs passive investment"
+  ],
+  "success_factors": [
+    "Well-documented substantial investment",
+    "Comprehensive business plan with realistic projections",
+    "Clear demonstration of job creation potential",
+    "Active management role in business operations",
+    "Strong financial documentation and source of funds"
+  ],
+  "dependents": {
+    "eligible": ["Spouse", "Unmarried children under 21"],
+    "benefits": ["Same E-2 status duration", "Spouse work authorization", "Children can attend school"],
+    "requirements": ["Same nationality as principal", "Proper documentation"]
+  },
+  "renewal_extension": {
+    "duration": "2 years per extension",
+    "frequency": "Unlimited extensions possible",
+    "requirements": ["Maintain qualifying investment", "Continue business operations", "Demonstrate non-marginal enterprise"]
+  }
+}

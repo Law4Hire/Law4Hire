@@ -36,8 +36,11 @@ public class ServicePackagesController(ServicePackageRepository servicePackageRe
             p.Description,
             p.Type,
             p.BasePrice,
+            p.L4HLLCFee,
             p.HasMoneyBackGuarantee,
-            p.IsActive
+            p.IsActive,
+            p.VisaTypeId,
+            p.VisaType?.Code
         ));
 
         return Ok(packageDtos);
@@ -64,10 +67,41 @@ public class ServicePackagesController(ServicePackageRepository servicePackageRe
             package.Description,
             package.Type,
             package.BasePrice,
+            package.L4HLLCFee,
             package.HasMoneyBackGuarantee,
-            package.IsActive
+            package.IsActive,
+            package.VisaTypeId,
+            package.VisaType?.Code
         );
 
         return Ok(packageDto);
+    }
+
+    /// <summary>
+    /// Get service packages by visa type name
+    /// </summary>
+    /// <param name="visaTypeName">Name of the visa type (e.g., "H-1B", "EB-2")</param>
+    /// <returns>List of service packages for the specified visa type</returns>
+    [HttpGet("visa/{visaTypeName}")]
+    [ProducesResponseType<IEnumerable<ServicePackageDto>>(StatusCodes.Status200OK)]
+    [AllowAnonymous]
+    public async Task<ActionResult<IEnumerable<ServicePackageDto>>> GetPackagesByVisaType(string visaTypeName)
+    {
+        var packages = await _servicePackageRepository.GetByVisaTypeNameAsync(visaTypeName);
+        
+        var packageDtos = packages.Select(p => new ServicePackageDto(
+            p.Id,
+            p.Name,
+            p.Description,
+            p.Type,
+            p.BasePrice,
+            p.L4HLLCFee,
+            p.HasMoneyBackGuarantee,
+            p.IsActive,
+            p.VisaTypeId,
+            p.VisaType?.Code
+        ));
+
+        return Ok(packageDtos);
     }
 }

@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using System.Globalization;
+using UraniumUI;
+using MudBlazor.Services;
 
 namespace Law4Hire.Mobile;
 
@@ -10,11 +12,16 @@ public static class MauiProgram
         var builder = MauiApp.CreateBuilder();
         builder
             .UseMauiApp<App>()
+            .UseUraniumUI()
+            .UseUraniumUIMaterial()
             .ConfigureFonts(fonts =>
             {
                 fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                 fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
             });
+
+        // Add MudBlazor services
+        builder.Services.AddMudServices();
 
         // Add localization services
         builder.Services.AddLocalization(options =>

@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Phase 2 Step Progression Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-result { margin: 10px 0; padding: 10px; border-radius: 5px; }
+        .success { background-color: #d4edda; border: 1px solid #c3e6cb; color: #155724; }
+        .error { background-color: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; }
+        .info { background-color: #d1ecf1; border: 1px solid #bee5eb; color: #0c5460; }
+        button { padding: 10px 20px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        pre { background: #f8f9fa; padding: 10px; border-radius: 5px; overflow: auto; }
+    </style>
+</head>
+<body>
+    <h1>Phase 2 Step Progression Test</h1>
+    
+    <button onclick="testStepProgression()">Run Step Progression Test</button>
+    <button onclick="clearResults()">Clear Results</button>
+    
+    <div id="results"></div>
+
+    <script>
+        const API_URL = 'http://localhost:5237';
+        const TEST_USER_ID = '12345678-1234-1234-1234-123456789abc';
+        
+        function log(message, type = 'info') {
+            const results = document.getElementById('results');
+            const div = document.createElement('div');
+            div.className = `test-result ${type}`;
+            div.innerHTML = message;
+            results.appendChild(div);
+        }
+        
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+        
+        async function testStepProgression() {
+            clearResults();
+            log('Starting Phase 2 Step Progression Test...', 'info');
+            
+            try {
+                // Step 1: Initial request
+                log('=== STEP 1: Initial Request ===', 'info');
+                
+                const step1Response = await fetch(`${API_URL}/api/VisaInterview/phase2/step`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept-Language': 'en-US'
+                    },
+                    body: JSON.stringify({
+                        UserId: TEST_USER_ID,
+                        Category: 'Immigrate',
+                        Instructions: 'Please help me find the right visa type based on my specific situation.'
+                    })
+                });
+                
+                if (!step1Response.ok) {
+                    const errorText = await step1Response.text();
+                    log(`❌ Step 1 failed: ${step1Response.status} - ${errorText}`, 'error');
+                    return;
+                }
+                
+                const step1Data = await step1Response.json();
+                log('✅ Step 1 Response:', 'success');
+                log(`<pre>${JSON.stringify({
+                    question: step1Data.question?.substring(0, 200) + '...',
+                    step: step1Data.step,
+                    isComplete: step1Data.isComplete,
+                    optionsCount: step1Data.options?.length || 0
+                }, null, 2)}</pre>`, 'info');
+                
+                if (step1Data.step !== 1) {
+                    log(`❌ Expected Step 1, got: ${step1Data.step}`, 'error');
+                    return;
+                }
+                
+                // Step 2: Answer first question
+                log('=== STEP 2: Answer First Question ===', 'info');
+                
+                const step2Response = await fetch(`${API_URL}/api/VisaInterview/phase2/step`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept-Language': 'en-US'
+                    },
+                    body: JSON.stringify({
+                        UserId: TEST_USER_ID,
+                        Category: 'Immigrate',
+                        Instructions: 'Please help me find the right visa type based on my specific situation.',
+                        Answer: 'A'  // Select first option
+                    })
+                });
+                
+                if (!step2Response.ok) {
+                    const errorText = await step2Response.text();
+                    log(`❌ Step 2 failed: ${step2Response.status} - ${errorText}`, 'error');
+                    return;
+                }
+                
+                const step2Data = await step2Response.json();
+                log('✅ Step 2 Response:', 'success');
+                log(`<pre>${JSON.stringify({
+                    question: step2Data.question?.substring(0, 200) + '...',
+                    step: step2Data.step,
+                    isComplete: step2Data.isComplete,
+                    optionsCount: step2Data.options?.length || 0
+                }, null, 2)}</pre>`, 'info');
+                
+                if (step2Data.step === 2) {
+                    log('🎉 SUCCESS: Step progression is working correctly!', 'success');
+                    log('   - Step 1 completed successfully', 'success');
+                    log('   - Step 2 reached successfully', 'success');
+                } else {
+                    log(`❌ Expected Step 2, got: ${step2Data.step}`, 'error');
+                    log(`Full step2Data: <pre>${JSON.stringify(step2Data, null, 2)}</pre>`, 'info');
+                }
+                
+            } catch (error) {
+                log(`❌ Test failed with error: ${error.message}`, 'error');
+                console.error('Full error:', error);
+            }
+        }
+    </script>
+</body>
+</html>

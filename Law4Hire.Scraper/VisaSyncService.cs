@@ -29,10 +29,16 @@ namespace Law4Hire.Scraper
         public async Task SyncCategoriesAndTypesAsync(CancellationToken token)
         {
             var categories = await _db.VisaCategories.ToListAsync(token);
+            var totalCategories = categories.Count;
+            var currentCategoryIndex = 0;
+
+            _logger.LogInformation("🚀 Bruce starting data synchronization for {TotalCategories} categories", totalCategories);
 
             foreach (var category in categories)
             {
-                _logger.LogInformation("🔄 Syncing category: {Category}", category.Name);
+                currentCategoryIndex++;
+                _logger.LogInformation("🔄 Syncing category {CurrentIndex}/{TotalCategories}: {Category}", 
+                    currentCategoryIndex, totalCategories, category.Name);
 
                 try
                 {
@@ -44,10 +50,14 @@ namespace Law4Hire.Scraper
 
                     // Step 3: Update BaseVisaTypes table
                     await UpdateBaseVisaTypesAsync(category, validSubNames, latestVisaTypes, token);
+                    
+                    _logger.LogInformation("✅ Completed category {CurrentIndex}/{TotalCategories}: {Category}", 
+                        currentCategoryIndex, totalCategories, category.Name);
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Error syncing category {CategoryName}", category.Name);
+                    _logger.LogError(ex, "❌ Error syncing category {CurrentIndex}/{TotalCategories}: {CategoryName}", 
+                        currentCategoryIndex, totalCategories, category.Name);
 
                     await _log.AddAsync(new ScrapeLog
                     {
@@ -62,6 +72,8 @@ namespace Law4Hire.Scraper
                     continue;
                 }
             }
+            
+            _logger.LogInformation("🎉 Bruce has completed data synchronization for all {TotalCategories} categories", totalCategories);
         }
 
         private async Task<List<string>> ProcessSubCategoriesAsync(VisaCategory category, CancellationToken token)
@@ -146,7 +158,26 @@ namespace Law4Hire.Scraper
                 .Where(bvt => bvt.CategoryId == category.Id)
                 .ToListAsync(token);
 
-            var subCategoriesJson = JsonSerializer.Serialize(subCategories);
+            // Limit subcategories to avoid database field overflow (2000 char limit)
+            var limitedSubCategories = subCategories;
+            var testJson = JsonSerializer.Serialize(limitedSubCategories);
+            
+            if (testJson.Length > 2000)
+            {
+                Console.WriteLine($"[WARNING] SubCategories JSON too long ({testJson.Length} chars), limiting subcategories");
+                
+                // Reduce subcategories until JSON fits in 2000 chars
+                while (testJson.Length > 2000 && limitedSubCategories.Count > 5)
+                {
+                    limitedSubCategories = limitedSubCategories.Take(limitedSubCategories.Count - 5).ToList();
+                    testJson = JsonSerializer.Serialize(limitedSubCategories);
+                }
+                
+                Console.WriteLine($"[INFO] Reduced to {limitedSubCategories.Count} subcategories, JSON size: {testJson.Length} chars");
+            }
+            
+            var subCategoriesJson = JsonSerializer.Serialize(limitedSubCategories);
+            
             var addedCount = 0;
             var updatedCount = 0;
 

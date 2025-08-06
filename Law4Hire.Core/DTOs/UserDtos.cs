@@ -17,7 +17,10 @@ public record UserDto(
     string? Country,
     string? PostalCode,
     DateTime? DateOfBirth,
-    string? Category
+    string? Category,
+    Guid? CitizenshipCountryId,
+    string? CitizenshipCountryName,
+    string? MaritalStatus
 );
 
 public record CreateUserDto(
@@ -51,4 +54,31 @@ public record UpdateUserDto
     public string? Country { get; set; }
     public string? PostalCode { get; set; }
     public DateTime? DateOfBirth { get; set; }
+    public Guid? CitizenshipCountryId { get; set; }
+    public string? MaritalStatus { get; set; }
 }
+
+public record UpdateCategoryDto
+{
+    public string? Category { get; set; }
+}
+
+public record UserProfileSummaryDto(
+    Guid UserId,
+    string UserName,
+    string Email,
+    SelectedPackageDto? SelectedPackage,
+    AssignedVisaTypeDto? AssignedVisaType
+);
+
+public record SelectedPackageDto(
+    int Id,
+    string Name,
+    string Description
+);
+
+public record AssignedVisaTypeDto(
+    Guid Id,
+    string Name,
+    string Category
+);

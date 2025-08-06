@@ -60,6 +60,7 @@ public class ServicePackageRepository(Law4HireDbContext context) : IServicePacka
     public async Task<IEnumerable<ServicePackage>> GetAllActiveAsync()
     {
         return await _context.ServicePackages
+            .Include(sp => sp.VisaType)
             .Where(sp => sp.IsActive)
             .OrderBy(sp => sp.Type)
             .AsNoTracking()
@@ -69,8 +70,19 @@ public class ServicePackageRepository(Law4HireDbContext context) : IServicePacka
     public async Task<ServicePackage?> GetByIdAsync(int id)
     {
         return await _context.ServicePackages
+            .Include(sp => sp.VisaType)
             .AsNoTracking()
             .FirstOrDefaultAsync(sp => sp.Id == id);
+    }
+
+    public async Task<IEnumerable<ServicePackage>> GetByVisaTypeNameAsync(string visaTypeName)
+    {
+        return await _context.ServicePackages
+            .Include(sp => sp.VisaType)
+            .Where(sp => sp.IsActive && sp.VisaType.Code == visaTypeName)
+            .OrderBy(sp => sp.BasePrice)
+            .AsNoTracking()
+            .ToListAsync();
     }
 
     public async Task<ServicePackage> CreateAsync(ServicePackage package)
